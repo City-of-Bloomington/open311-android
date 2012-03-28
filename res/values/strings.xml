@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="splash">Open311 GeoReporter</string>
+    <string name="home">Home</string>
+    <string name="report">Report</string>
+    <string name="my_reports">My Reports</string>
+    <string name="my_servers">Report To</string>
 
 </resources>

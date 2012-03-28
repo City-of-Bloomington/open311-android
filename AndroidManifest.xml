@@ -8,7 +8,7 @@
 
     <application
         android:icon="@drawable/ic_launcher"
-        android:label="GeoReporter" >
+        android:label="GeoReporter" android:theme="@android:style/Theme.NoTitleBar">
         <activity
             android:name=".MainActivity"
             android:label="GeoReporter" >
@@ -19,6 +19,10 @@
             </intent-filter>
         </activity>
         <activity android:name="MyPreferencesActivity"></activity>
+        <activity android:name="HomeActivity"></activity>
+        <activity android:name="ReportActivity"></activity>
+        <activity android:name="MyReportsActivity"></activity>
+        <activity android:name="MyServersActivity"></activity>
     </application>
 
 </manifest>

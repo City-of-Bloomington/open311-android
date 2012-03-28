@@ -1,6 +1,6 @@
 /**
  * @copyright 2012 City of Bloomington, Indiana
- * @license http://www.gnu.org/licenses/gpl.txt GNU/AGPL, see LICENSE.txt
+ * @license http://www.gnu.org/licenses/gpl.txt GNU/GPL, see LICENSE.txt
  * @author Cliff Ingham <inghamn@bloomington.in.gov>
  */
 package gov.in.bloomington.open311;
@@ -17,9 +17,9 @@ public class MyPreferencesActivity extends PreferenceActivity implements OnShare
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		addPreferencesFromResource(R.xml.preferences);
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		
 		Map<String, ?> map = preferences.getAll();
 		for (Map.Entry<String, ?> entry:map.entrySet()) {
 			String key = entry.getKey();
