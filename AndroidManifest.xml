@@ -7,7 +7,7 @@
     <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="15" />
 
     <application
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/georeporter_icon"
         android:label="GeoReporter" android:theme="@android:style/Theme.NoTitleBar">
         <activity
             android:name=".MainActivity"
