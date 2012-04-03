@@ -5,8 +5,13 @@
  */
 package gov.in.bloomington.open311;
 
-import android.app.TabActivity;
+import android.app.Activity;
+import android.os.Bundle;
 
-public class HomeActivity extends TabActivity {
-
+public class HomeActivity extends Activity {
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.home);
+	}
 }
