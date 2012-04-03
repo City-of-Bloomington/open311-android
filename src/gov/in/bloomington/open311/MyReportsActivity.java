@@ -5,8 +5,14 @@
  */
 package gov.in.bloomington.open311;
 
-import android.app.TabActivity;
+import android.app.Activity;
+import android.os.Bundle;
 
-public class MyReportsActivity extends TabActivity {
-
+public class MyReportsActivity extends Activity {
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.my_reports);
+	}
 }

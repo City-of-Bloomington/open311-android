@@ -5,5 +5,7 @@
     <string name="report">Report</string>
     <string name="my_reports">My Reports</string>
     <string name="my_servers">Report To</string>
+    <string name="available_servers">Available Servers</string>
+    <string name="custom_server">Custom Server</string>
 
 </resources>

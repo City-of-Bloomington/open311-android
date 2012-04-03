@@ -18,11 +18,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="MyPreferencesActivity"></activity>
-        <activity android:name="HomeActivity"></activity>
-        <activity android:name="ReportActivity"></activity>
-        <activity android:name="MyReportsActivity"></activity>
-        <activity android:name="MyServersActivity"></activity>
+        <activity android:name=".MyPreferencesActivity"></activity>
+        <activity android:name=".HomeActivity"></activity>
+        <activity android:name=".ReportActivity"></activity>
+        <activity android:name=".MyReportsActivity"></activity>
+        <activity android:name=".MyServersActivity"></activity>
     </application>
 
 </manifest>
