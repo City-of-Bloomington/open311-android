@@ -1,0 +1,11 @@
+[	{	"name":"Server Name",
+		"url":"https://somewhere.org/open311/v2",
+		"jursidiction_id":"",
+		"api_key":""
+	},
+	{	"name":"City, ST",
+		"url":"https://somewhere.org/open311/v2",
+		"jursidiction_id":"",
+		"api_key":""
+	}
+]
