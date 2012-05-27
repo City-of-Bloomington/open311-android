@@ -19,7 +19,7 @@
 			android:textColor="#000000" 
        		android:id="@+id/txt_notif1" 
        		android:layout_height="wrap_content" android:layout_width="wrap_content"  
-       		android:text="Want to see your city here?" 
+       		android:text="@string/see_city" 
        		android:layout_centerHorizontal="true">
         </TextView>
         <TextView
@@ -27,7 +27,7 @@
        		android:id="@+id/txt_notif2" 
        		android:layout_below="@+id/txt_notif1"
        		android:layout_height="wrap_content" android:layout_width="wrap_content"  
-       		android:text="Encourage them to adopt Open311!" 
+       		android:text="@string/adopt_open311" 
        		android:layout_centerHorizontal="true">
        	</TextView>
        	<TextView
@@ -35,7 +35,7 @@
        		android:id="@+id/txt_notif3" 
        		android:layout_below="@+id/txt_notif2"
        		android:layout_height="wrap_content" android:layout_width="wrap_content"  
-       		android:text="For more info visit http://open311.org" 
+       		android:text="@string/more_info" 
        		android:layout_centerHorizontal="true">
        	</TextView>
        	

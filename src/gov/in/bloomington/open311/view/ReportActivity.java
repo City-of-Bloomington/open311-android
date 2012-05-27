@@ -10,7 +10,6 @@ import java.io.File;
 import gov.in.bloomington.open311.R;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -33,7 +32,6 @@ public class ReportActivity extends Activity implements OnClickListener  {
 		private Button btn_send;
 		private TextView failed;
 
-		private Intent intent;
 		private String content;
 
 		

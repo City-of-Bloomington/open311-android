@@ -6,11 +6,6 @@
 package gov.in.bloomington.open311.view;
 
 import gov.in.bloomington.open311.R;
-import gov.in.bloomington.open311.R.drawable;
-import gov.in.bloomington.open311.R.id;
-import gov.in.bloomington.open311.R.layout;
-import gov.in.bloomington.open311.R.menu;
-import gov.in.bloomington.open311.R.string;
 import android.app.TabActivity;
 import android.content.Intent;
 import android.content.res.Resources;

@@ -6,7 +6,6 @@
 package gov.in.bloomington.open311.view;
 
 import gov.in.bloomington.open311.R;
-import gov.in.bloomington.open311.R.layout;
 import android.app.Activity;
 import android.os.Bundle;
 
