@@ -1,6 +1,7 @@
 package gov.in.bloomington.open311.controller;
 
-//import org.json.JSONArray;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import gov.in.bloomington.open311.R;
 import android.app.Activity;
@@ -14,22 +15,21 @@ import android.widget.TextView;
 public class GeoreporterAdapter extends BaseAdapter {
 
 	private Activity activity;
-    //private JSONArray data;
+    private JSONArray data;
     private String type;
     private static LayoutInflater inflater=null;
 
 	
-    public GeoreporterAdapter(Activity a, String t) {
+    public GeoreporterAdapter(Activity a, JSONArray d, String t) {
         activity = a;
-        //data=d;
+        data=d;
         type = t;
         inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
     
 	public int getCount() {
 		// TODO Auto-generated method stub
-		//return data.length();
-		return 3;
+			return data.length();
 	}
 
 	public Object getItem(int position) {
@@ -45,7 +45,8 @@ public class GeoreporterAdapter extends BaseAdapter {
 	public static class ViewHolder{
 		public TextView txt_report_service;
         public TextView txt_date_server;
-//        public Button btn_refute;
+        public TextView txt_city_state;
+        public TextView txt_url;
     }
 
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -55,17 +56,39 @@ public class GeoreporterAdapter extends BaseAdapter {
         if(convertView==null){
         	if (type.equals("report"))
         		vi = inflater.inflate(R.layout.my_report_item, null);
-        	else 
+        	else if (type.equals("server"))
         		vi = inflater.inflate(R.layout.server_item, null);
 
             holder=new ViewHolder();
-            holder.txt_report_service=(TextView)vi.findViewById(R.id.txt_report_service);
-            holder.txt_date_server=(TextView)vi.findViewById(R.id.txt_date_server);
-            
+            if (type.equals("report")) {
+	            holder.txt_report_service=(TextView)vi.findViewById(R.id.txt_report_service);
+	            holder.txt_date_server=(TextView)vi.findViewById(R.id.txt_date_server);
+            }
+            else if (type.equals("server")){
+            	holder.txt_city_state=(TextView)vi.findViewById(R.id.txt_city_state);
+	            holder.txt_url=(TextView)vi.findViewById(R.id.txt_url);
+            }
             vi.setTag(holder);
         }
         else
             holder=(ViewHolder)vi.getTag();
+        	
+        	if (type.equals("server")) {
+        		String city_state = null;
+        		String url = null;
+				try {
+					city_state = data.getJSONObject(position).getString("name");
+					url = data.getJSONObject(position).getString("url");
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        		
+        	
+        		holder.txt_city_state.setText(city_state);
+        		holder.txt_url.setText(url);
+        	}
+
         
         	//holder.txt_report_service.setText("Report Service");
         	//holder.txt_date_server.setText("Date - Time: server reported to");

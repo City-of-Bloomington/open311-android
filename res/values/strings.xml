@@ -19,5 +19,7 @@
     <string name="phone">Phone</string>
     <string name="sent_failed">This report hasn\'t been sent yet</string>
     <string name="send">Send</string>
+    <string name="city_state">City, State</string>
+    <string name="url">URL</string>
 
 </resources>

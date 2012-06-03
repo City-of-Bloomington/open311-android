@@ -31,7 +31,7 @@ public class MyReports extends Activity {
 		setContentView(R.layout.my_reports);
 		
 		list_report=(ListView)findViewById(R.id.list);
-		adapter = new GeoreporterAdapter(MyReports.this,"report");
+		/*adapter = new GeoreporterAdapter(MyReports.this, null, "report");
 		
 		list_report.setAdapter(adapter);
 		
@@ -68,6 +68,6 @@ public class MyReports extends Activity {
             startActivity(intent);
 
 		}
-		});
+		}); */
 	}
 }

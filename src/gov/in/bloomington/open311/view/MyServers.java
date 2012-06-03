@@ -5,8 +5,11 @@
  */
 package gov.in.bloomington.open311.view;
 
+import org.json.JSONArray;
+
 import gov.in.bloomington.open311.R;
 import gov.in.bloomington.open311.controller.GeoreporterAdapter;
+import gov.in.bloomington.open311.controller.ServerItem;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -34,8 +37,10 @@ public class MyServers extends Activity {
         setContentView(R.layout.my_servers);
         
         list_report=(ListView)findViewById(R.id.list);
-		adapter = new GeoreporterAdapter(MyServers.this,"server");
-		
+
+        JSONArray servers = ServerItem.retreiveServers(MyServers.this);
+        
+		adapter = new GeoreporterAdapter(MyServers.this, servers, "server");
 		list_report.setAdapter(adapter);
 		
 		list_report.setOnItemLongClickListener(new OnItemLongClickListener()
