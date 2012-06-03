@@ -15,7 +15,7 @@
         android:icon="@drawable/georeporter_icon"
         android:label="GeoReporter" android:theme="@android:style/Theme.NoTitleBar">
         <activity
-            android:name=".view.MainActivity"
+            android:name=".view.Main"
             android:label="GeoReporter" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,11 +23,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.MyPreferencesActivity"></activity>
-        <activity android:name=".view.HomeActivity"></activity>
-        <activity android:name=".view.ReportActivity"></activity>
-        <activity android:name=".view.MyReportsActivity"></activity>
-        <activity android:name=".view.MyServersActivity"></activity>
+        <activity android:name=".view.MyPreferences"></activity>
+        <activity android:name=".view.Home"></activity>
+        <activity android:name=".view.NewReport"></activity>
+        <activity android:name=".view.MyReports"></activity>
+        <activity android:name=".view.MyServers"></activity>
         <activity android:name=".view.ReportDetail"></activity>
     </application>
 

@@ -22,7 +22,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 
-public class MyServersActivity extends Activity {
+public class MyServers extends Activity {
 	private ListView list_report;
 	private GeoreporterAdapter adapter;
 	Intent intent;
@@ -34,7 +34,7 @@ public class MyServersActivity extends Activity {
         setContentView(R.layout.my_servers);
         
         list_report=(ListView)findViewById(R.id.list);
-		adapter = new GeoreporterAdapter(MyServersActivity.this,"server");
+		adapter = new GeoreporterAdapter(MyServers.this,"server");
 		
 		list_report.setAdapter(adapter);
 		
@@ -44,7 +44,7 @@ public class MyServersActivity extends Activity {
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
 					int arg2, long arg3) {
 				// TODO Auto-generated method stub
-				AlertDialog.Builder builder = new AlertDialog.Builder(MyServersActivity.this);
+				AlertDialog.Builder builder = new AlertDialog.Builder(MyServers.this);
 				builder.setMessage("Delete This Server?")
 				       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 				           public void onClick(DialogInterface dialog, int id) {
@@ -67,7 +67,7 @@ public class MyServersActivity extends Activity {
 
 		public void onItemClick(AdapterView<?> arg0, View arg1, int position, long id) {
 			// TODO Auto-generated method stub
-			AlertDialog.Builder builder = new AlertDialog.Builder(MyServersActivity.this);
+			AlertDialog.Builder builder = new AlertDialog.Builder(MyServers.this);
 			builder.setMessage("Report to this server?")
 			       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 			           public void onClick(DialogInterface dialog, int id) {

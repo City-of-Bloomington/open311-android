@@ -15,7 +15,7 @@ import android.preference.PreferenceManager;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 
-public class MyPreferencesActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
+public class MyPreferences extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

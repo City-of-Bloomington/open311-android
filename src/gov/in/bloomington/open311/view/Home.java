@@ -9,7 +9,7 @@ import gov.in.bloomington.open311.R;
 import android.app.Activity;
 import android.os.Bundle;
 
-public class HomeActivity extends Activity {
+public class Home extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

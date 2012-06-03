@@ -15,7 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TabHost;
 
-public class MainActivity extends TabActivity {
+public class Main extends TabActivity {
 
     /** Called when the activity is first created. */
     @Override
@@ -28,20 +28,20 @@ public class MainActivity extends TabActivity {
         TabHost.TabSpec spec;
         Intent intent;
         
-        intent = new Intent().setClass(this, HomeActivity.class);
+        intent = new Intent().setClass(this, Home.class);
         spec = tabHost.newTabSpec("home").setIndicator(res.getString(R.string.home), res.getDrawable(R.drawable.ic_menu_home)).setContent(intent);
         tabHost.addTab(spec);
         
-        intent = new Intent().setClass(this, ReportActivity.class);
+        intent = new Intent().setClass(this, NewReport.class);
         spec = tabHost.newTabSpec("report").setIndicator(res.getString(R.string.report), res.getDrawable(R.drawable.ic_menu_notifications)).setContent(intent);
         tabHost.addTab(spec);
         
-        intent = new Intent().setClass(this, MyReportsActivity.class);
-        spec = tabHost.newTabSpec("my_reports").setIndicator(res.getString(R.string.my_reports), res.getDrawable(R.drawable.ic_menu_home)).setContent(intent);
+        intent = new Intent().setClass(this, MyReports.class);
+        spec = tabHost.newTabSpec("my_reports").setIndicator(res.getString(R.string.my_reports), res.getDrawable(R.drawable.ic_menu_myreports)).setContent(intent);
         tabHost.addTab(spec);
         
-        intent = new Intent().setClass(this, MyServersActivity.class);
-        spec = tabHost.newTabSpec("my_servers").setIndicator(res.getString(R.string.my_servers), res.getDrawable(R.drawable.ic_menu_star)).setContent(intent);
+        intent = new Intent().setClass(this, MyServers.class);
+        spec = tabHost.newTabSpec("my_servers").setIndicator(res.getString(R.string.my_servers), res.getDrawable(R.drawable.ic_menu_servers)).setContent(intent);
         tabHost.addTab(spec);
         
         tabHost.setCurrentTab(0);
@@ -58,7 +58,7 @@ public class MainActivity extends TabActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch (item.getItemId()) {
     	case R.id.preferences:
-    		Intent i = new Intent(MainActivity.this, MyPreferencesActivity.class);
+    		Intent i = new Intent(Main.this, MyPreferences.class);
     		startActivity(i);
     		break;
     	}
