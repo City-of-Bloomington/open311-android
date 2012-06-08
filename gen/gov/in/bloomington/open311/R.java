@@ -13,44 +13,46 @@ public final class R {
     public static final class drawable {
         public static final int background_white=0x7f020000;
         public static final int background_yellow=0x7f020001;
-        public static final int camera=0x7f020002;
-        public static final int camera_focus=0x7f020003;
-        public static final int georeporter_icon=0x7f020004;
-        public static final int ic_dialog_map=0x7f020005;
-        public static final int ic_menu_camera=0x7f020006;
-        public static final int ic_menu_home=0x7f020007;
-        public static final int ic_menu_myreports=0x7f020008;
-        public static final int ic_menu_notifications=0x7f020009;
-        public static final int ic_menu_preferences=0x7f02000a;
-        public static final int ic_menu_servers=0x7f02000b;
-        public static final int ic_menu_star=0x7f02000c;
-        public static final int ic_tab_home=0x7f02000d;
-        public static final int ic_tab_my_reports=0x7f02000e;
-        public static final int ic_tab_my_servers=0x7f02000f;
-        public static final int ic_tab_report=0x7f020010;
-        public static final int main_r2=0x7f020011;
-        public static final int new_report_camera=0x7f020012;
-        public static final int splash=0x7f020013;
+        public static final int baltimore=0x7f020002;
+        public static final int bloomington=0x7f020003;
+        public static final int boston=0x7f020004;
+        public static final int camera=0x7f020005;
+        public static final int camera_focus=0x7f020006;
+        public static final int georeporter_icon=0x7f020007;
+        public static final int ic_dialog_map=0x7f020008;
+        public static final int ic_menu_camera=0x7f020009;
+        public static final int ic_menu_home=0x7f02000a;
+        public static final int ic_menu_myreports=0x7f02000b;
+        public static final int ic_menu_notifications=0x7f02000c;
+        public static final int ic_menu_preferences=0x7f02000d;
+        public static final int ic_menu_servers=0x7f02000e;
+        public static final int ic_menu_star=0x7f02000f;
+        public static final int ic_tab_home=0x7f020010;
+        public static final int ic_tab_my_reports=0x7f020011;
+        public static final int ic_tab_my_servers=0x7f020012;
+        public static final int ic_tab_report=0x7f020013;
+        public static final int main_r2=0x7f020014;
+        public static final int new_report_camera=0x7f020015;
+        public static final int splash=0x7f020016;
     }
     public static final class id {
         public static final int Home=0x7f080001;
         public static final int MyReports=0x7f080003;
         public static final int MyServers=0x7f080004;
         public static final int Report=0x7f080002;
-        public static final int add=0x7f080026;
         public static final int btn_submit=0x7f08001a;
         public static final int edt_email=0x7f080016;
         public static final int edt_firstname=0x7f080012;
         public static final int edt_lastname=0x7f080014;
         public static final int edt_newReport=0x7f08000f;
         public static final int edt_phone=0x7f080018;
-        public static final int imageView1=0x7f080000;
         public static final int img_photo=0x7f08000e;
         public static final int list=0x7f080008;
         public static final int preferences=0x7f080025;
         public static final int r0=0x7f080007;
         public static final int r1=0x7f080009;
         public static final int s0=0x7f08000d;
+        public static final int splash=0x7f080000;
         public static final int txt_MapView=0x7f080010;
         public static final int txt_SendingFailed=0x7f080019;
         public static final int txt_assigned=0x7f080021;
@@ -85,7 +87,6 @@ public final class R {
     }
     public static final class menu {
         public static final int mainmenu=0x7f070000;
-        public static final int menu_home_servers=0x7f070001;
     }
     public static final class raw {
         public static final int available_servers=0x7f050000;

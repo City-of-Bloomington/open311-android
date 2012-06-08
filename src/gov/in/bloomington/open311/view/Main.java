@@ -15,8 +15,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TabHost;
 
-public class Main extends TabActivity {
+public class Main extends TabActivity  {
 
+	TabHost tabHost;
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -24,7 +25,7 @@ public class Main extends TabActivity {
         setContentView(R.layout.main);
         
         Resources res = getResources();
-        TabHost tabHost = getTabHost();
+        tabHost = getTabHost();
         TabHost.TabSpec spec;
         Intent intent;
         
@@ -33,7 +34,7 @@ public class Main extends TabActivity {
         tabHost.addTab(spec);
         
         intent = new Intent().setClass(this, NewReport.class);
-        spec = tabHost.newTabSpec("report").setIndicator(res.getString(R.string.report), res.getDrawable(R.drawable.ic_menu_notifications)).setContent(intent);
+        spec = tabHost.newTabSpec("new_report").setIndicator(res.getString(R.string.report), res.getDrawable(R.drawable.ic_menu_notifications)).setContent(intent);
         tabHost.addTab(spec);
         
         intent = new Intent().setClass(this, MyReports.class);
@@ -64,4 +65,10 @@ public class Main extends TabActivity {
     	}
     	return true;
     }
+    
+    //to let tabs switch to each other internally
+    public void switchTab(int tab){
+        tabHost.setCurrentTab(tab);
+    }
+
 }

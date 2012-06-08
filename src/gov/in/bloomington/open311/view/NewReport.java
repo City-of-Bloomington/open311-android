@@ -68,20 +68,6 @@ public class NewReport extends Activity implements OnClickListener  {
 		    
 			failed = (TextView) findViewById(R.id.txt_SendingFailed);
 			failed.setVisibility(TextView.GONE);
-			
-			//for Shared Preferences
-	        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-	        edt_firstName = (EditText) findViewById(R.id.edt_firstname);
-	        edt_firstName.setText(preferences.getString("firstname", ""));
-	        
-	        edt_lastName = (EditText) findViewById(R.id.edt_lastname);
-	        edt_lastName.setText(preferences.getString("lastname", ""));
-	        
-	        edt_email = (EditText) findViewById(R.id.edt_email);
-	        edt_email.setText(preferences.getString("email", ""));
-	        
-	        edt_phone = (EditText) findViewById(R.id.edt_phone);
-	        edt_phone.setText(preferences.getString("phone", ""));
 	    }
 	    
 	    public void onClick(View v) {
@@ -155,6 +141,23 @@ public class NewReport extends Activity implements OnClickListener  {
 	        }  
 	    }  
 
-	    
+	    @Override
+		protected void onResume (){
+			super.onResume();
+			
+			//for Shared Preferences
+	        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+	        edt_firstName = (EditText) findViewById(R.id.edt_firstname);
+	        edt_firstName.setText(preferences.getString("firstname", ""));
+	        
+	        edt_lastName = (EditText) findViewById(R.id.edt_lastname);
+	        edt_lastName.setText(preferences.getString("lastname", ""));
+	        
+	        edt_email = (EditText) findViewById(R.id.edt_email);
+	        edt_email.setText(preferences.getString("email", ""));
+	        
+	        edt_phone = (EditText) findViewById(R.id.edt_phone);
+	        edt_phone.setText(preferences.getString("phone", ""));
+		}	    
 	 
 }
