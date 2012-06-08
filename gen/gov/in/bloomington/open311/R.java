@@ -48,16 +48,18 @@ public final class R {
         public static final int edt_phone=0x7f080018;
         public static final int img_photo=0x7f08000e;
         public static final int list=0x7f080008;
-        public static final int preferences=0x7f080025;
+        public static final int preferences=0x7f080027;
         public static final int r0=0x7f080007;
         public static final int r1=0x7f080009;
+        public static final int rb=0x7f080024;
+        public static final int rl1=0x7f080023;
         public static final int s0=0x7f08000d;
         public static final int splash=0x7f080000;
         public static final int txt_MapView=0x7f080010;
         public static final int txt_SendingFailed=0x7f080019;
         public static final int txt_assigned=0x7f080021;
         public static final int txt_assigned_department=0x7f080022;
-        public static final int txt_city_state=0x7f080023;
+        public static final int txt_city_state=0x7f080025;
         public static final int txt_date_server=0x7f080006;
         public static final int txt_email=0x7f080015;
         public static final int txt_firstname=0x7f080011;
@@ -73,7 +75,7 @@ public final class R {
         public static final int txt_report_status=0x7f08001e;
         public static final int txt_status=0x7f08001d;
         public static final int txt_submitted=0x7f08001b;
-        public static final int txt_url=0x7f080024;
+        public static final int txt_url=0x7f080026;
     }
     public static final class layout {
         public static final int home=0x7f030000;

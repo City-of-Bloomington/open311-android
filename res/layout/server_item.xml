@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:android1="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl1"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="#FFFFFF" >
 
-<RelativeLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="fill_parent" android:layout_height="wrap_content"
-  android:background="#FFFFFF" >
-    
+    <RadioButton
+        android:id="@+id/rb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:focusable="false"
+        android:clickable="false"
+        android:text="" />
+
     <TextView
         android:id="@+id/txt_city_state"
         android:layout_width="wrap_content"
@@ -12,18 +23,19 @@
         android:layout_alignParentTop="true"
         android:layout_marginLeft="5dip"
         android:layout_marginTop="5dip"
+        android:layout_toRightOf="@+id/rb"
         android:text="@string/city_state"
         android:textColor="#000000"
         android:textStyle="bold" >
+    </TextView>
 
-	</TextView>
     <TextView
   	  android:id="@+id/txt_url"
   	  android:layout_width="wrap_content" android:layout_height="wrap_content"
 	  android:layout_below="@+id/txt_city_state"
+	  android:layout_toRightOf="@+id/rb"
 	  android:layout_marginLeft="5dip" android:layout_marginRight="5dip"
 	  android:text="@string/url"
 	  android:textColor="#000000">
 	</TextView>
-  
 </RelativeLayout>

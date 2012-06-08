@@ -6,10 +6,12 @@ import org.json.JSONException;
 import gov.in.bloomington.open311.R;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 public class GeoreporterAdapter extends BaseAdapter {
@@ -47,6 +49,7 @@ public class GeoreporterAdapter extends BaseAdapter {
         public TextView txt_date_server;
         public TextView txt_city_state;
         public TextView txt_url;
+        public RadioButton rb_server;
     }
 
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -67,6 +70,7 @@ public class GeoreporterAdapter extends BaseAdapter {
             else if (type.equals("server")){
             	holder.txt_city_state=(TextView)vi.findViewById(R.id.txt_city_state);
 	            holder.txt_url=(TextView)vi.findViewById(R.id.txt_url);
+	            holder.rb_server = (RadioButton) vi.findViewById(R.id.rb);
             }
             vi.setTag(holder);
         }
@@ -79,6 +83,12 @@ public class GeoreporterAdapter extends BaseAdapter {
 				try {
 					city_state = data.getJSONObject(position).getString("name");
 					url = data.getJSONObject(position).getString("url");
+					SharedPreferences pref = activity.getSharedPreferences("server",0);
+					String server_name = pref.getString("server_name", "");
+					if (city_state.equals(server_name)) 
+						holder.rb_server.setChecked(true);
+					else
+						holder.rb_server.setChecked(false);
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
