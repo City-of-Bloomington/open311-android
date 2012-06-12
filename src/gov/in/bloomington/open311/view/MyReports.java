@@ -5,8 +5,11 @@
  */
 package gov.in.bloomington.open311.view;
 
+import org.json.JSONArray;
+
 import gov.in.bloomington.open311.R;
 import gov.in.bloomington.open311.controller.GeoreporterAdapter;
+import gov.in.bloomington.open311.model.ExternalFileAdapter;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -22,6 +25,7 @@ public class MyReports extends Activity {
 	
 	private ListView list_report;
 	private GeoreporterAdapter adapter;
+	private JSONArray ja_reports;
 	Intent intent;
 	
 	@Override
@@ -31,7 +35,8 @@ public class MyReports extends Activity {
 		setContentView(R.layout.my_reports);
 		
 		list_report=(ListView)findViewById(R.id.list);
-		/*adapter = new GeoreporterAdapter(MyReports.this, null, "report");
+		ja_reports = ExternalFileAdapter.readJSON(MyReports.this, R.raw.available_servers);
+		adapter = new GeoreporterAdapter(MyReports.this, ja_reports, "report");
 		
 		list_report.setAdapter(adapter);
 		
@@ -68,6 +73,6 @@ public class MyReports extends Activity {
             startActivity(intent);
 
 		}
-		}); */
+		}); 
 	}
 }

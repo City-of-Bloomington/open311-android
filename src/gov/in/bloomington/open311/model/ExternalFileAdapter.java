@@ -1,6 +1,5 @@
-package gov.in.bloomington.open311.controller;
+package gov.in.bloomington.open311.model;
 
-import gov.in.bloomington.open311.R;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,11 +11,11 @@ import org.json.JSONException;
 
 import android.app.Activity;
 
-public class ServerItem {
-	public static JSONArray retreiveServers(Activity a) {
+public class ExternalFileAdapter {
+	public static JSONArray readJSON(Activity a, int raw_resource) {
 		JSONArray availableServers = null;
 		try {
-			InputStream inputStream = a.getResources().openRawResource(R.raw.available_servers);
+			InputStream inputStream = a.getResources().openRawResource(raw_resource);
 			BufferedReader buffer = new BufferedReader(new InputStreamReader(inputStream));
 			StringBuilder builder = new StringBuilder();
 			String line = buffer.readLine();

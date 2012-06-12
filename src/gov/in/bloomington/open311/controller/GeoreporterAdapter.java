@@ -2,6 +2,7 @@ package gov.in.bloomington.open311.controller;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import gov.in.bloomington.open311.R;
 import android.app.Activity;
@@ -84,7 +85,10 @@ public class GeoreporterAdapter extends BaseAdapter {
 					city_state = data.getJSONObject(position).getString("name");
 					url = data.getJSONObject(position).getString("url");
 					SharedPreferences pref = activity.getSharedPreferences("server",0);
-					String server_name = pref.getString("server_name", "");
+					
+					JSONObject server = new JSONObject(pref.getString("selectedServer", ""));
+					String server_name = server.getString("name");
+					
 					if (city_state.equals(server_name)) 
 						holder.rb_server.setChecked(true);
 					else
@@ -108,3 +112,4 @@ public class GeoreporterAdapter extends BaseAdapter {
 	
 
 }
+

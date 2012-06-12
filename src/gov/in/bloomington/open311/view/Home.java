@@ -10,6 +10,8 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.ImageView;
+import org.json.JSONObject;
+import org.json.JSONException;
 
 public class Home extends Activity {
 	@Override
@@ -22,17 +24,23 @@ public class Home extends Activity {
 	protected void onResume (){
 		super.onResume();
 		SharedPreferences pref = getSharedPreferences("server",0);
-		String server_name = pref.getString("server_name", "");
-		ImageView img_splash = (ImageView) findViewById(R.id.splash);
-		
-		if (server_name.equals("Bloomington, IN"))
-			img_splash.setImageResource(R.drawable.bloomington);
-		else if (server_name.equals("Baltimore, MD"))
-			img_splash.setImageResource(R.drawable.baltimore);
-		else if (server_name.equals("Boston, MA"))
-			img_splash.setImageResource(R.drawable.boston);
-		else 
-			img_splash.setImageResource(R.drawable.splash);
-
+		try {
+			JSONObject server = new JSONObject(pref.getString("selectedServer", ""));
+			String server_name = server.getString("name");
+			
+			ImageView img_splash = (ImageView) findViewById(R.id.splash);
+			
+			if (server_name.equals("Bloomington, IN"))
+				img_splash.setImageResource(R.drawable.bloomington);
+			else if (server_name.equals("Baltimore, MD"))
+				img_splash.setImageResource(R.drawable.baltimore);
+			else if (server_name.equals("Boston, MA"))
+				img_splash.setImageResource(R.drawable.boston);
+			else 
+				img_splash.setImageResource(R.drawable.splash);
+		}
+		catch (JSONException e) {
+			e.printStackTrace();
+		}
 	}
 }
