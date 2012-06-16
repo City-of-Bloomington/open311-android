@@ -6,6 +6,8 @@
 package gov.in.bloomington.open311.view;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import gov.in.bloomington.open311.R;
 import gov.in.bloomington.open311.controller.GeoreporterAPI;
@@ -95,15 +97,28 @@ public class NewReport extends Activity implements OnClickListener  {
 	        
 			case R.id.btn_submit:			
 				    	    
+				//get the current server
+				SharedPreferences pref = getSharedPreferences("server",0);
+				JSONObject server;
+				String server_name = null;
+				try {
+					server = new JSONObject(pref.getString("selectedServer", ""));
+					server_name = server.getString("name");
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
 	    	    if (!content.equals("") && !content.equals("Fill your report here")) {
 	    	    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-					builder.setTitle("Please Choose Service Groups");
+					builder.setTitle("Available Service Groups from "+server_name);
 					final JSONArray jar_services = GeoreporterAPI.streamServices(NewReport.this);
 					final CharSequence[] group = ServicesItem.getGroup(jar_services);
 		    		builder.setItems(group, new DialogInterface.OnClickListener() {
 		    		    public void onClick(DialogInterface dialog, int nid) {
 		    		    	AlertDialog.Builder builder = new AlertDialog.Builder(NewReport.this);
-		    				builder.setTitle("Please Choose Service");
+		    				builder.setTitle(group[nid]+" Services");
 		    				CharSequence[] services = ServicesItem.getServicesByGroup(jar_services, group[nid]);
 		    	    		builder.setItems(services, new DialogInterface.OnClickListener() {
 		    	    		    public void onClick(DialogInterface dialog, int nid) {
