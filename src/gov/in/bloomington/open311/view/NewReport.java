@@ -5,7 +5,11 @@
  */
 package gov.in.bloomington.open311.view;
 
+import org.json.JSONArray;
+
 import gov.in.bloomington.open311.R;
+import gov.in.bloomington.open311.controller.GeoreporterAPI;
+import gov.in.bloomington.open311.controller.ServicesItem;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -50,7 +54,6 @@ public class NewReport extends Activity implements OnClickListener  {
 		    r1.setOnClickListener((OnClickListener) this);
 			
 		    img_photo = (ImageView) findViewById(R.id.img_photo);
-		    //LaporAPI.setImage(img_photo, "data/lapor/", "photo.jpg", false, false, false, this.getApplicationContext());
 		    img_photo.setOnClickListener((OnClickListener) this);
 		    
 		    edt_newReport = (EditText) findViewById(R.id.edt_newReport);
@@ -92,26 +95,17 @@ public class NewReport extends Activity implements OnClickListener  {
 	        
 			case R.id.btn_submit:			
 				    	    
-	    	    if (!content.equals("") && !content.equals("Fill your report here...")) {
+	    	    if (!content.equals("") && !content.equals("Fill your report here")) {
 	    	    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
 					builder.setTitle("Please Choose Service Groups");
-					CharSequence[] group = new CharSequence[5];
-					group[0] = "service groups 1";
-					group[1] = "service groups 2";
-					group[2] = "service groups 3";
-					group[3] = "service groups 4";
-					group[4] = "service groups 5";
+					final JSONArray jar_services = GeoreporterAPI.streamServices(NewReport.this);
+					final CharSequence[] group = ServicesItem.getGroup(jar_services);
 		    		builder.setItems(group, new DialogInterface.OnClickListener() {
 		    		    public void onClick(DialogInterface dialog, int nid) {
 		    		    	AlertDialog.Builder builder = new AlertDialog.Builder(NewReport.this);
 		    				builder.setTitle("Please Choose Service");
-		    				CharSequence[] group = new CharSequence[5];
-		    				group[0] = "service 1";
-		    				group[1] = "service 2";
-		    				group[2] = "service 3";
-		    				group[3] = "service 4";
-		    				group[4] = "service 5";
-		    	    		builder.setItems(group, new DialogInterface.OnClickListener() {
+		    				CharSequence[] services = ServicesItem.getServicesByGroup(jar_services, group[nid]);
+		    	    		builder.setItems(services, new DialogInterface.OnClickListener() {
 		    	    		    public void onClick(DialogInterface dialog, int nid) {
 		    	        	    	Toast.makeText(NewReport.this, "Your report has been sent", Toast.LENGTH_LONG).show();
 		    	    		    }
