@@ -51,7 +51,7 @@ public class NewReport extends Activity implements OnClickListener  {
 		
 		/** Called when the activity is first created. */
 	    @Override
-	    public void onCreate(Bundle savedInstanceState) {
+	    protected void onCreate(Bundle savedInstanceState) {
 	        super.onCreate(savedInstanceState);
 	        setContentView(R.layout.report);
 	        
@@ -78,7 +78,75 @@ public class NewReport extends Activity implements OnClickListener  {
 			failed = (TextView) findViewById(R.id.txt_SendingFailed);
 			failed.setVisibility(TextView.GONE);
 			
-			//get the current server
+	    }
+	    
+	    
+	    public void onClick(View v) {
+			// TODO Auto-generated method stub
+		    content = edt_newReport.getText().toString();
+
+			switch (v.getId()) {
+			case R.id.r1:
+				
+				/*intent = new Intent(ReportActivity.this, LocationMap.class);
+				intent.putExtra("address", address);
+				intent.putExtra("longitude", longitude);
+				intent.putExtra("latitude", latitude);
+				intent.putExtra("content", content);
+	            startActivity(intent);*/
+	            break;
+			
+			case R.id.img_photo:
+		        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE); 
+                startActivityForResult(cameraIntent, CAMERA_REQUEST);
+	            break;
+	        
+			case R.id.btn_submit:			
+				    	    
+				
+				
+				//check whether report is filled
+	    	    if (!content.equals("") && !content.equals("Fill your report here")) {
+	    	    	
+	    	    }
+	    	   //if report content hasn't been filled yet
+	    	    else 
+	    	    	Toast.makeText(this, "Please fill your report first", Toast.LENGTH_SHORT).show();
+	    	    
+				break;
+			}
+		}
+	    
+	    
+	    protected void onActivityResult(int requestCode, int resultCode, Intent data) {  
+	        if (requestCode == CAMERA_REQUEST) {  
+	        	if (resultCode == Activity.RESULT_OK) {
+		            Bitmap photo = (Bitmap) data.getExtras().get("data"); 
+		            img_photo.setImageBitmap(photo);
+	        	}
+	        }  
+	    }  
+
+	    @Override
+		protected void onResume (){
+			super.onResume();
+			
+			//for Shared Preferences
+	        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+	        edt_firstName = (EditText) findViewById(R.id.edt_firstname);
+	        edt_firstName.setText(preferences.getString("firstname", ""));
+	        
+	        edt_lastName = (EditText) findViewById(R.id.edt_lastname);
+	        edt_lastName.setText(preferences.getString("lastname", ""));
+	        
+	        edt_email = (EditText) findViewById(R.id.edt_email);
+	        edt_email.setText(preferences.getString("email", ""));
+	        
+	        edt_phone = (EditText) findViewById(R.id.edt_phone);
+	        edt_phone.setText(preferences.getString("phone", ""));
+	        
+	      //for showing group, services, and attributes
+	      //get the current server
 			SharedPreferences pref = getSharedPreferences("server",0);
 			JSONObject server;
 			String server_name = null;
@@ -106,6 +174,9 @@ public class NewReport extends Activity implements OnClickListener  {
 	    				final CharSequence[] services = ServicesItem.getServicesByGroup(jar_services, group[nid]);
 	    	    		builder.setItems(services, new DialogInterface.OnClickListener() {
 	    	    		    public void onClick(DialogInterface dialog, int nid) {
+	    	    		    	
+	    	    		    	TextView txt_service = (TextView) findViewById(R.id.txt_service_description);
+	    	    		    	txt_service.setText(ServicesItem.getServiceDescription(jar_services, services[nid]));
 	    	    		    	
 	    	    		    	//check whether the following service has attribute
 	    	    		    	if (ServicesItem.hasAttribute(jar_services, services[nid])) {
@@ -221,71 +292,6 @@ public class NewReport extends Activity implements OnClickListener  {
 	    	else {
 	    		Toast.makeText(getApplicationContext(), "No internet connection or the server URL is not vaild", Toast.LENGTH_LONG).show();
 	    	}
-	    }
-	    
-	    public void onClick(View v) {
-			// TODO Auto-generated method stub
-		    content = edt_newReport.getText().toString();
-
-			switch (v.getId()) {
-			case R.id.r1:
-				
-				/*intent = new Intent(ReportActivity.this, LocationMap.class);
-				intent.putExtra("address", address);
-				intent.putExtra("longitude", longitude);
-				intent.putExtra("latitude", latitude);
-				intent.putExtra("content", content);
-	            startActivity(intent);*/
-	            break;
-			
-			case R.id.img_photo:
-		        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE); 
-                startActivityForResult(cameraIntent, CAMERA_REQUEST);
-	            break;
-	        
-			case R.id.btn_submit:			
-				    	    
-				
-				
-				//check whether report is filled
-	    	    if (!content.equals("") && !content.equals("Fill your report here")) {
-	    	    	
-	    	    }
-	    	   //if report content hasn't been filled yet
-	    	    else 
-	    	    	Toast.makeText(this, "Please fill your report first", Toast.LENGTH_SHORT).show();
-	    	    
-				break;
-			}
-		}
-	    
-	    
-	    protected void onActivityResult(int requestCode, int resultCode, Intent data) {  
-	        if (requestCode == CAMERA_REQUEST) {  
-	        	if (resultCode == Activity.RESULT_OK) {
-		            Bitmap photo = (Bitmap) data.getExtras().get("data"); 
-		            img_photo.setImageBitmap(photo);
-	        	}
-	        }  
-	    }  
-
-	    @Override
-		protected void onResume (){
-			super.onResume();
-			
-			//for Shared Preferences
-	        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-	        edt_firstName = (EditText) findViewById(R.id.edt_firstname);
-	        edt_firstName.setText(preferences.getString("firstname", ""));
-	        
-	        edt_lastName = (EditText) findViewById(R.id.edt_lastname);
-	        edt_lastName.setText(preferences.getString("lastname", ""));
-	        
-	        edt_email = (EditText) findViewById(R.id.edt_email);
-	        edt_email.setText(preferences.getString("email", ""));
-	        
-	        edt_phone = (EditText) findViewById(R.id.edt_phone);
-	        edt_phone.setText(preferences.getString("phone", ""));
 		}	    
 	 
 }

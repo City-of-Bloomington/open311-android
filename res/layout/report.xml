@@ -8,8 +8,17 @@
 	android:id="@+id/r0" 
 	android:layout_width="match_parent" android:layout_height="wrap_content"
 	android:background="#FFFFFF">
+  	 	<TextView 
+       		android:textColor="#000000" 
+       		android:id="@+id/txt_service_description" 
+       		android:layout_height="wrap_content" android:layout_width="wrap_content"  
+       		android:text="@string/service_desc" 
+       		android:layout_alignParentLeft="true" 
+       		android:layout_marginLeft="10dip" android:layout_marginTop="10dip">
+       	</TextView>
   	 	<ImageView 
   	 	  	android:id="@+id/img_photo" 
+  	 	  	android:layout_below="@+id/txt_service_description" 
   	 	  	android:src="@drawable/new_report_camera" 
   	 		android:layout_width="wrap_content" android:layout_height="wrap_content" 
   	 		android:scaleType="centerInside"

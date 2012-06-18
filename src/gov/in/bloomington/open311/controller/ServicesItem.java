@@ -96,5 +96,24 @@ public class ServicesItem {
 		return service_code;
 	}
 	
+	public static String getServiceDescription (JSONArray ja_services, CharSequence service) {
+		String service_code = null;
+		boolean equals = false; //whether current service is the one we looking for
+		int i = 0;
+		do {
+			try {
+				if (ja_services.getJSONObject(i).getString("service_name").equals(service)) {
+					equals = true;
+					service_code = ja_services.getJSONObject(i).getString("description");
+				}
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			i++;
+		} while (i<ja_services.length() && !equals);
+		return service_code;
+	}
+	
 	
 }
