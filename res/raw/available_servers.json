@@ -9,11 +9,5 @@
 		"supports_media": TRUE,
 		"jurisdiction_id":"",
 		"api_key":""
-	},
-	{	"name":"Server Name Two",
-		"url":"https://somewhere.org/open311/v2",
-		"supports_media": TRUE,
-		"jurisdiction_id":"",
-		"api_key":""
 	}
 ]
