@@ -17,7 +17,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class ConnectionDispatcher {
+public class GeoreporterClient {
 	public static JSONArray getJSONArray(String URLWithParam) {
     	JSONArray kosong = new JSONArray(); 
 		

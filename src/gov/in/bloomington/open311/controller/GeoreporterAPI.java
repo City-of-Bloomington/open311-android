@@ -1,6 +1,6 @@
 package gov.in.bloomington.open311.controller;
 
-import gov.in.bloomington.open311.model.ConnectionDispatcher;
+import gov.in.bloomington.open311.model.GeoreporterClient;
 
 import java.io.IOException;
 
@@ -16,7 +16,6 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 public class GeoreporterAPI {
 	public static boolean isConnected(Activity a) {
@@ -61,14 +60,14 @@ public class GeoreporterAPI {
         return is_connected;
 	}
 	
-	public static JSONArray streamServices(Activity a) {
+	public static JSONArray getServices(Activity a) {
 		SharedPreferences pref = a.getSharedPreferences("server",0);
 		JSONArray services_list = null;
 		JSONObject server;
 		try {
 			server = new JSONObject(pref.getString("selectedServer", ""));
 			String server_url = server.getString("url");
-			services_list = ConnectionDispatcher.getJSONArray(server_url+"/services.json");
+			services_list = GeoreporterClient.getJSONArray(server_url+"/services.json");
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -83,10 +82,7 @@ public class GeoreporterAPI {
 		try {
 			server = new JSONObject(pref.getString("selectedServer", ""));
 			String server_url = server.getString("url");
-			Log.d("georeporter_api", "tes 1"+server_url+"/services/"+service_code+".json");
-			services_attribute = ConnectionDispatcher.getJSONObject(server_url+"/services/"+service_code+".json");
-			
-			Log.d("georeporter_api", "tes 2"+services_attribute.toString());
+			services_attribute = GeoreporterClient.getJSONObject(server_url+"/services/"+service_code+".json");
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
