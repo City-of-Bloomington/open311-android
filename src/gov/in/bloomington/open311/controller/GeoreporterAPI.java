@@ -1,12 +1,12 @@
 package gov.in.bloomington.open311.controller;
 
-import gov.in.bloomington.open311.model.GeoreporterClient;
-
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpConnectionParams;
@@ -67,11 +67,30 @@ public class GeoreporterAPI {
 		try {
 			server = new JSONObject(pref.getString("selectedServer", ""));
 			String server_url = server.getString("url");
-			services_list = GeoreporterClient.getJSONArray(server_url+"/services.json");
+			
+			HttpClient client = new DefaultHttpClient();
+	        HttpConnectionParams.setConnectionTimeout(client.getParams(), 10000); //Timeout Limit
+	        HttpResponse response;
+	        HttpGet get = new HttpGet(server_url+"/services.json");
+            response = client.execute(get);
+            /*Checking response */
+            if(response!=null){
+                InputStream in = response.getEntity().getContent(); //Get the data in the entity
+                String str = GeoreporterUtils.convertStreamToString(in);
+                services_list = new JSONArray(str);
+            }
+			
+			
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		 catch (ClientProtocolException e) {
+        	// TODO Auto-generated catch block
+        }
+        catch(Exception e){
+        	// TODO Auto-generated catch block
+        }
 		return services_list;
 	}
 	
@@ -82,11 +101,31 @@ public class GeoreporterAPI {
 		try {
 			server = new JSONObject(pref.getString("selectedServer", ""));
 			String server_url = server.getString("url");
-			services_attribute = GeoreporterClient.getJSONObject(server_url+"/services/"+service_code+".json");
+			HttpClient client = new DefaultHttpClient();
+	        HttpConnectionParams.setConnectionTimeout(client.getParams(), 10000); //Timeout Limit
+	        HttpResponse response;
+	        
+	        HttpGet get = new HttpGet(server_url+"/services/"+service_code+".json");
+            response = client.execute(get);
+            /*Checking response */
+            if(response!=null){
+                InputStream in = response.getEntity().getContent(); //Get the data in the entity
+                String str = GeoreporterUtils.convertStreamToString(in);
+                services_attribute = new JSONObject(str);
+            }
+	        
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		catch (ClientProtocolException e) {
+        	// TODO Auto-generated catch block
+			e.printStackTrace();
+        }
+        catch(Exception e){
+        	// TODO Auto-generated catch block
+        	e.printStackTrace();
+        }
 		return services_attribute;
 	}
 }

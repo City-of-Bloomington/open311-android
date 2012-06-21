@@ -42,6 +42,7 @@ public class NewReport extends Activity implements OnClickListener  {
 		private Thread thread_service;
 		private JSONArray jar_attributes;
 		private int id;
+		private int last_id = 0;
 		private int i;
 		private int n_rb;
 		private RelativeLayout r0;
@@ -60,6 +61,7 @@ public class NewReport extends Activity implements OnClickListener  {
 
 		private String content;
 		private static final int CAMERA_REQUEST = 1888; 
+		
 		
 		/** Called when the activity is first created. */
 	    @Override
@@ -244,6 +246,15 @@ public class NewReport extends Activity implements OnClickListener  {
     		    		//fetch the atrribute
     		    		JSONObject jo_attributes_service = GeoreporterAPI.getServiceAttribute(NewReport.this, ServicesItem.getServiceCode(jar_services, services[nid]));
     		    		r0 = (RelativeLayout) findViewById(R.id.r0);
+    		    		
+    		    		//remove previous view
+    		    		if (last_id==id) {
+	    		    		for (int i=100; i<=last_id; i++) {
+	    		    			r0.removeView(findViewById(i));
+	    		    		}
+	    		    		last_id = 0;
+		    			}
+    		    		
     		    		try {
     		    			jar_attributes = jo_attributes_service.getJSONArray("attributes");
     		    			
@@ -265,10 +276,11 @@ public class NewReport extends Activity implements OnClickListener  {
     	    		            else if (jar_attributes.getJSONObject(i).getString("datatype").equals("multivaluelist")) {
     	    		            	//if datatype == multivaluelist
     	    		            	display_combobox();
-    	    		                
     	    		            }
+    	    		            last_id = id;
 	    		    		}
 	    		    		
+	    		    		//add new view component
 	    		            TextView txt_firstname= (TextView) findViewById(R.id.txt_firstname);
 	    		            RelativeLayout.LayoutParams txt_firstname_params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 	    		            txt_firstname_params.addRule(RelativeLayout.BELOW, id-n_rb);
