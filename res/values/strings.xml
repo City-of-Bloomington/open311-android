@@ -21,5 +21,9 @@
     <string name="send">Send</string>
     <string name="city_state">City, State</string>
     <string name="url">URL</string>
-    <string name="service_desc">Service hasn\'t been choseen</string>
+    <string name="service_desc">Service hasn\'t been chosen</string>
+    <string name="address_label">Address :</string>
+    <string name="address_content">NOT AVAILABLE</string>
+    <string name="coordinate_label">Coordinate :</string>
+    <string name="coordinate_content">(-,-)</string>
 </resources>

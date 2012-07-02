@@ -35,7 +35,7 @@ public class MyReports extends Activity {
 		setContentView(R.layout.my_reports);
 		
 		list_report=(ListView)findViewById(R.id.list);
-		ja_reports = ExternalFileAdapter.readJSON(MyReports.this, R.raw.available_servers);
+		ja_reports = ExternalFileAdapter.readJSONRaw(MyReports.this, R.raw.available_servers);
 		adapter = new GeoreporterAdapter(MyReports.this, ja_reports, "report");
 		
 		list_report.setAdapter(adapter);

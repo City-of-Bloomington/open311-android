@@ -39,7 +39,7 @@ public class MyServers extends Activity {
 		super.onResume();
 		list_services=(ListView)findViewById(R.id.list);
 
-		servers = ExternalFileAdapter.readJSON(MyServers.this, R.raw.available_servers);
+		servers = ExternalFileAdapter.readJSONRaw(MyServers.this, R.raw.available_servers);
 
 		adapter = new GeoreporterAdapter(MyServers.this, servers, "server");
 		list_services.setAdapter(adapter);

@@ -58,13 +58,13 @@ public class ServicesItem {
 		return services;
 	}
 	
-	public static boolean hasAttribute (JSONArray ja_services, CharSequence service) {
+	public static boolean hasAttribute (JSONArray ja_services, String service_code) {
 		boolean has_atribute = false;
 		boolean equals = false; //whether current service is the one we looking for
 		int i = 0;
 		do {
 			try {
-				if (ja_services.getJSONObject(i).getString("service_name").equals(service)) {
+				if (ja_services.getJSONObject(i).getString("service_code").equals(service_code)) {
 					equals = true;
 					has_atribute = ja_services.getJSONObject(i).getBoolean("metadata");
 				}
