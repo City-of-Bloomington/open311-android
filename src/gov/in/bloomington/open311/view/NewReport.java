@@ -155,7 +155,7 @@ public class NewReport extends Activity implements OnClickListener  {
 	        
 			case R.id.btn_submit:			
 				    	    
-				
+				String service_request_id = null;
 				
 				//check whether report is filled
 	    	    if (!content.equals("") && !content.equals("Fill your report here")) {
@@ -225,12 +225,18 @@ public class NewReport extends Activity implements OnClickListener  {
 								e.printStackTrace();
 							}
 			    		}
-		    	        Log.d("new report", "4  "+ attribute.toString());
 		    	        
-		    	    	Log.d("new report", "5 "+ GeoreporterAPI.sendReport(NewReport.this, server_jurisdiction_id, service_code, latitude, longitude, true, attribute, email, device_id, first_name, last_name, phone, content));
+		    	    	service_request_id = GeoreporterAPI.sendReport(NewReport.this, server_jurisdiction_id, service_code, latitude, longitude, true, attribute, email, device_id, first_name, last_name, phone, content);
 	    	        }
 	    	        else 
-	    	        	Log.d("new report", "6 "+ GeoreporterAPI.sendReport(NewReport.this, server_jurisdiction_id, service_code, latitude, longitude, false, null, email, device_id, first_name, last_name, phone, content));
+	    	        	service_request_id = GeoreporterAPI.sendReport(NewReport.this, server_jurisdiction_id, service_code, latitude, longitude, false, null, email, device_id, first_name, last_name, phone, content);
+	    	        
+	    	        if (service_request_id != null) {
+	    	        	Toast.makeText(getApplicationContext(), "Report has been sent with service request id :"+service_request_id, Toast.LENGTH_LONG).show();
+	    	        }
+	    	        else {
+	    	        	Toast.makeText(getApplicationContext(), "Sending unsuccessful", Toast.LENGTH_LONG).show();
+	    	        }
 	    	        
 	    	        
 	    	    }    

@@ -136,7 +136,8 @@ public class GeoreporterAPI {
 		return services_attribute;
 	}
 	
-	public static JSONArray sendReport(Activity a, String jurisdiction_id, String service_code, Double latitude,Double longitude, boolean hasattribute, List<NameValuePair> attribute, String email, String device_id, String first_name, String last_name, String phone, String description) {
+	public static String sendReport(Activity a, String jurisdiction_id, String service_code, Double latitude,Double longitude, boolean hasattribute, List<NameValuePair> attribute, String email, String device_id, String first_name, String last_name, String phone, String description) {
+		String service_request_id = null;
 		SharedPreferences pref = a.getSharedPreferences("server",0);
 		JSONArray reply = new JSONArray(); 
 		HttpClient client = new DefaultHttpClient();
@@ -147,9 +148,11 @@ public class GeoreporterAPI {
 			
 			JSONObject server = new JSONObject(pref.getString("selectedServer", ""));
 			String server_url = server.getString("url");
+			String api_key = server.getString("api_key");
 			
 			List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-	        pairs.add(new BasicNameValuePair("jurisdiction_id", jurisdiction_id));
+	        pairs.add(new BasicNameValuePair("api_key", api_key));
+			pairs.add(new BasicNameValuePair("jurisdiction_id", jurisdiction_id));
 	        pairs.add(new BasicNameValuePair("service_code", service_code));
 	        pairs.add(new BasicNameValuePair("lat", latitude+""));
 	        pairs.add(new BasicNameValuePair("long", longitude+""));
@@ -169,14 +172,11 @@ public class GeoreporterAPI {
             response = client.execute(post1);
 	        
             if(response!=null){
-            	Log.d("georeporter api", "1 response not null");
                 InputStream in = response.getEntity().getContent(); //Get the data in the entity
                 String str = GeoreporterUtils.convertStreamToString(in);
-                Log.d("georeporter api", "1 "+str);
                 reply = new JSONArray(str);
+                service_request_id = reply.getJSONObject(0).getString("service_request_id");
             }
-            else 
-            	Log.d("georeporter api", "2 response null");
 	        
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -196,7 +196,7 @@ public class GeoreporterAPI {
 		}
 		
 		
-		return reply;
+		return service_request_id;
 	}
 	
 }
