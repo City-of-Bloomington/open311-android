@@ -8,6 +8,7 @@ import gov.in.bloomington.open311.R;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,11 +29,15 @@ public class GeoreporterAdapter extends BaseAdapter {
         data=d;
         type = t;
         inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        Log.d("adapter", "1 adapter");
     }
     
 	public int getCount() {
 		// TODO Auto-generated method stub
-			return data.length();
+			if (data == null)
+				return 0;
+			else 
+				return data.length();
 	}
 
 	public Object getItem(int position) {
@@ -55,9 +60,11 @@ public class GeoreporterAdapter extends BaseAdapter {
 
 	public View getView(int position, View convertView, ViewGroup parent) {
 		// TODO Auto-generated method stub
+		Log.d("adapter", "3 adapter");
 		View vi=convertView;
         ViewHolder holder;
         if(convertView==null){
+        	Log.d("adapter", "4 adapter");
         	if (type.equals("report"))
         		vi = inflater.inflate(R.layout.my_report_item, null);
         	else if (type.equals("server"))
@@ -106,7 +113,7 @@ public class GeoreporterAdapter extends BaseAdapter {
         
         	//holder.txt_report_service.setText("Report Service");
         	//holder.txt_date_server.setText("Date - Time: server reported to");
-        	
+        	Log.d("adapter", "5 adapter");
         	return vi;
 	}
 	

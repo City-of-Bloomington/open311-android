@@ -15,6 +15,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -35,10 +36,14 @@ public class MyReports extends Activity {
 		setContentView(R.layout.my_reports);
 		
 		list_report=(ListView)findViewById(R.id.list);
-		ja_reports = ExternalFileAdapter.readJSONRaw(MyReports.this, R.raw.available_servers);
+		ja_reports = ExternalFileAdapter.readJSON(MyReports.this, "reports");
+		Log.d("myreport", "1 my report");
+		//ja_reports = ExternalFileAdapter.readJSONRaw(MyReports.this, R.raw.available_servers);
 		adapter = new GeoreporterAdapter(MyReports.this, ja_reports, "report");
+		Log.d("myreport", "2 my report");
 		
 		list_report.setAdapter(adapter);
+		Log.d("myreport", "3 my report");
 		
 		list_report.setOnItemLongClickListener(new OnItemLongClickListener()
 		{

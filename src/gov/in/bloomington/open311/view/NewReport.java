@@ -70,6 +70,7 @@ public class NewReport extends Activity implements OnClickListener  {
 		private TextView failed;
 
 		private String content;
+		Bitmap photo = null;
 		private static final int CAMERA_REQUEST = 1888; 
 		
 		//for location
@@ -225,14 +226,22 @@ public class NewReport extends Activity implements OnClickListener  {
 								e.printStackTrace();
 							}
 			    		}
-		    	        
-		    	    	service_request_id = GeoreporterAPI.sendReport(NewReport.this, server_jurisdiction_id, service_code, latitude, longitude, true, attribute, email, device_id, first_name, last_name, phone, content);
+		    	        if (photo == null)
+		    	        	service_request_id = GeoreporterAPI.sendReport(NewReport.this, server_jurisdiction_id, service_code, latitude, longitude, true, attribute, email, device_id, first_name, last_name, phone, content);
+		    	        else 
+		    	        	service_request_id = GeoreporterAPI.sendReportWithPicture(NewReport.this, photo, server_jurisdiction_id, service_code, latitude, longitude, true, attribute, email, device_id, first_name, last_name, phone, content);
 	    	        }
-	    	        else 
-	    	        	service_request_id = GeoreporterAPI.sendReport(NewReport.this, server_jurisdiction_id, service_code, latitude, longitude, false, null, email, device_id, first_name, last_name, phone, content);
-	    	        
+	    	        else {
+	    	        	if (photo == null)
+	    	        		service_request_id = GeoreporterAPI.sendReport(NewReport.this, server_jurisdiction_id, service_code, latitude, longitude, false, null, email, device_id, first_name, last_name, phone, content);
+	    	        	else
+	    	        		service_request_id = GeoreporterAPI.sendReportWithPicture(NewReport.this, photo, server_jurisdiction_id, service_code, latitude, longitude, false, null, email, device_id, first_name, last_name, phone, content);
+	    	        }
+	    	        	
 	    	        if (service_request_id != null) {
 	    	        	Toast.makeText(getApplicationContext(), "Report has been sent with service request id :"+service_request_id, Toast.LENGTH_LONG).show();
+	    	        	//switch to my report screen
+	    				switchTabInActivity(2);
 	    	        }
 	    	        else {
 	    	        	Toast.makeText(getApplicationContext(), "Sending unsuccessful", Toast.LENGTH_LONG).show();
@@ -252,7 +261,7 @@ public class NewReport extends Activity implements OnClickListener  {
 	    protected void onActivityResult(int requestCode, int resultCode, Intent data) {  
 	        if (requestCode == CAMERA_REQUEST) {  
 	        	if (resultCode == Activity.RESULT_OK) {
-		            Bitmap photo = (Bitmap) data.getExtras().get("data"); 
+		            photo = (Bitmap) data.getExtras().get("data"); 
 		            img_photo.setImageBitmap(photo);
 	        	}
 	        }  
@@ -549,6 +558,12 @@ public class NewReport extends Activity implements OnClickListener  {
 				// TODO Auto-generated method stub
 			}
 			
+		}
+		
+		public void switchTabInActivity(int indexTabToSwitchTo){
+			Main ParentActivity;
+			ParentActivity = (Main) this.getParent();
+			ParentActivity.switchTab(indexTabToSwitchTo);
 		}
 	    
 	    

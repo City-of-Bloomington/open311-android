@@ -13,6 +13,7 @@ import org.json.JSONException;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 
 public class ExternalFileAdapter {
 	
@@ -38,20 +39,25 @@ public class ExternalFileAdapter {
 	public static JSONArray readJSON(Activity a, String filename) {
 		JSONArray result = null;
 	    InputStream inputstream;
+	    Log.d("externalfileadapter", "1 external file");
 		try {
 			inputstream = a.openFileInput(filename);
 			result = new JSONArray(GeoreporterUtils.convertStreamToString(inputstream));
+			Log.d("externalfileadapter", "2 external file");
 		} catch (FileNotFoundException e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
+			Log.d("externalfileadapter", "3 external file");
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Log.d("externalfileadapter", "4 external file");
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+			Log.d("externalfileadapter", "5 external file");
 		}
-		
+		Log.d("externalfileadapter", "6 external file "+result);
 		return result;
 	}
 	
