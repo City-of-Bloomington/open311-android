@@ -16,7 +16,9 @@ import org.json.JSONObject;
 
 import gov.in.bloomington.open311.R;
 import gov.in.bloomington.open311.controller.GeoreporterAPI;
+import gov.in.bloomington.open311.controller.GeoreporterUtils;
 import gov.in.bloomington.open311.controller.ServicesItem;
+import gov.in.bloomington.open311.model.ExternalFileAdapter;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -32,6 +34,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -84,6 +87,7 @@ public class NewReport extends Activity implements OnClickListener  {
 		//for send report
 		private String server_jurisdiction_id;
 		private String service_code;
+		private String service_name;
 		private String first_name;
 		private String last_name;
 		private String email;
@@ -91,6 +95,7 @@ public class NewReport extends Activity implements OnClickListener  {
 		private String device_id;
 		private String attribute_content;
 		private JSONArray jar_services_global;
+		private JSONArray reply;
 		
 		/** Called when the activity is first created. */
 	    @Override
@@ -227,26 +232,66 @@ public class NewReport extends Activity implements OnClickListener  {
 							}
 			    		}
 		    	        if (photo == null)
-		    	        	service_request_id = GeoreporterAPI.sendReport(NewReport.this, server_jurisdiction_id, service_code, latitude, longitude, true, attribute, email, device_id, first_name, last_name, phone, content);
+		    	        	reply = GeoreporterAPI.sendReport(NewReport.this, server_jurisdiction_id, service_code, latitude, longitude, true, attribute, email, device_id, first_name, last_name, phone, content);
 		    	        else 
-		    	        	service_request_id = GeoreporterAPI.sendReportWithPicture(NewReport.this, photo, server_jurisdiction_id, service_code, latitude, longitude, true, attribute, email, device_id, first_name, last_name, phone, content);
+		    	        	reply = GeoreporterAPI.sendReportWithPicture(NewReport.this, photo, server_jurisdiction_id, service_code, latitude, longitude, true, attribute, email, device_id, first_name, last_name, phone, content);
 	    	        }
 	    	        else {
 	    	        	if (photo == null)
-	    	        		service_request_id = GeoreporterAPI.sendReport(NewReport.this, server_jurisdiction_id, service_code, latitude, longitude, false, null, email, device_id, first_name, last_name, phone, content);
+	    	        		reply = GeoreporterAPI.sendReport(NewReport.this, server_jurisdiction_id, service_code, latitude, longitude, false, null, email, device_id, first_name, last_name, phone, content);
 	    	        	else
-	    	        		service_request_id = GeoreporterAPI.sendReportWithPicture(NewReport.this, photo, server_jurisdiction_id, service_code, latitude, longitude, false, null, email, device_id, first_name, last_name, phone, content);
+	    	        		reply = GeoreporterAPI.sendReportWithPicture(NewReport.this, photo, server_jurisdiction_id, service_code, latitude, longitude, false, null, email, device_id, first_name, last_name, phone, content);
 	    	        }
 	    	        	
-	    	        if (service_request_id != null) {
-	    	        	Toast.makeText(getApplicationContext(), "Report has been sent with service request id :"+service_request_id, Toast.LENGTH_LONG).show();
-	    	        	//switch to my report screen
-	    				switchTabInActivity(2);
-	    	        }
-	    	        else {
-	    	        	Toast.makeText(getApplicationContext(), "Sending unsuccessful", Toast.LENGTH_LONG).show();
-	    	        }
 	    	        
+	    	        try {
+						service_request_id = reply.getJSONObject(0).getString("service_request_id");
+						
+						if (service_request_id != null) {
+		    	        	Toast.makeText(getApplicationContext(), "Report has been sent with service request id :"+service_request_id, Toast.LENGTH_LONG).show();
+		    	        	
+		    	        	JSONArray ja_savedreports;
+		    	        	if (ExternalFileAdapter.readJSON(NewReport.this, "reports") == null) {
+		    	        		ja_savedreports = new JSONArray();
+		    	        	}
+		    	        	else {
+		    	        		ja_savedreports = ExternalFileAdapter.readJSON(NewReport.this, "reports");
+		    	        	}
+		    	        	
+		    	        	
+		    	        	JSONObject object = new JSONObject();
+		    	        	try {
+		    	        		Time today = new Time(Time.getCurrentTimezone());
+		    	        		today.setToNow();
+		    	        		
+		    	        		String datetime;
+		    	        		datetime = GeoreporterUtils.getMonth(today.month+1)+" "+today.monthDay+", "+today.year+" "+today.format("%k:%M:%S");
+		    	        		
+		    	        		
+		    	        		
+		    	        		object.put("service_request_id", service_request_id);
+		    	        		object.put("jurisdiction_id", server_jurisdiction_id);
+		    	        		object.put("report_service", service_name);
+		    	        		object.put("date_time", datetime);
+		    	        		object.put("server_name", server_name);
+		    	        	} catch (JSONException e) {
+		    	        		e.printStackTrace();
+		    	        	}
+		    	        	
+		    	        	ja_savedreports.put(object);
+		    	        	
+		    	        	ExternalFileAdapter.writeJSON(NewReport.this, "reports", ja_savedreports);
+		    	        	//switch to my report screen
+		    				switchTabInActivity(2);
+		    	        }
+		    	        else {
+		    	        	Toast.makeText(getApplicationContext(), "Sending unsuccessful", Toast.LENGTH_LONG).show();
+		    	        }
+						
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 	    	        
 	    	    }    
 	    	   //if report content hasn't been filled yet
@@ -367,6 +412,7 @@ public class NewReport extends Activity implements OnClickListener  {
     		    	//set the service_code - for report posting
     		    	try {
 						service_code = jar_services.getJSONObject(nid).getString("service_code");
+						service_name = jar_services.getJSONObject(nid).getString("service_name");
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -404,15 +450,15 @@ public class NewReport extends Activity implements OnClickListener  {
 	    		    			display_textview();
 	    		    			
     	    		            //chekck datatype of input
-    	    		            if (jar_attributes.getJSONObject(i).getString("type").equals("text")) {
+    	    		            if (jar_attributes.getJSONObject(i).getString("datatype").equals("text")) {
     	    		            	//if datatype == text
     	    		            	display_edittext();
     	    		            }
-    	    		            else if (jar_attributes.getJSONObject(i).getString("type").equals("singlevaluelist")) {
+    	    		            else if (jar_attributes.getJSONObject(i).getString("datatype").equals("singlevaluelist")) {
     	    		            	//if datatype == singlevaluelist
     	    		            	display_radiobutton();
     	    		            }
-    	    		            else if (jar_attributes.getJSONObject(i).getString("type").equals("multivaluelist")) {
+    	    		            else if (jar_attributes.getJSONObject(i).getString("datatype").equals("multivaluelist")) {
     	    		            	//if datatype == multivaluelist
     	    		            	display_combobox();
     	    		            }
@@ -450,7 +496,7 @@ public class NewReport extends Activity implements OnClickListener  {
 	        // Back in the UI thread -- update our UI elements based on the data in mResults
 	    	TextView txt_attribute= new TextView(NewReport.this);
             try {
-				txt_attribute.setText(jar_attributes.getJSONObject(i).getString("label"));
+				txt_attribute.setText(jar_attributes.getJSONObject(i).getString("description"));
 	            txt_attribute.setTextColor(Color.BLACK);
 	            txt_attribute.setId(++id);
 	            RelativeLayout.LayoutParams txt_params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -494,8 +540,8 @@ public class NewReport extends Activity implements OnClickListener  {
 	            for(int j=0; j<n_rb; j++){
 	                rb[j]  = new RadioButton(NewReport.this);
 	                rb[j].setId(++id);
-	                //rb[j].setText(jar_value.getJSONObject(j).getString("name"));
-	                rb[j].setText(jar_value.getString(j));
+	                rb[j].setText(jar_value.getJSONObject(j).getString("name"));
+	                //rb[j].setText(jar_value.getString(j));
 	                rb[j].setTextColor(Color.BLACK);
 	                rg.addView(rb[j]); 
 	            }
@@ -520,8 +566,8 @@ public class NewReport extends Activity implements OnClickListener  {
 	            for(int j=0; j<n_cb; j++){
 	                cb[j]  = new CheckBox(NewReport.this);
 	                cb[j].setId(++id);
-	                //cb[j].setText(jar_value.getJSONObject(j).getString("name"));
-	                cb[j].setText(jar_value.getString(j));
+	                cb[j].setText(jar_value.getJSONObject(j).getString("name"));
+	                //cb[j].setText(jar_value.getString(j));
 	                cb[j].setTextColor(Color.BLACK);
 	                r0.addView(cb[j]);
 	                RelativeLayout.LayoutParams cb_params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);

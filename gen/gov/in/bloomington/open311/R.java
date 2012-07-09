@@ -120,6 +120,8 @@ public final class R {
         public static final int my_servers=0x7f060004;
         public static final int phone=0x7f060010;
         public static final int report=0x7f060002;
+        public static final int report_date_time=0x7f06001b;
+        public static final int report_service=0x7f06001a;
         public static final int see_city=0x7f060007;
         public static final int send=0x7f060012;
         public static final int sent_failed=0x7f060011;

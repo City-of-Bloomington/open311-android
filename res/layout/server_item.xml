@@ -4,7 +4,7 @@
     android:id="@+id/rl1"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="#FFFFFF" >
+     >
 
     <RadioButton
         android:id="@+id/rb"

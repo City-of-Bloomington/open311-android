@@ -26,4 +26,6 @@
     <string name="address_content">NOT AVAILABLE</string>
     <string name="coordinate_label">Coordinate :</string>
     <string name="coordinate_content">(-,-)</string>
+    <string name="report_service">Report Service</string>
+    <string name="report_date_time">Date - time; Server report to</string>
 </resources>

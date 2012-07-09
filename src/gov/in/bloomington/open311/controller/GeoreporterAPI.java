@@ -29,6 +29,7 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
+import android.util.Log;
 
 public class GeoreporterAPI {
 	public static boolean isConnected(Activity a) {
@@ -142,8 +143,7 @@ public class GeoreporterAPI {
 		return services_attribute;
 	}
 	
-	public static String sendReport(Activity a, String jurisdiction_id, String service_code, Double latitude,Double longitude, boolean hasattribute, List<NameValuePair> attribute, String email, String device_id, String first_name, String last_name, String phone, String description) {
-		String service_request_id = null;
+	public static JSONArray sendReport(Activity a, String jurisdiction_id, String service_code, Double latitude,Double longitude, boolean hasattribute, List<NameValuePair> attribute, String email, String device_id, String first_name, String last_name, String phone, String description) {
 		SharedPreferences pref = a.getSharedPreferences("server",0);
 		JSONArray reply = new JSONArray(); 
 		HttpClient client = new DefaultHttpClient();
@@ -181,7 +181,7 @@ public class GeoreporterAPI {
                 InputStream in = response.getEntity().getContent(); //Get the data in the entity
                 String str = GeoreporterUtils.convertStreamToString(in);
                 reply = new JSONArray(str);
-                service_request_id = reply.getJSONObject(0).getString("service_request_id");
+                //service_request_id = reply.getJSONObject(0).getString("service_request_id");
             }
 	        
 		} catch (JSONException e) {
@@ -202,15 +202,14 @@ public class GeoreporterAPI {
 		}
 		
 		
-		return service_request_id;
+		return reply;
 	}
 	
-	public static String sendReportWithPicture (Activity a, Bitmap bm, String jurisdiction_id, String service_code, Double latitude,Double longitude, boolean hasattribute, List<NameValuePair> attribute, String email, String device_id, String first_name, String last_name, String phone, String description) {
+	public static JSONArray sendReportWithPicture (Activity a, Bitmap bm, String jurisdiction_id, String service_code, Double latitude,Double longitude, boolean hasattribute, List<NameValuePair> attribute, String email, String device_id, String first_name, String last_name, String phone, String description) {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
     	bm.compress(CompressFormat.JPEG, 50, bos);
     	byte[] data = bos.toByteArray();
 		
-		String service_request_id = null;
 		SharedPreferences pref = a.getSharedPreferences("server",0);
 		JSONArray reply = new JSONArray(); 
 		HttpClient client = new DefaultHttpClient();
@@ -249,7 +248,8 @@ public class GeoreporterAPI {
                 InputStream in = response.getEntity().getContent(); //Get the data in the entity
                 String str = GeoreporterUtils.convertStreamToString(in);
                 reply = new JSONArray(str);
-                service_request_id = reply.getJSONObject(0).getString("service_request_id");
+                Log.d("georeporter API", reply.toString());
+                //service_request_id = reply.getJSONObject(0).getString("service_request_id");
             }
 	        
 		} catch (JSONException e) {
@@ -270,7 +270,41 @@ public class GeoreporterAPI {
 		}
 		
 		
-		return service_request_id;
+		return reply;
+	}
+	
+	public static JSONArray getServiceRequests(Activity a, String jurisdiction_id, String service_request_id) {
+		SharedPreferences pref = a.getSharedPreferences("server",0);
+		JSONArray services_request = null;
+		JSONObject server;
+		try {
+			server = new JSONObject(pref.getString("selectedServer", ""));
+			String server_url = server.getString("url");
+			
+			HttpClient client = new DefaultHttpClient();
+	        HttpConnectionParams.setConnectionTimeout(client.getParams(), 10000); //Timeout Limit
+	        HttpResponse response;
+	        HttpGet get = new HttpGet(server_url+"/requests.json?jurisdiction_id="+jurisdiction_id+"&service_request_id="+service_request_id);
+            response = client.execute(get);
+            /*Checking response */
+            if(response!=null){
+                InputStream in = response.getEntity().getContent(); //Get the data in the entity
+                String str = GeoreporterUtils.convertStreamToString(in);
+                services_request = new JSONArray(str);
+            }
+			
+			
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		 catch (ClientProtocolException e) {
+        	// TODO Auto-generated catch block
+        }
+        catch(Exception e){
+        	// TODO Auto-generated catch block
+        }
+		return services_request;
 	}
 	
 }

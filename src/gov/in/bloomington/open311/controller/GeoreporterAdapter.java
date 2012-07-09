@@ -8,7 +8,6 @@ import gov.in.bloomington.open311.R;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +28,6 @@ public class GeoreporterAdapter extends BaseAdapter {
         data=d;
         type = t;
         inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        Log.d("adapter", "1 adapter");
     }
     
 	public int getCount() {
@@ -60,11 +58,9 @@ public class GeoreporterAdapter extends BaseAdapter {
 
 	public View getView(int position, View convertView, ViewGroup parent) {
 		// TODO Auto-generated method stub
-		Log.d("adapter", "3 adapter");
 		View vi=convertView;
         ViewHolder holder;
         if(convertView==null){
-        	Log.d("adapter", "4 adapter");
         	if (type.equals("report"))
         		vi = inflater.inflate(R.layout.my_report_item, null);
         	else if (type.equals("server"))
@@ -109,11 +105,22 @@ public class GeoreporterAdapter extends BaseAdapter {
         		holder.txt_city_state.setText(city_state);
         		holder.txt_url.setText(url);
         	}
+        	
+        	else if (type.equals("report")) {
+        		String report_service = null;
+    			String date_server = null;
+        		try {
+        			report_service = data.getJSONObject(position).getString("report_service");
+        			date_server = data.getJSONObject(position).getString("date_time")+": "+data.getJSONObject(position).getString("server_name");
+        			
+	        	} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        		holder.txt_report_service.setText(report_service);
+            	holder.txt_date_server.setText(date_server);
+        	}
 
-        
-        	//holder.txt_report_service.setText("Report Service");
-        	//holder.txt_date_server.setText("Date - Time: server reported to");
-        	Log.d("adapter", "5 adapter");
         	return vi;
 	}
 	
