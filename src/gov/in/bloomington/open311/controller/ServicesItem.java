@@ -7,7 +7,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 
-
 public class ServicesItem {
 	public static CharSequence[] getGroup (JSONArray ja_services) {
 		//assumption: servers order by group

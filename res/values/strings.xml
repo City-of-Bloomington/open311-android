@@ -21,11 +21,19 @@
     <string name="send">Send</string>
     <string name="city_state">City, State</string>
     <string name="url">URL</string>
-    <string name="service_desc">Service hasn\'t been chosen</string>
+    <string name="service">Service</string>
+    <string name="choose_service">Choose Service</string>
     <string name="address_label">Address :</string>
     <string name="address_content">NOT AVAILABLE</string>
     <string name="coordinate_label">Coordinate :</string>
     <string name="coordinate_content">(-,-)</string>
     <string name="report_service">Report Service</string>
     <string name="report_date_time">Date - time; Server report to</string>
+    <string name="picture">Picture</string>
+    <string name="add_picture">Add Picture</string>
+    <string name="address">Address</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
+    <string name="location">Location</string>
+    <string name="reporter">Reporter Information</string>
 </resources>

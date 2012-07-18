@@ -5,6 +5,7 @@
  */
 package gov.in.bloomington.open311.view;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,12 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.google.android.maps.GeoPoint;
+import com.google.android.maps.MapActivity;
+import com.google.android.maps.MapController;
+import com.google.android.maps.MapView;
+import com.google.android.maps.MyLocationOverlay;
 
 import gov.in.bloomington.open311.R;
 import gov.in.bloomington.open311.controller.GeoreporterAPI;
@@ -30,6 +37,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -50,7 +58,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class NewReport extends Activity implements OnClickListener  {
+public class NewReport extends MapActivity implements OnClickListener  {
 		//for threading
 		private Thread thread_service;
 		private JSONArray jar_attributes;
@@ -62,19 +70,24 @@ public class NewReport extends Activity implements OnClickListener  {
 		private String server_name;
 		
 		
-		private RelativeLayout r1;
 		private ImageView img_photo;
 		private EditText edt_newReport;
 		private EditText edt_firstName;
 		private EditText edt_lastName;
 		private EditText edt_email;
 		private EditText edt_phone;
+		private EditText edt_address;
+		private EditText edt_latitude;
+		private EditText edt_longitude;
 		private Button btn_send;
 		private TextView failed;
+		private Button btn_service;
+		private Button btn_picture;
 
 		private String content;
 		Bitmap photo = null;
 		private static final int CAMERA_REQUEST = 1888; 
+		private static final int GALLERY_REQUEST = 1889; 
 		
 		//for location
 		private LocationManager lm;
@@ -82,7 +95,13 @@ public class NewReport extends Activity implements OnClickListener  {
 		private Location loc;
 		private double longitude;
 		private double latitude;
-		private Intent intent;
+		private String address;
+		private Thread threadadr;
+		private MapView mapView;
+		private int latitudeE6;
+		private int longitudeE6;
+		private MyLocationOverlay myLocationOverlay;
+		//private Intent intent;
 		
 		//for send report
 		private String server_jurisdiction_id;
@@ -117,9 +136,6 @@ public class NewReport extends Activity implements OnClickListener  {
 			}
 	        
 	        //for click listener
-			r1 = (RelativeLayout) findViewById(R.id.r1);
-		    r1.setOnClickListener((OnClickListener) this);
-			
 		    img_photo = (ImageView) findViewById(R.id.img_photo);
 		    img_photo.setOnClickListener((OnClickListener) this);
 		    
@@ -139,6 +155,12 @@ public class NewReport extends Activity implements OnClickListener  {
 			failed = (TextView) findViewById(R.id.txt_SendingFailed);
 			failed.setVisibility(TextView.GONE);
 			
+			btn_service = (Button) findViewById(R.id.btn_service);
+			btn_service.setOnClickListener((OnClickListener)this);
+			
+			btn_picture = (Button) findViewById(R.id.btn_picture);
+			btn_picture.setOnClickListener((OnClickListener)this);
+			
 	    }
 	    
 	    
@@ -147,16 +169,35 @@ public class NewReport extends Activity implements OnClickListener  {
 		    content = edt_newReport.getText().toString();
 
 			switch (v.getId()) {
-			case R.id.r1:
+			/*case R.id.r1:
 				intent = new Intent(NewReport.this, LocationMap.class);
 				intent.putExtra("longitude", longitude);
 				intent.putExtra("latitude", latitude);
 	            startActivity(intent);
-	            break;
+	            break;*/
 			
-			case R.id.img_photo:
-		        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE); 
-                startActivityForResult(cameraIntent, CAMERA_REQUEST);
+			case R.id.btn_picture:
+				AlertDialog.Builder builder = new AlertDialog.Builder(NewReport.this);
+				builder.setMessage("Choose Source of Picture")
+				       .setPositiveButton("Camera", new DialogInterface.OnClickListener() {
+				           public void onClick(DialogInterface dialog, int id) {
+				        	   Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE); 
+				               startActivityForResult(cameraIntent, CAMERA_REQUEST);
+				           }
+				       })
+				       .setNeutralButton("Gallery", new DialogInterface.OnClickListener() {
+				           public void onClick(DialogInterface dialog, int id) {
+				        	   Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+				   			   startActivityForResult(i, GALLERY_REQUEST);
+				           }
+				       })
+				       .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+				           public void onClick(DialogInterface dialog, int id) {
+				    	    	dialog.cancel();
+				           }
+				       });
+				AlertDialog alert = builder.create();
+				alert.show();
 	            break;
 	        
 			case R.id.btn_submit:			
@@ -299,6 +340,39 @@ public class NewReport extends Activity implements OnClickListener  {
 	    	    	Toast.makeText(this, "Please fill your report first", Toast.LENGTH_SHORT).show();
 	    	    
 				break;
+			
+			case R.id.btn_service:
+				//for showing group, services, and attributes
+		        thread_service = new Thread() {
+					public void run() {	
+						
+				      //get the current server
+						SharedPreferences pref = getSharedPreferences("server",0);
+						JSONObject server;
+						
+						try {
+							server = new JSONObject(pref.getString("selectedServer", ""));
+							server_name = server.getString("name");
+							server_jurisdiction_id = server.getString("jurisdiction_id");
+						} catch (JSONException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
+						//check whether user connected to the internet
+				    	if (GeoreporterAPI.isConnected(NewReport.this)) {
+				    		//make the first alert dialog for services group
+				    		service_handler.post(service_update_group);
+			    	    	
+				    	}
+				    	//if user is not connected to the internet
+				    	else {
+				    		service_handler.post(service_update_notconnected);
+				    	}
+					}
+		        };
+		        thread_service.start();
+				break;
 			}
 		}
 	    
@@ -306,10 +380,28 @@ public class NewReport extends Activity implements OnClickListener  {
 	    protected void onActivityResult(int requestCode, int resultCode, Intent data) {  
 	        if (requestCode == CAMERA_REQUEST) {  
 	        	if (resultCode == Activity.RESULT_OK) {
+	        		img_photo.setVisibility(ImageView.VISIBLE);
+	        		btn_picture.setText("Change Picture");
 		            photo = (Bitmap) data.getExtras().get("data"); 
 		            img_photo.setImageBitmap(photo);
 	        	}
-	        }  
+	        }
+	        else if (requestCode == GALLERY_REQUEST) {
+		        if(resultCode == RESULT_OK){  
+		        	img_photo.setVisibility(ImageView.VISIBLE);
+	        		btn_picture.setText("Change Picture");
+		            Uri selectedImage = data.getData();
+					try {
+						photo = ExternalFileAdapter.decodeUri(selectedImage, this);
+			            img_photo.setImageBitmap(photo);
+			            
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+		            
+		        }
+		    }
 	    }  
 
 	    @Override
@@ -330,37 +422,6 @@ public class NewReport extends Activity implements OnClickListener  {
 	        edt_phone = (EditText) findViewById(R.id.edt_phone);
 	        edt_phone.setText(preferences.getString("phone", ""));
 	        
-	      //for showing group, services, and attributes
-	        thread_service = new Thread() {
-				public void run() {	
-					
-			      //get the current server
-					SharedPreferences pref = getSharedPreferences("server",0);
-					JSONObject server;
-					
-					try {
-						server = new JSONObject(pref.getString("selectedServer", ""));
-						server_name = server.getString("name");
-						server_jurisdiction_id = server.getString("jurisdiction_id");
-					} catch (JSONException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
-					//check whether user connected to the internet
-			    	if (GeoreporterAPI.isConnected(NewReport.this)) {
-			    		//make the first alert dialog for services group
-			    		service_handler.post(service_update_group);
-		    	    	
-			    	}
-			    	//if user is not connected to the internet
-			    	else {
-			    		service_handler.post(service_update_notconnected);
-			    	}
-				}
-	        };
-	        thread_service.start();
-	 
 	    }
 	    
 	    //handler for updating topic list
@@ -410,16 +471,11 @@ public class NewReport extends Activity implements OnClickListener  {
     		    public void onClick(DialogInterface dialog, int nid) {
     		    	
     		    	//set the service_code - for report posting
-    		    	try {
-						service_code = jar_services.getJSONObject(nid).getString("service_code");
-						service_name = jar_services.getJSONObject(nid).getString("service_name");
-					} catch (JSONException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					service_code = ServicesItem.getServiceCode(jar_services, services[nid]);
+					service_name = services[nid]+"";
     		    	
-    		    	TextView txt_service = (TextView) findViewById(R.id.txt_service_description);
-    		    	txt_service.setText(ServicesItem.getServiceDescription(jar_services, services[nid]));
+    		    	Button btn_service = (Button) findViewById(R.id.btn_service);
+    		    	btn_service.setText(ServicesItem.getServiceDescription(jar_services, services[nid]));
     		    	
 		    		//remove previous view
     		    	
@@ -466,11 +522,11 @@ public class NewReport extends Activity implements OnClickListener  {
 	    		    		}
 	    		    		
 	    		    		//add first name etc at the right place
-	    		            TextView txt_firstname= (TextView) findViewById(R.id.txt_firstname);
-	    		            RelativeLayout.LayoutParams txt_firstname_params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-	    		            txt_firstname_params.addRule(RelativeLayout.BELOW, id-n_rb);
-	    		            txt_firstname_params.setMargins(15, 20, 0, 0);
-	    		            txt_firstname.setLayoutParams(txt_firstname_params);
+	    		            TextView txt_picture = (TextView) findViewById(R.id.txt_picture);
+	    		            RelativeLayout.LayoutParams txt_picture_params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+	    		            txt_picture_params.addRule(RelativeLayout.BELOW, id-n_rb);
+	    		            txt_picture_params.setMargins(15, 20, 0, 0);
+	    		            txt_picture.setLayoutParams(txt_picture_params);
     		            
     		    		} catch (JSONException e) {
     		    			// TODO Auto-generated catch block
@@ -480,11 +536,11 @@ public class NewReport extends Activity implements OnClickListener  {
     		    	}
     		    	else {
     		    		//add first name etc at the right place
-    		    		TextView txt_firstname= (TextView) findViewById(R.id.txt_firstname);
-    		            RelativeLayout.LayoutParams txt_firstname_params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-    		            txt_firstname_params.addRule(RelativeLayout.BELOW, R.id.r1);
-    		            txt_firstname_params.setMargins(15, 20, 0, 0);
-    		            txt_firstname.setLayoutParams(txt_firstname_params);
+    		    		TextView txt_picture= (TextView) findViewById(R.id.txt_picture);
+    		            RelativeLayout.LayoutParams txt_picture_params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+    		            txt_picture_params.addRule(RelativeLayout.BELOW, R.id.edt_newReport);
+    		            txt_picture_params.setMargins(15, 20, 0, 0);
+    		            txt_picture.setLayoutParams(txt_picture_params);
     		    	}
     		    }
     		});
@@ -501,7 +557,7 @@ public class NewReport extends Activity implements OnClickListener  {
 	            txt_attribute.setId(++id);
 	            RelativeLayout.LayoutParams txt_params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 	            if (i==0) {
-	            	txt_params.addRule(RelativeLayout.BELOW, R.id.r1);
+	            	txt_params.addRule(RelativeLayout.BELOW, R.id.edt_newReport);
 	            	txt_params.setMargins(15, 15, 15, 0);
 	            }
 	            else {
@@ -535,7 +591,7 @@ public class NewReport extends Activity implements OnClickListener  {
 	        	n_rb = jar_value.length();
 	        	RadioButton[] rb = new RadioButton[n_rb];
 	            RadioGroup rg = new RadioGroup(NewReport.this); 
-	            rg.setOrientation(RadioGroup.HORIZONTAL);
+	            rg.setOrientation(RadioGroup.VERTICAL);
 	            rg.setId(++id);
 	            for(int j=0; j<n_rb; j++){
 	                rb[j]  = new RadioButton(NewReport.this);
@@ -545,7 +601,7 @@ public class NewReport extends Activity implements OnClickListener  {
 	                rb[j].setTextColor(Color.BLACK);
 	                rg.addView(rb[j]); 
 	            }
-	            RelativeLayout.LayoutParams rg_params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+	            RelativeLayout.LayoutParams rg_params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 	            rg_params.addRule(RelativeLayout.BELOW, id-jar_value.length()-1);
 	            rg_params.setMargins(15, 0, 15, 0);
 	            rg.setLayoutParams(rg_params);
@@ -589,6 +645,42 @@ public class NewReport extends Activity implements OnClickListener  {
 					loc = location;
 					latitude = loc.getLatitude();
 					longitude = loc.getLongitude();
+					
+					threadadr = new Thread() {
+		    			public void run() {
+		    				while (address == null || address == "")
+		    				address = GeoreporterUtils.getFromLocation(latitude, longitude, 2);  
+		    				mHandler.post(mUpdateResults);
+		    			}
+		    		};
+		    		threadadr.start();
+					
+			        edt_latitude = (EditText) findViewById(R.id.edt_lat);
+			        edt_latitude.setText(latitude+"");
+			        
+			        edt_longitude = (EditText) findViewById(R.id.edt_long);
+			        edt_longitude.setText(longitude+"");
+			        
+			        latitudeE6 = (int) (latitude * 1e6);
+				    longitudeE6 = (int) (longitude * 1e6);
+				    
+				    mapView = (MapView) findViewById(R.id.mapview);      
+			        mapView.setBuiltInZoomControls(true);
+			         
+			         
+			        GeoPoint point = new GeoPoint(latitudeE6, longitudeE6);
+			        // create an overlay that shows our current location
+					myLocationOverlay = new MyLocationOverlay(NewReport.this, mapView);
+					//myLocationOverlay.drawMyLocation(canvas, mapView, lastFix, initial_point, when);
+					
+					myLocationOverlay.enableMyLocation();
+					// add this overlay to the MapView and refresh it
+					mapView.getOverlays().add(myLocationOverlay);
+					mapView.postInvalidate();
+			        
+			        MapController mapController = mapView.getController(); 
+			        mapController.animateTo(point);
+			        mapController.setZoom(14); 
 				}
 			}
 
@@ -606,11 +698,34 @@ public class NewReport extends Activity implements OnClickListener  {
 			
 		}
 		
+		@Override
+		protected boolean isRouteDisplayed() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+		
+		// Need handler for callbacks to the UI thread
+	    final Handler mHandler = new Handler();
+
+	    // Create runnable for posting
+	    final Runnable mUpdateResults = new Runnable() {
+	        public void run() {
+	            updateResultsInUi();
+	        }
+	    };
+	    
+	    
+	    private void updateResultsInUi() {
+
+	        // Back in the UI thread -- update our UI elements based on the data in mResults
+	    	edt_address = (EditText) findViewById(R.id.edt_address);  
+	        edt_address.setText(address);			
+	    }
+		
 		public void switchTabInActivity(int indexTabToSwitchTo){
 			Main ParentActivity;
 			ParentActivity = (Main) this.getParent();
 			ParentActivity.switchTab(indexTabToSwitchTo);
 		}
-	    
-	    
+
 }

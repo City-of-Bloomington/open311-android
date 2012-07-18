@@ -10,55 +10,129 @@
 	android:background="#FFFFFF">
   	 	<TextView 
        		android:textColor="#000000" 
-       		android:id="@+id/txt_service_description" 
+       		android:id="@+id/txt_service" 
        		android:layout_height="wrap_content" android:layout_width="wrap_content"  
-       		android:text="@string/service_desc" 
+       		android:text="@string/service" 
+       		android:textStyle="bold"
        		android:layout_alignParentLeft="true" 
        		android:layout_marginLeft="10dip" android:layout_marginTop="10dip">
        	</TextView>
-  	 	<ImageView 
-  	 	  	android:id="@+id/img_photo" 
-  	 	  	android:layout_below="@+id/txt_service_description" 
-  	 	  	android:src="@drawable/new_report_camera" 
-  	 		android:layout_width="wrap_content" android:layout_height="wrap_content" 
-  	 		android:scaleType="centerInside"
-  	 		android:layout_centerHorizontal="true" 
-  	 		android:layout_margin="10dip"
-  	 		android:contentDescription="@string/desc_img_photo">
-  	 	</ImageView>
-  	 	<EditText 
+       	 <Button 
+ 			android:id="@+id/btn_service" 
+ 			android:layout_width="fill_parent" android:layout_height="wrap_content" 
+ 			android:text="@string/choose_service" 
+ 			android:layout_below="@+id/txt_service" 
+ 			android:layout_marginLeft="5dip" android:layout_marginRight="5dip">
+ 		</Button>
+ 		<TextView 
+       		android:textColor="#000000" 
+       		android:id="@+id/txt_report" 
+       		android:layout_height="wrap_content" android:layout_width="wrap_content"  
+       		android:text="@string/report" 
+       		android:textStyle="bold"
+       		android:layout_alignParentLeft="true" 
+       		android:layout_below="@+id/btn_service" 
+       		android:layout_marginLeft="10dip" android:layout_marginTop="5dip">
+       	</TextView>
+ 		<EditText 
        		android:id="@+id/edt_newReport" 
        		android:textColor="#C4C4C4"
        		android:text="@string/fill_report" 
        		android:layout_marginLeft="10dip" android:layout_marginRight="10dip"
        		android:layout_width="fill_parent" android:layout_height="100dip" 
-       		android:layout_below="@+id/img_photo" 
+       		android:layout_below="@+id/txt_report" 
        		android:inputType="textMultiLine">
        	</EditText>
-       	<RelativeLayout 
-  	 		android:id="@+id/r1" 
-  	 		android:layout_below="@+id/edt_newReport"
-  	 		android:layout_width="match_parent" android:layout_height="wrap_content" 
-  	 		android:background="@drawable/main_r2"  android:layout_marginLeft="10dip" 
-  	 		android:layout_marginRight="10dip" android:layout_marginTop="15dip">
-	  	 	<TextView 
-  	 			android:id="@+id/txt_MapView"
-	  	 		android:text="@string/view_location" 
-	  	 		android:textStyle="italic"
-	  	 		android:layout_alignParentRight="true" 
-	  	 		android:layout_width="wrap_content"
-	  	 		android:textColor="#254794"  
-	  	 		android:layout_height="wrap_content"  
-	  	 		android:padding="10dip">
-	  	 	</TextView>
-  	 	</RelativeLayout>	
+ 		<TextView 
+       		android:textColor="#000000" 
+       		android:id="@+id/txt_picture" 
+       		android:layout_height="wrap_content" android:layout_width="wrap_content"  
+       		android:text="@string/picture" 
+       		android:textStyle="bold"
+       		android:layout_below="@+id/edt_newReport" 
+       		android:layout_alignParentLeft="true" 
+       		android:layout_marginLeft="10dip" android:layout_marginTop="5dip">
+       	</TextView>
+       	<Button 
+ 			android:id="@+id/btn_picture" 
+ 			android:layout_width="fill_parent" android:layout_height="wrap_content" 
+ 			android:text="@string/add_picture" 
+ 			android:layout_below="@+id/txt_picture" 
+ 			android:layout_marginLeft="5dip" android:layout_marginRight="5dip">
+ 		</Button>
+  	 	<ImageView 
+  	 	  	android:id="@+id/img_photo" 
+  	 	  	android:layout_below="@+id/btn_picture" 
+  	 	  	android:src="@drawable/new_report_camera" 
+  	 		android:layout_width="wrap_content" android:layout_height="wrap_content" 
+  	 		android:scaleType="centerInside"
+  	 		android:layout_centerHorizontal="true" 
+  	 		android:layout_margin="10dip"
+  	 		android:contentDescription="@string/desc_img_photo"
+  	 		android:visibility="gone">
+  	 	</ImageView>
+  	 	<TextView 
+       		android:textColor="#000000" 
+       		android:id="@+id/txt_location" 
+       		android:layout_height="wrap_content" android:layout_width="wrap_content"  
+       		android:text="@string/location" 
+       		android:textStyle="bold"
+       		android:layout_below="@+id/img_photo" 
+       		android:layout_alignParentLeft="true" 
+       		android:layout_marginLeft="10dip" android:layout_marginTop="5dip">
+       	</TextView>
+  	 	<EditText 
+       		android:id="@+id/edt_address" 
+       		android:text="@string/address" 
+       		android:layout_marginLeft="10dip" android:layout_marginRight="10dip"
+       		android:layout_width="fill_parent" android:layout_height="wrap_content" 
+       		android:layout_below="@+id/txt_location" 
+       		android:inputType="text">
+       	</EditText>
+       	<com.google.android.maps.MapView
+		    xmlns:android="http://schemas.android.com/apk/res/android"
+		    android:id="@+id/mapview"
+		    android:layout_below="@+id/edt_address"
+		    android:layout_marginLeft="10dip" android:layout_marginRight="10dip"
+		    android:layout_width="fill_parent"
+		    android:layout_height="150dip"
+		    android:clickable="true"
+		    android:apiKey="0bkUjPrUL2HCwEXm65itYvPc5Ymt1_Fpwhi7H9w"
+		/>	
+		<EditText 
+       		android:id="@+id/edt_lat" 
+       		android:text="@string/latitude" 
+       		android:layout_marginLeft="10dip" android:layout_marginTop="5dip" 
+       		android:layout_width="150dip" android:layout_height="wrap_content" 
+       		android:layout_below="@+id/mapview" 
+       		android:inputType="number">
+       	</EditText>
+       	<EditText 
+       		android:id="@+id/edt_long" 
+       		android:text="@string/longitude" 
+       		android:layout_marginTop="5dip" 
+       		android:layout_marginLeft="5dip" android:layout_marginRight="10dip" 
+       		android:layout_width="fill_parent" android:layout_height="wrap_content" 
+       		android:layout_below="@+id/mapview" android:layout_toRightOf="@+id/edt_lat"
+       		android:inputType="number">
+       	</EditText>
+  	 	<TextView 
+       		android:textColor="#000000" 
+       		android:id="@+id/txt_reporter" 
+       		android:layout_height="wrap_content" android:layout_width="wrap_content"  
+       		android:text="@string/reporter" 
+       		android:textStyle="bold"
+       		android:layout_below="@+id/edt_lat" 
+       		android:layout_alignParentLeft="true" 
+       		android:layout_marginLeft="10dip" android:layout_marginTop="5dip">
+       	</TextView>	
     	<TextView 
        		android:textColor="#000000" 
        		android:id="@+id/txt_firstname" 
        		android:layout_height="wrap_content" android:layout_width="wrap_content"  
        		android:text="@string/first_name" 
-       		android:layout_alignParentLeft="true" android:layout_below="@+id/r1"
-       		android:layout_marginLeft="10dip" android:layout_marginTop="15dip">
+       		android:layout_alignParentLeft="true" android:layout_below="@+id/txt_reporter"
+       		android:layout_marginLeft="10dip" >
        	</TextView>
        	<EditText 
        		android:id="@+id/edt_firstname" 
