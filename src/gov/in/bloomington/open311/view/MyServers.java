@@ -47,16 +47,16 @@ public class MyServers extends Activity {
 
 		list_services.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> arg0, View arg1, final int position, long id) {
+				SharedPreferences pref = getSharedPreferences("server",0);
+				SharedPreferences.Editor editor = pref.edit();
 				try {
-					SharedPreferences pref = getSharedPreferences("server",0);
-					SharedPreferences.Editor editor = pref.edit();
-					
 					editor.putString("selectedServer", servers.getString(position));
-					editor.commit();
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				editor.putBoolean("justChanged", true);
+				editor.commit();
 
 				//switch to home screen
 				switchTabInActivity(0);

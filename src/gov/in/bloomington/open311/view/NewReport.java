@@ -15,12 +15,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
-import com.google.android.maps.MyLocationOverlay;
-
 import gov.in.bloomington.open311.R;
 import gov.in.bloomington.open311.controller.GeoreporterAPI;
 import gov.in.bloomington.open311.controller.GeoreporterUtils;
@@ -58,7 +52,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class NewReport extends MapActivity implements OnClickListener  {
+public class NewReport extends Activity implements OnClickListener  {
 		//for threading
 		private Thread thread_service;
 		private JSONArray jar_attributes;
@@ -76,13 +70,11 @@ public class NewReport extends MapActivity implements OnClickListener  {
 		private EditText edt_lastName;
 		private EditText edt_email;
 		private EditText edt_phone;
-		private EditText edt_address;
-		private EditText edt_latitude;
-		private EditText edt_longitude;
 		private Button btn_send;
 		private TextView failed;
 		private Button btn_service;
 		private Button btn_picture;
+		private Button btn_location;
 
 		private String content;
 		Bitmap photo = null;
@@ -95,13 +87,6 @@ public class NewReport extends MapActivity implements OnClickListener  {
 		private Location loc;
 		private double longitude;
 		private double latitude;
-		private String address;
-		private Thread threadadr;
-		private MapView mapView;
-		private int latitudeE6;
-		private int longitudeE6;
-		private MyLocationOverlay myLocationOverlay;
-		//private Intent intent;
 		
 		//for send report
 		private String server_jurisdiction_id;
@@ -115,6 +100,8 @@ public class NewReport extends MapActivity implements OnClickListener  {
 		private String attribute_content;
 		private JSONArray jar_services_global;
 		private JSONArray reply;
+		
+		SharedPreferences pref;
 		
 		/** Called when the activity is first created. */
 	    @Override
@@ -161,6 +148,9 @@ public class NewReport extends MapActivity implements OnClickListener  {
 			btn_picture = (Button) findViewById(R.id.btn_picture);
 			btn_picture.setOnClickListener((OnClickListener)this);
 			
+			btn_location = (Button) findViewById(R.id.btn_location);
+			btn_location.setOnClickListener((OnClickListener)this);
+			
 	    }
 	    
 	    
@@ -169,12 +159,12 @@ public class NewReport extends MapActivity implements OnClickListener  {
 		    content = edt_newReport.getText().toString();
 
 			switch (v.getId()) {
-			/*case R.id.r1:
-				intent = new Intent(NewReport.this, LocationMap.class);
+			case R.id.btn_location:
+				Intent intent = new Intent(NewReport.this, LocationMap.class);
 				intent.putExtra("longitude", longitude);
 				intent.putExtra("latitude", latitude);
 	            startActivity(intent);
-	            break;*/
+	            break;
 			
 			case R.id.btn_picture:
 				AlertDialog.Builder builder = new AlertDialog.Builder(NewReport.this);
@@ -347,7 +337,7 @@ public class NewReport extends MapActivity implements OnClickListener  {
 					public void run() {	
 						
 				      //get the current server
-						SharedPreferences pref = getSharedPreferences("server",0);
+						pref = getSharedPreferences("server",0);
 						JSONObject server;
 						
 						try {
@@ -446,16 +436,22 @@ public class NewReport extends MapActivity implements OnClickListener  {
 	    private void service_update_group_in_ui() {
 	    	AlertDialog.Builder builder = new AlertDialog.Builder(NewReport.this);
 			builder.setTitle("Available Service Groups from "+server_name);
-			final JSONArray jar_services = GeoreporterAPI.getServices(NewReport.this);
-			jar_services_global = jar_services;
-			final CharSequence[] group = ServicesItem.getGroup(jar_services);
-    		builder.setItems(group, new DialogInterface.OnClickListener() {
-    		    public void onClick(DialogInterface dialog, int nid) {
-    		    	display_services_dialogbox(group, nid, jar_services);
-    		    }
-    		});
-    		AlertDialog alert = builder.create();
-    		alert.show();
+			//final JSONArray jar_services = GeoreporterAPI.getServices(NewReport.this);
+			try {
+				final JSONArray jar_services = new JSONArray(pref.getString("ServerService", ""));
+				jar_services_global = jar_services;
+				final CharSequence[] group = ServicesItem.getGroup(jar_services);
+				builder.setItems(group, new DialogInterface.OnClickListener() {
+				    public void onClick(DialogInterface dialog, int nid) {
+				    	display_services_dialogbox(group, nid, jar_services);
+				    }
+				});
+				AlertDialog alert = builder.create();
+				alert.show();
+			}
+			catch (JSONException e) {
+				e.printStackTrace();
+			}
 	    }
 	    
 	    private void service_update_notconnected_in_ui(){
@@ -646,41 +642,6 @@ public class NewReport extends MapActivity implements OnClickListener  {
 					latitude = loc.getLatitude();
 					longitude = loc.getLongitude();
 					
-					threadadr = new Thread() {
-		    			public void run() {
-		    				while (address == null || address == "")
-		    				address = GeoreporterUtils.getFromLocation(latitude, longitude, 2);  
-		    				mHandler.post(mUpdateResults);
-		    			}
-		    		};
-		    		threadadr.start();
-					
-			        edt_latitude = (EditText) findViewById(R.id.edt_lat);
-			        edt_latitude.setText(latitude+"");
-			        
-			        edt_longitude = (EditText) findViewById(R.id.edt_long);
-			        edt_longitude.setText(longitude+"");
-			        
-			        latitudeE6 = (int) (latitude * 1e6);
-				    longitudeE6 = (int) (longitude * 1e6);
-				    
-				    mapView = (MapView) findViewById(R.id.mapview);      
-			        mapView.setBuiltInZoomControls(true);
-			         
-			         
-			        GeoPoint point = new GeoPoint(latitudeE6, longitudeE6);
-			        // create an overlay that shows our current location
-					myLocationOverlay = new MyLocationOverlay(NewReport.this, mapView);
-					//myLocationOverlay.drawMyLocation(canvas, mapView, lastFix, initial_point, when);
-					
-					myLocationOverlay.enableMyLocation();
-					// add this overlay to the MapView and refresh it
-					mapView.getOverlays().add(myLocationOverlay);
-					mapView.postInvalidate();
-			        
-			        MapController mapController = mapView.getController(); 
-			        mapController.animateTo(point);
-			        mapController.setZoom(14); 
 				}
 			}
 
@@ -697,30 +658,6 @@ public class NewReport extends MapActivity implements OnClickListener  {
 			}
 			
 		}
-		
-		@Override
-		protected boolean isRouteDisplayed() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-		
-		// Need handler for callbacks to the UI thread
-	    final Handler mHandler = new Handler();
-
-	    // Create runnable for posting
-	    final Runnable mUpdateResults = new Runnable() {
-	        public void run() {
-	            updateResultsInUi();
-	        }
-	    };
-	    
-	    
-	    private void updateResultsInUi() {
-
-	        // Back in the UI thread -- update our UI elements based on the data in mResults
-	    	edt_address = (EditText) findViewById(R.id.edt_address);  
-	        edt_address.setText(address);			
-	    }
 		
 		public void switchTabInActivity(int indexTabToSwitchTo){
 			Main ParentActivity;
