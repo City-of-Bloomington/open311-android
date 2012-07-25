@@ -3,6 +3,7 @@
  * @license http://www.gnu.org/licenses/gpl.txt GNU/GPL, see LICENSE.txt
  * @author Cliff Ingham <inghamn@bloomington.in.gov>
  */
+
 package gov.in.bloomington.open311.view;
 
 import gov.in.bloomington.open311.R;
@@ -15,7 +16,11 @@ import android.preference.PreferenceManager;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 
+/*
+ * presentation (view) class to display and perform function regarding preferences (user data)
+ */
 public class MyPreferences extends PreferenceActivity implements OnSharedPreferenceChangeListener {
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

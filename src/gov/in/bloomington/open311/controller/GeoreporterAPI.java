@@ -1,3 +1,9 @@
+/**
+ * @copyright 2012 City of Bloomington, Indiana
+ * @license http://www.gnu.org/licenses/gpl.txt GNU/GPL, see LICENSE.txt
+ * @author Fransiska Putri Wina Hadiwidjana <fransiskapw@gmail.com>
+ */
+
 package gov.in.bloomington.open311.controller;
 
 import java.io.ByteArrayOutputStream;
@@ -31,7 +37,13 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.util.Log;
 
+/*
+ * Business (controller) class which contain function regarding interaction with open311 server
+ */
 public class GeoreporterAPI {
+	
+	/**Check whether connection to server is established or not.
+	 * Un-established connection can be occur when there's no internet connection or the server is not available  */
 	public static boolean isConnected(Activity a) {
 		HttpClient client = new DefaultHttpClient();
         HttpConnectionParams.setConnectionTimeout(client.getParams(), 10000); //Timeout Limit
@@ -74,6 +86,7 @@ public class GeoreporterAPI {
         return is_connected;
 	}
 	
+	/**Get JSON Array of services from current server */
 	public static JSONArray getServices(Activity a) {
 		SharedPreferences pref = a.getSharedPreferences("server",0);
 		JSONArray services_list = null;
@@ -108,6 +121,7 @@ public class GeoreporterAPI {
 		return services_list;
 	}
 	
+	/**Get service attribute from a particular service */
 	public static JSONObject getServiceAttribute(Activity a, String service_code) {
 		SharedPreferences pref = a.getSharedPreferences("server",0);
 		JSONObject services_attribute = null;
@@ -143,6 +157,7 @@ public class GeoreporterAPI {
 		return services_attribute;
 	}
 	
+	/**Send report to a particular server */
 	public static JSONArray sendReport(Activity a, String jurisdiction_id, String service_code, Double latitude,Double longitude, boolean hasattribute, List<NameValuePair> attribute, String email, String device_id, String first_name, String last_name, String phone, String description) {
 		SharedPreferences pref = a.getSharedPreferences("server",0);
 		JSONArray reply = new JSONArray(); 
@@ -205,6 +220,7 @@ public class GeoreporterAPI {
 		return reply;
 	}
 	
+	/**Send report to a particular server with picture*/
 	public static JSONArray sendReportWithPicture (Activity a, Bitmap bm, String jurisdiction_id, String service_code, Double latitude,Double longitude, boolean hasattribute, List<NameValuePair> attribute, String email, String device_id, String first_name, String last_name, String phone, String description) {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
     	bm.compress(CompressFormat.JPEG, 50, bos);
@@ -273,6 +289,7 @@ public class GeoreporterAPI {
 		return reply;
 	}
 	
+	/**Get a particular service request */
 	public static JSONArray getServiceRequests(Activity a, String jurisdiction_id, String service_request_id) {
 		SharedPreferences pref = a.getSharedPreferences("server",0);
 		JSONArray services_request = null;

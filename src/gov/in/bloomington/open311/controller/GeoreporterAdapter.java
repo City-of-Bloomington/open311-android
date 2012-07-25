@@ -1,3 +1,9 @@
+/**
+ * @copyright 2012 City of Bloomington, Indiana
+ * @license http://www.gnu.org/licenses/gpl.txt GNU/GPL, see LICENSE.txt
+ * @author Fransiska Putri Wina Hadiwidjana <fransiskapw@gmail.com>
+ */
+
 package gov.in.bloomington.open311.controller;
 
 import org.json.JSONArray;
@@ -15,6 +21,9 @@ import android.widget.BaseAdapter;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
+/*
+ * business (controller) class to manage adapter for dynamic listview in open311-android
+ */
 public class GeoreporterAdapter extends BaseAdapter {
 
 	private Activity activity;
@@ -22,7 +31,6 @@ public class GeoreporterAdapter extends BaseAdapter {
     private String type;
     private static LayoutInflater inflater=null;
 
-	
     public GeoreporterAdapter(Activity a, JSONArray d, String t) {
         activity = a;
         data=d;

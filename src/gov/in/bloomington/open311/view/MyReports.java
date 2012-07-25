@@ -1,8 +1,9 @@
 /**
  * @copyright 2012 City of Bloomington, Indiana
- * @license http://www.gnu.org/licenses/gpl.txt GNU/AGPL, see LICENSE.txt
- * @author Cliff Ingham <inghamn@bloomington.in.gov>
+ * @license http://www.gnu.org/licenses/gpl.txt GNU/GPL, see LICENSE.txt
+ * @author Fransiska Putri Wina Hadiwidjana <fransiskapw@gmail.com>
  */
+
 package gov.in.bloomington.open311.view;
 
 import java.util.ArrayList;
@@ -25,6 +26,9 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 
+/*
+ * presentation (view) class to display and perform function regarding user's report information
+ */
 public class MyReports extends Activity {
 	
 	private ListView list_report;
@@ -32,6 +36,7 @@ public class MyReports extends Activity {
 	private JSONArray ja_reports;
 	Intent intent;
 	
+	/** Called when the activity is first created. */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -39,6 +44,7 @@ public class MyReports extends Activity {
 		setContentView(R.layout.my_reports);
 	}
 	
+	/** Called everytime MyServers is the focused tab or display is resumed */
 	@Override
 	protected void onResume (){
 		super.onResume();
@@ -51,7 +57,6 @@ public class MyReports extends Activity {
 		
 		list_report.setOnItemLongClickListener(new OnItemLongClickListener()
 		{
-
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, final int position, long arg3) {
 				// TODO Auto-generated method stub
 				AlertDialog.Builder builder = new AlertDialog.Builder(MyReports.this);
@@ -98,19 +103,18 @@ public class MyReports extends Activity {
 		
 		list_report.setOnItemClickListener(new OnItemClickListener()
 		{
-
-		public void onItemClick(AdapterView<?> arg0, View arg1, int position, long id) {
-			// TODO Auto-generated method stub
-			intent = new Intent(MyReports.this, ReportDetail.class);
-			try {
-				intent.putExtra("report", ja_reports.getJSONObject(position).toString());
-				startActivity(intent);
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long id) {
+				// TODO Auto-generated method stub
+				intent = new Intent(MyReports.this, ReportDetail.class);
+				try {
+					intent.putExtra("report", ja_reports.getJSONObject(position).toString());
+					startActivity(intent);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	
 			}
-
-		}
 		}); 
 	}
 }

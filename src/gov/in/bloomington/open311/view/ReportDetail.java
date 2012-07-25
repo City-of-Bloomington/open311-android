@@ -1,3 +1,9 @@
+/**
+ * @copyright 2012 City of Bloomington, Indiana
+ * @license http://www.gnu.org/licenses/gpl.txt GNU/GPL, see LICENSE.txt
+ * @author Fransiska Putri Wina Hadiwidjana <fransiskapw@gmail.com>
+ */
+
 package gov.in.bloomington.open311.view;
 
 import org.json.JSONException;
@@ -13,6 +19,9 @@ import android.os.Handler;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/*
+ * presentation (view) class to display and perform function regarding detail report information
+ */
 public class ReportDetail extends Activity {
 	private JSONObject jo_reports;
 	private String jurisdiction_id;
@@ -72,25 +81,22 @@ public class ReportDetail extends Activity {
         
     }
     
-	//handler for updating topic list
+	/** handler for thread_report */
 	private Handler service_handler = new Handler();
 	
-	
-	// Create runnable for posting
-	//for updating textview
+	/** updates display component with runnable */
 	final Runnable service_get_report_detail = new Runnable() {
 	    public void run() {
 	        service_update_group_in_ui();
 	    }
 	};
-	
-	//for updating not connected message
+	/** updates not connected message with runnable */
     final Runnable service_notconnected = new Runnable() {
         public void run() {
             service_update_notconnected_in_ui();
         }
     };
-	
+	/** performs function in ui for succesfull scenario */
 	private void service_update_group_in_ui() {
 		JSONObject jo_service_request;
 		try {
@@ -115,7 +121,7 @@ public class ReportDetail extends Activity {
 		}
 		pd.dismiss();
 	}
-	
+	/** performs function in ui for failure scenario */
 	private void service_update_notconnected_in_ui(){
 		pd.dismiss();
     	Toast.makeText(getApplicationContext(), "No internet connection or the server URL is not vaild", Toast.LENGTH_LONG).show();

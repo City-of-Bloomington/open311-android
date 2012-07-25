@@ -1,8 +1,9 @@
 /**
  * @copyright 2012 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/gpl.txt GNU/GPL, see LICENSE.txt
- * @author Cliff Ingham <inghamn@bloomington.in.gov>
+ * @author Fransiska Putri Wina Hadiwidjana <fransiskapw@gmail.com>
  */
+
 package gov.in.bloomington.open311.view;
 
 import java.io.FileNotFoundException;
@@ -52,6 +53,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/*
+ * presentation (view) class to display and perform function regarding new report creation
+ */
 public class NewReport extends Activity implements OnClickListener  {
 		//for threading
 		private Thread thread_service;
@@ -153,7 +157,7 @@ public class NewReport extends Activity implements OnClickListener  {
 			
 	    }
 	    
-	    
+	    /** return function that will be initiate when click is perform to display component */
 	    public void onClick(View v) {
 			// TODO Auto-generated method stub
 		    content = edt_newReport.getText().toString();
@@ -366,7 +370,7 @@ public class NewReport extends Activity implements OnClickListener  {
 			}
 		}
 	    
-	    
+	    /** response as a result activities: camera and gallery */
 	    protected void onActivityResult(int requestCode, int resultCode, Intent data) {  
 	        if (requestCode == CAMERA_REQUEST) {  
 	        	if (resultCode == Activity.RESULT_OK) {
@@ -394,6 +398,7 @@ public class NewReport extends Activity implements OnClickListener  {
 		    }
 	    }  
 
+	    /** called each time new report page is the focused tab or resume from display sleep */
 	    @Override
 		protected void onResume (){
 			super.onResume();
@@ -414,25 +419,25 @@ public class NewReport extends Activity implements OnClickListener  {
 	        
 	    }
 	    
-	    //handler for updating topic list
+	    /** handler for thread_service */
 	    final Handler service_handler = new Handler();
 
 	    
-	  // Create runnable for posting
-	  //for updating textview
+	    /** display service group with runnable */
 	    final Runnable service_update_group = new Runnable() {
 	        public void run() {
 	            service_update_group_in_ui();
 	        }
 	    };
 	    
-	  //for updating not connected message
+	    /** update not connected message using runnable */
 	    final Runnable service_update_notconnected = new Runnable() {
 	        public void run() {
 	            service_update_notconnected_in_ui();
 	        }
 	    };
 	    
+	    /** display service group dialogbox */
 	    private void service_update_group_in_ui() {
 	    	AlertDialog.Builder builder = new AlertDialog.Builder(NewReport.this);
 			builder.setTitle("Available Service Groups from "+server_name);
@@ -454,10 +459,12 @@ public class NewReport extends Activity implements OnClickListener  {
 			}
 	    }
 	    
+	    /** display toast for unsuccessful request */
 	    private void service_update_notconnected_in_ui(){
 	    	Toast.makeText(getApplicationContext(), "No internet connection or the server URL is not vaild", Toast.LENGTH_LONG).show();
 	    }
 	    
+	    /** display second service group dialogbox (detail service) and manage view displayed */
 	    private void display_services_dialogbox(CharSequence[] group, int nid, final JSONArray jar_services) {
 	    	//make the second alert dialog for services in selected group
 	    	AlertDialog.Builder builder = new AlertDialog.Builder(NewReport.this);
@@ -544,6 +551,7 @@ public class NewReport extends Activity implements OnClickListener  {
     		alert.show();
 	    }
 	    
+	    /** display textview if required by selected service */
 	    private void display_textview() {
 	        // Back in the UI thread -- update our UI elements based on the data in mResults
 	    	TextView txt_attribute= new TextView(NewReport.this);
@@ -569,6 +577,7 @@ public class NewReport extends Activity implements OnClickListener  {
 			}
 	    }
 	    
+	    /** display edittext if required by selected service */
 	    private void display_edittext() {
 	    	EditText edt_attribute = new EditText(NewReport.this);
             edt_attribute.setId(++id);
@@ -580,6 +589,7 @@ public class NewReport extends Activity implements OnClickListener  {
         	n_rb = 0;
 	    }
 	    
+	    /** display radiobutton if required by selected service */
 	    private void display_radiobutton() {
 	    	JSONArray jar_value;
 			try {
@@ -608,6 +618,7 @@ public class NewReport extends Activity implements OnClickListener  {
 			}
 	    }
 
+	    /** display combobox if required by selected service */
 	    private void display_combobox() {
 	    	JSONArray jar_value;
 			try {
@@ -633,9 +644,18 @@ public class NewReport extends Activity implements OnClickListener  {
 			}
 	    }
 	    
-	    //LocationListener class 
+	    /** display another desired tab */
+		public void switchTabInActivity(int indexTabToSwitchTo){
+			Main ParentActivity;
+			ParentActivity = (Main) this.getParent();
+			ParentActivity.switchTab(indexTabToSwitchTo);
+		}
+	    
+	    /*
+	     * listen (fetch) current user location information
+	     */
 		private class MyLocationListener implements LocationListener {
-
+			/** update variable latitude and longitude when location changed */
 			public void onLocationChanged(Location location) {
 				if (location != null) {
 					loc = location;
@@ -659,10 +679,4 @@ public class NewReport extends Activity implements OnClickListener  {
 			
 		}
 		
-		public void switchTabInActivity(int indexTabToSwitchTo){
-			Main ParentActivity;
-			ParentActivity = (Main) this.getParent();
-			ParentActivity.switchTab(indexTabToSwitchTo);
-		}
-
 }

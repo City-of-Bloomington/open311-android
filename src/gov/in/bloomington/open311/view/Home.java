@@ -1,8 +1,9 @@
 /**
  * @copyright 2012 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/gpl.txt GNU/GPL, see LICENSE.txt
- * @author Cliff Ingham <inghamn@bloomington.in.gov>
+ * @author Fransiska Putri Wina Hadiwidjana <fransiskapw@gmail.com>
  */
+
 package gov.in.bloomington.open311.view;
 
 import gov.in.bloomington.open311.R;
@@ -22,6 +23,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONException;
 
+/*
+ * presentation (view) class to display and perform default tabhost page (home)
+ */
 public class Home extends Activity implements OnClickListener {
 	
 	private String server_name;
@@ -30,6 +34,7 @@ public class Home extends Activity implements OnClickListener {
 	private boolean pd_shown = false;
 	private boolean need_to_load; //need to load server = TRUE if just created or server just changed
 	
+	/** Called when the activity first created */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -37,6 +42,7 @@ public class Home extends Activity implements OnClickListener {
 		need_to_load = true;
 	}
 	
+	/** Called everytime Home is the focused tab or display is resumed */
 	@Override
 	protected void onResume (){
 		super.onResume();
@@ -58,7 +64,6 @@ public class Home extends Activity implements OnClickListener {
 		    		public void run() {	
 		    			//check whether user connected to the internet
 		    	    	if (GeoreporterAPI.isConnected(Home.this)) {
-		    	    		//make the first alert dialog for services group
 		    	    		service_handler.post(service_get_report_detail);
 		    	    	}
 		    	    	//if user is not connected to the internet
@@ -89,25 +94,24 @@ public class Home extends Activity implements OnClickListener {
 				img_splash.setOnClickListener((OnClickListener)this);
 	}
 	
-	//handler for updating topic list
+	/** handler for updating topic list */
 	private Handler service_handler = new Handler();
 	
-	
-	// Create runnable for posting
-	//for updating textview
+	/** get report detail using runnable */
 	final Runnable service_get_report_detail = new Runnable() {
 	    public void run() {
 	        service_update_group_in_ui();
 	    }
 	};
 	
-	//for updating not connected message
+	/** display not connected message using runnable */
     final Runnable service_notconnected = new Runnable() {
         public void run() {
             service_update_notconnected_in_ui();
         }
     };
     
+    /** get report detail in UI */
     private void service_update_group_in_ui() {
     	//get service
     	JSONArray jar_services = GeoreporterAPI.getServices(Home.this);
@@ -125,18 +129,21 @@ public class Home extends Activity implements OnClickListener {
     	switchTabInActivity(1);
     }
     
+    /** display toast if not connected */
     private void service_update_notconnected_in_ui() {
     	pd.dismiss();
     	pd_shown = false;
     	Toast.makeText(getApplicationContext(), "No internet connection or the server URL is not vaild", Toast.LENGTH_LONG).show();
     }
     
+    /** switch to other desired activity */
     public void switchTabInActivity(int indexTabToSwitchTo){
 		Main ParentActivity;
 		ParentActivity = (Main) this.getParent();
 		ParentActivity.switchTab(indexTabToSwitchTo);
 	}
-
+    
+    /** perform action when display item clicked */
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
 		switch (v.getId()) {

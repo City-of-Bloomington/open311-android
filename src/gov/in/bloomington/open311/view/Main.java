@@ -1,8 +1,9 @@
 /**
  * @copyright 2012 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/gpl.txt GNU/GPL, see LICENSE.txt
- * @author Cliff Ingham <inghamn@bloomington.in.gov>
+ * @author Fransiska Putri Wina Hadiwidjana <fransiskapw@gmail.com>
  */
+
 package gov.in.bloomington.open311.view;
 
 import gov.in.bloomington.open311.R;
@@ -15,9 +16,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TabHost;
 
+/*
+ * presentation (view) class which contain all other page open311-android in tabhost 
+ */
 public class Main extends TabActivity  {
-
 	TabHost tabHost;
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,6 +52,7 @@ public class Main extends TabActivity  {
         tabHost.setCurrentTab(0);
     }
 
+    /** display preference menu */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	MenuInflater inflater = getMenuInflater();
@@ -55,6 +60,7 @@ public class Main extends TabActivity  {
     	return true;
     }
 
+    /** perform action when preference item selected */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch (item.getItemId()) {
@@ -66,7 +72,7 @@ public class Main extends TabActivity  {
     	return true;
     }
     
-    //to let tabs switch to each other internally
+    /** let tabs switch to each other internally */
     public void switchTab(int tab){
         tabHost.setCurrentTab(tab);
     }

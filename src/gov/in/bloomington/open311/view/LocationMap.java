@@ -1,3 +1,9 @@
+/**
+ * @copyright 2012 City of Bloomington, Indiana
+ * @license http://www.gnu.org/licenses/gpl.txt GNU/GPL, see LICENSE.txt
+ * @author Fransiska Putri Wina Hadiwidjana <fransiskapw@gmail.com>
+ */
+
 package gov.in.bloomington.open311.view;
 
 import com.google.android.maps.GeoPoint;
@@ -12,6 +18,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.widget.TextView;
 
+/*
+ * presentation (view) class to display and perform function of location & map page
+ */
 public class LocationMap extends MapActivity {
 	private Thread threadadr;
 	
@@ -26,6 +35,7 @@ public class LocationMap extends MapActivity {
 	private TextView addresst;
 	private TextView coordinate;
 	     
+		/** Called when activity first created */
 	    @Override
 	    public void onCreate(Bundle savedInstanceState) {
 	         
@@ -73,9 +83,9 @@ public class LocationMap extends MapActivity {
 	        MapController mapController = mapView.getController(); 
 	        mapController.animateTo(point);
 	        mapController.setZoom(14); 
-
 	    }
 	 
+	    /** Called everytime LocationMap is the focused tab or display is resumed */
 	    @Override
 		protected void onResume() {
 			super.onResume();
@@ -83,6 +93,7 @@ public class LocationMap extends MapActivity {
 			myLocationOverlay.enableMyLocation();
 		}
 
+	    /** Called everytime MyServers is paused */
 		@Override
 		protected void onPause() {
 			super.onPause();
@@ -90,22 +101,23 @@ public class LocationMap extends MapActivity {
 			myLocationOverlay.disableMyLocation();
 		}
 	    
+		/** decide whether display can be routed or not */
 	    @Override
 	    protected boolean isRouteDisplayed() {
 	        return false;
 	    }
 	    
-	 // Need handler for callbacks to the UI thread
+	    /** handler for the UI thread */
 	    final Handler mHandler = new Handler();
 
-	    // Create runnable for posting
+	    /** update result using runnable */
 	    final Runnable mUpdateResults = new Runnable() {
 	        public void run() {
 	            updateResultsInUi();
 	        }
 	    };
 	    
-	    
+	    /** perform action in the UI */
 	    private void updateResultsInUi() {
 
 	        // Back in the UI thread -- update our UI elements based on the data in mResults

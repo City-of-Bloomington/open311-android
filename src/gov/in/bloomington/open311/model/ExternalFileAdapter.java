@@ -1,3 +1,9 @@
+/**
+ * @copyright 2012 City of Bloomington, Indiana
+ * @license http://www.gnu.org/licenses/gpl.txt GNU/GPL, see LICENSE.txt
+ * @author Fransiska Putri Wina Hadiwidjana <fransiskapw@gmail.com>
+ */
+
 package gov.in.bloomington.open311.model;
 
 
@@ -17,8 +23,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 
+/*
+ * dataAccess (model) class to connect with external file I/O process
+ */
 public class ExternalFileAdapter {
 	
+	/** Write JSON to external file */
 	public static boolean writeJSON(Activity a, String filename,JSONArray content) {
 		boolean succes = false;
 		String content_string = content.toString();
@@ -38,6 +48,7 @@ public class ExternalFileAdapter {
 		return succes;
 	}
 	
+	/** Read JSON from external file */
 	public static JSONArray readJSON(Activity a, String filename) {
 		JSONArray result = null;
 	    InputStream inputstream;
@@ -57,6 +68,7 @@ public class ExternalFileAdapter {
 		return result;
 	}
 	
+	/** Read JSON from raw resource */
 	public static JSONArray readJSONRaw(Activity a, int raw_resource) {
 		JSONArray result = null;
 		InputStream inputStream = a.getResources().openRawResource(raw_resource);		
@@ -73,6 +85,7 @@ public class ExternalFileAdapter {
 		return result;
 	}
 	
+	/** Decode Bitmap from URI */
 	 public static Bitmap decodeUri(Uri selectedImage, Activity act) throws FileNotFoundException {
 
 	        // Decode image size

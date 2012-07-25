@@ -1,3 +1,9 @@
+/**
+ * @copyright 2012 City of Bloomington, Indiana
+ * @license http://www.gnu.org/licenses/gpl.txt GNU/GPL, see LICENSE.txt
+ * @author Fransiska Putri Wina Hadiwidjana <fransiskapw@gmail.com>
+ */
+
 package gov.in.bloomington.open311.controller;
 
 import java.util.ArrayList;
@@ -6,8 +12,12 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-
+/*
+ * Business (Controller) class which act as an interface for interacting with service item
+ */
 public class ServicesItem {
+	
+	/** Return service group from JSON Array of services */
 	public static CharSequence[] getGroup (JSONArray ja_services) {
 		//assumption: servers order by group
 		List<String> group_list = new ArrayList<String>();
@@ -30,6 +40,7 @@ public class ServicesItem {
 		
 	}
 	
+	/** Return service in a particular group */
 	public static CharSequence[] getServicesByGroup(JSONArray ja_services, CharSequence group) {
 		//assumption: servers order by group
 		List<String> services_list = new ArrayList<String>();
@@ -57,6 +68,7 @@ public class ServicesItem {
 		return services;
 	}
 	
+	/** Check wheter a service has attribute*/
 	public static boolean hasAttribute (JSONArray ja_services, String service_code) {
 		boolean has_atribute = false;
 		boolean equals = false; //whether current service is the one we looking for
@@ -76,6 +88,7 @@ public class ServicesItem {
 		return has_atribute;
 	}
 	
+	/** Return service code from a service which its name is known */
 	public static String getServiceCode (JSONArray ja_services, CharSequence service) {
 		String service_code = null;
 		boolean equals = false; //whether current service is the one we looking for
@@ -95,6 +108,7 @@ public class ServicesItem {
 		return service_code;
 	}
 	
+	/** Return service code from a service which its description is known */
 	public static String getServiceDescription (JSONArray ja_services, CharSequence service) {
 		String service_code = null;
 		boolean equals = false; //whether current service is the one we looking for

@@ -1,8 +1,9 @@
 /**
  * @copyright 2012 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/gpl.txt GNU/GPL, see LICENSE.txt
- * @author Cliff Ingham <inghamn@bloomington.in.gov>
+ * @author Fransiska Putri Wina Hadiwidjana <fransiskapw@gmail.com>
  */
+
 package gov.in.bloomington.open311.view;
 
 import org.json.JSONArray;
@@ -21,6 +22,9 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+/*
+ * presentation (view) class to display and perform function regarding server information
+ */
 public class MyServers extends Activity {
 	private JSONArray servers;
 	private ListView list_services;
@@ -34,6 +38,7 @@ public class MyServers extends Activity {
 		setContentView(R.layout.my_servers);
 	}
 
+	/** Called everytime MyServers is the focused tab or display is resumed */
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -64,6 +69,7 @@ public class MyServers extends Activity {
 		});
 	}
 
+	/** display another desired tab */
 	public void switchTabInActivity(int indexTabToSwitchTo){
 		Main ParentActivity;
 		ParentActivity = (Main) this.getParent();

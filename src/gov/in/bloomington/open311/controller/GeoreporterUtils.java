@@ -1,3 +1,9 @@
+/**
+ * @copyright 2012 City of Bloomington, Indiana
+ * @license http://www.gnu.org/licenses/gpl.txt GNU/GPL, see LICENSE.txt
+ * @author Fransiska Putri Wina Hadiwidjana <fransiskapw@gmail.com>
+ */
+
 package gov.in.bloomington.open311.controller;
 
 import java.io.BufferedReader;
@@ -14,7 +20,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/*
+ * Business (Controller) utilization class
+ */
 public class GeoreporterUtils {
+	/** Return string form from a stream input */
 	public static String convertStreamToString(InputStream is) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();
@@ -26,6 +36,7 @@ public class GeoreporterUtils {
         return sb.toString();
       }
 	
+	/** return address from location coordinate */
 	public static String getFromLocation(double lat, double lon, int maxResults) {
     	String urlStr = "http://maps.google.com/maps/geo?q=" + lat + "," + lon + "&output=json&sensor=false";
 		String response = "";
@@ -70,6 +81,7 @@ public class GeoreporterUtils {
 		return results;
 	}
 	
+	/** Return month correspondent to month's number */
 	public static String getMonth(int month) {
 		String monthString = null;
 		switch (month) {
