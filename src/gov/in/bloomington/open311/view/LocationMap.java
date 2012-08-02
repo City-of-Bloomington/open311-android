@@ -27,7 +27,7 @@ public class LocationMap extends MapActivity {
 	private MapView mapView;
 	private MyLocationOverlay myLocationOverlay;
 	
-	private String address;
+	private String address = "";
 	private Double latitude;
 	private Double longitude;
 	private int latitudeE6;
@@ -52,7 +52,7 @@ public class LocationMap extends MapActivity {
 			if (longitude != null && latitude != null) {
 				threadadr = new Thread() {
 	    			public void run() {
-	    				while (address == null || address == "")
+	    				while (address.equals(""))
 	    				address = GeoreporterUtils.getFromLocation(latitude, longitude, 2);  
 	    				mHandler.post(mUpdateResults);
 	    			}

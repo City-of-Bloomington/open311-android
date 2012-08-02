@@ -33,6 +33,7 @@ public class Home extends Activity implements OnClickListener {
 	private Thread thread_service;
 	private boolean pd_shown = false;
 	private boolean need_to_load; //need to load server = TRUE if just created or server just changed
+	private GeoreporterAPI geoApi;
 	
 	/** Called when the activity first created */
 	@Override
@@ -40,6 +41,7 @@ public class Home extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.home);
 		need_to_load = true;
+		geoApi = new GeoreporterAPI(this);
 	}
 	
 	/** Called everytime Home is the focused tab or display is resumed */
@@ -63,7 +65,7 @@ public class Home extends Activity implements OnClickListener {
 				thread_service = new Thread() {
 		    		public void run() {	
 		    			//check whether user connected to the internet
-		    	    	if (GeoreporterAPI.isConnected(Home.this)) {
+		    	    	if (geoApi.isConnected()) {
 		    	    		service_handler.post(service_get_report_detail);
 		    	    	}
 		    	    	//if user is not connected to the internet
@@ -114,7 +116,7 @@ public class Home extends Activity implements OnClickListener {
     /** get report detail in UI */
     private void service_update_group_in_ui() {
     	//get service
-    	JSONArray jar_services = GeoreporterAPI.getServices(Home.this);
+    	JSONArray jar_services = geoApi.getServices();
     	SharedPreferences pref = getSharedPreferences("server",0);
 		SharedPreferences.Editor editor = pref.edit();
 		

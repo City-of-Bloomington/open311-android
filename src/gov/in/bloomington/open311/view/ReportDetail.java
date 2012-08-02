@@ -36,6 +36,7 @@ public class ReportDetail extends Activity {
 	private TextView txt_report_location;
 	private TextView txt_assigned_department;
 	private ProgressDialog pd;
+	private GeoreporterAPI geoApi;
 	
 	/** Called when the activity is first created. */
     @Override
@@ -62,11 +63,13 @@ public class ReportDetail extends Activity {
 			e.printStackTrace();
 		}
         
+        geoApi = new GeoreporterAPI(this);
+        
         pd = ProgressDialog.show(ReportDetail.this, "", "Retrieving Report Details...", true, false);
         thread_report = new Thread() {
     		public void run() {	
     			//check whether user connected to the internet
-    	    	if (GeoreporterAPI.isConnected(ReportDetail.this)) {
+    	    	if (geoApi.isConnected()) {
     	    		//make the first alert dialog for services group
     	    		service_handler.post(service_get_report_detail);
         	    	
@@ -78,7 +81,6 @@ public class ReportDetail extends Activity {
     		}
         };
         thread_report.start();
-        
     }
     
 	/** handler for thread_report */
@@ -100,7 +102,7 @@ public class ReportDetail extends Activity {
 	private void service_update_group_in_ui() {
 		JSONObject jo_service_request;
 		try {
-			jo_service_request = GeoreporterAPI.getServiceRequests(ReportDetail.this, jurisdiction_id, service_request_id).getJSONObject(0);
+			jo_service_request = geoApi.getServiceRequests(jurisdiction_id, service_request_id).getJSONObject(0);
 			txt_report_service.setText(report_service);
 			txt_report_date.setText(date_time);
 			txt_report_status.setText(jo_service_request.getString("status"));

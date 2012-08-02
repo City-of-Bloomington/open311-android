@@ -6,11 +6,17 @@
 
 package gov.in.bloomington.open311.view;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.NameValuePair;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,6 +34,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
@@ -106,6 +113,7 @@ public class NewReport extends Activity implements OnClickListener  {
 		private JSONArray reply;
 		
 		SharedPreferences pref;
+		private GeoreporterAPI geoApi;
 		
 		/** Called when the activity is first created. */
 	    @Override
@@ -155,6 +163,7 @@ public class NewReport extends Activity implements OnClickListener  {
 			btn_location = (Button) findViewById(R.id.btn_location);
 			btn_location.setOnClickListener((OnClickListener)this);
 			
+			geoApi = new GeoreporterAPI(NewReport.this);
 	    }
 	    
 	    /** return function that will be initiate when click is perform to display component */
@@ -266,16 +275,92 @@ public class NewReport extends Activity implements OnClickListener  {
 								e.printStackTrace();
 							}
 			    		}
-		    	        if (photo == null)
-		    	        	reply = GeoreporterAPI.sendReport(NewReport.this, server_jurisdiction_id, service_code, latitude, longitude, true, attribute, email, device_id, first_name, last_name, phone, content);
-		    	        else 
-		    	        	reply = GeoreporterAPI.sendReportWithPicture(NewReport.this, photo, server_jurisdiction_id, service_code, latitude, longitude, true, attribute, email, device_id, first_name, last_name, phone, content);
-	    	        }
+		    	        if (photo == null) {
+		    	        	final List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+		    				pairs.add(new BasicNameValuePair("jurisdiction_id", server_jurisdiction_id));
+		    		        pairs.add(new BasicNameValuePair("service_code", service_code));
+		    		        pairs.add(new BasicNameValuePair("lat", latitude+""));
+		    		        pairs.add(new BasicNameValuePair("long", longitude+""));
+		    		        pairs.add(new BasicNameValuePair("attribute", attribute.toString()));
+		    		        pairs.add(new BasicNameValuePair("email", email));
+		    		        pairs.add(new BasicNameValuePair("device_id", device_id));
+		    		        pairs.add(new BasicNameValuePair("first_name", first_name));
+		    		        pairs.add(new BasicNameValuePair("last_name", last_name));
+		    		        pairs.add(new BasicNameValuePair("phone", phone));
+		    		        pairs.add(new BasicNameValuePair("description", content));
+		    		        reply = geoApi.sendReport(pairs);
+		    	        	//reply = geoApi.sendReport(NewReport.this, server_jurisdiction_id, service_code, latitude, longitude, true, attribute, email, device_id, first_name, last_name, phone, content);
+		    	        	
+		    	        }
+		    	        else { 
+		    	        	//for picture
+		    	        	final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		    	        	photo.compress(CompressFormat.JPEG, 50, bos);
+		    	        	final byte[] data = bos.toByteArray();
+		    	        	final MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+			    	        try {
+			    	        	entity.addPart("media", new ByteArrayBody(data,"photo.jpg"));
+								entity.addPart("jurisdiction_id", new StringBody(server_jurisdiction_id));
+			    	            entity.addPart("service_code", new StringBody(service_code));
+			    	            entity.addPart("lat", new StringBody(latitude+""));
+			    	            entity.addPart("long", new StringBody(longitude+""));
+			    	            entity.addPart("attribute", new StringBody(attribute.toString()));
+			    	            entity.addPart("email", new StringBody(email));
+			    	            entity.addPart("device_id", new StringBody(device_id));
+			    	            entity.addPart("first_name", new StringBody(first_name));
+			    	            entity.addPart("last_name", new StringBody(last_name));
+			    	            entity.addPart("phone", new StringBody(phone));
+			    	            entity.addPart("description", new StringBody(content));
+		    	        	} catch (UnsupportedEncodingException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+		    	            reply = geoApi.sendReportWithPicture(entity);
+		    	        	//reply = geoApi.sendReportWithPicture(NewReport.this, photo, server_jurisdiction_id, service_code, latitude, longitude, true, attribute, email, device_id, first_name, last_name, phone, content);
+		    	        }
+		    	    }
 	    	        else {
-	    	        	if (photo == null)
-	    	        		reply = GeoreporterAPI.sendReport(NewReport.this, server_jurisdiction_id, service_code, latitude, longitude, false, null, email, device_id, first_name, last_name, phone, content);
-	    	        	else
-	    	        		reply = GeoreporterAPI.sendReportWithPicture(NewReport.this, photo, server_jurisdiction_id, service_code, latitude, longitude, false, null, email, device_id, first_name, last_name, phone, content);
+	    	        	if (photo == null) {
+	    	        		final List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+		    				pairs.add(new BasicNameValuePair("jurisdiction_id", server_jurisdiction_id));
+		    		        pairs.add(new BasicNameValuePair("service_code", service_code));
+		    		        pairs.add(new BasicNameValuePair("lat", latitude+""));
+		    		        pairs.add(new BasicNameValuePair("long", longitude+""));
+		    		        pairs.add(new BasicNameValuePair("email", email));
+		    		        pairs.add(new BasicNameValuePair("device_id", device_id));
+		    		        pairs.add(new BasicNameValuePair("first_name", first_name));
+		    		        pairs.add(new BasicNameValuePair("last_name", last_name));
+		    		        pairs.add(new BasicNameValuePair("phone", phone));
+		    		        pairs.add(new BasicNameValuePair("description", content));
+		    		        reply = geoApi.sendReport(pairs);
+	    	        		//reply = geoApi.sendReport(NewReport.this, server_jurisdiction_id, service_code, latitude, longitude, false, null, email, device_id, first_name, last_name, phone, content);
+	    	        	}
+	    	        	else {
+	    	        		//for picture
+		    	        	final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		    	        	photo.compress(CompressFormat.JPEG, 50, bos);
+		    	        	final byte[] data = bos.toByteArray();
+		    	        	final MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+			    	        try {
+			    	        	entity.addPart("media", new ByteArrayBody(data,"photo.jpg"));
+								entity.addPart("jurisdiction_id", new StringBody(server_jurisdiction_id));
+			    	            entity.addPart("service_code", new StringBody(service_code));
+			    	            entity.addPart("lat", new StringBody(latitude+""));
+			    	            entity.addPart("long", new StringBody(longitude+""));
+			    	            entity.addPart("email", new StringBody(email));
+			    	            entity.addPart("device_id", new StringBody(device_id));
+			    	            entity.addPart("first_name", new StringBody(first_name));
+			    	            entity.addPart("last_name", new StringBody(last_name));
+			    	            entity.addPart("phone", new StringBody(phone));
+			    	            entity.addPart("description", new StringBody(content));
+		    	        	} catch (UnsupportedEncodingException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+		    	            reply = geoApi.sendReportWithPicture(entity);
+	    	        		
+	    	        		//reply = geoApi.sendReportWithPicture(NewReport.this, photo, server_jurisdiction_id, service_code, latitude, longitude, false, null, email, device_id, first_name, last_name, phone, content);
+	    	        	}
 	    	        }
 	    	        	
 	    	        
@@ -354,7 +439,7 @@ public class NewReport extends Activity implements OnClickListener  {
 						}
 						
 						//check whether user connected to the internet
-				    	if (GeoreporterAPI.isConnected(NewReport.this)) {
+				    	if (geoApi.isConnected()) {
 				    		//make the first alert dialog for services group
 				    		service_handler.post(service_update_group);
 			    	    	
@@ -496,7 +581,7 @@ public class NewReport extends Activity implements OnClickListener  {
     		    		//display the attribute
     		    		
     		    		//fetch the atrribute
-    		    		JSONObject jo_attributes_service = GeoreporterAPI.getServiceAttribute(NewReport.this, ServicesItem.getServiceCode(jar_services, services[nid]));
+    		    		JSONObject jo_attributes_service = geoApi.getServiceAttribute(ServicesItem.getServiceCode(jar_services, services[nid]));
     		    		
     		    		try {
     		    			jar_attributes = jo_attributes_service.getJSONArray("attributes");

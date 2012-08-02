@@ -20,60 +20,71 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 /*
  * Business (Controller) utilization class
  */
 public class GeoreporterUtils {
 	/** Return string form from a stream input */
-	public static String convertStreamToString(InputStream is) throws Exception {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-          sb.append(line + "\n");
-        }
-        is.close();
-        return sb.toString();
+	public String convertStreamToString(final InputStream inputS) {
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(inputS));
+        final StringBuilder stringB = new StringBuilder();
+        //String line;
+        try {
+			while (reader.readLine() != null) {
+			  stringB.append(reader.readLine() + "\n");
+			}
+			inputS.close();
+        } catch (IOException e) {
+			// TODO Auto-generated catch block
+        	Log.e("GeoreporterUtils convertStreamToString", e.toString());
+		}
+        return stringB.toString();
       }
 	
 	/** return address from location coordinate */
-	public static String getFromLocation(double lat, double lon, int maxResults) {
-    	String urlStr = "http://maps.google.com/maps/geo?q=" + lat + "," + lon + "&output=json&sensor=false";
+	public String getFromLocation(final double lat, final double lon, final int maxResults) {
+    	final String urlStr = "http://maps.google.com/maps/geo?q=" + lat + "," + lon + "&output=json&sensor=false";
 		String response = "";
 		String results = "";
-		HttpClient client = new DefaultHttpClient();
+		final HttpClient client = new DefaultHttpClient();
 		
 		try {
-			HttpResponse hr = client.execute(new HttpGet(urlStr));
-			HttpEntity entity = hr.getEntity();
+			final HttpResponse httpR = client.execute(new HttpGet(urlStr));
+			final HttpEntity entity = httpR.getEntity();
 
-			BufferedReader br = new BufferedReader(new InputStreamReader(entity.getContent()));
+			final BufferedReader bufR = new BufferedReader(new InputStreamReader(entity.getContent()));
 
-			String buff = null;
-			while ((buff = br.readLine()) != null)
-				response += buff;
+			//String buff = null;
+			final StringBuffer str = new StringBuffer();
+			while (bufR.readLine() != null) {
+				str.append(bufR.readLine());
+				//response += bufR.readLine();
+			}
+			response = str.toString();
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.e("GeoreporterUtils getFromLocation", e.toString());
 		}
 
 		JSONArray responseArray = null;
 		try {
-			JSONObject jsonObject = new JSONObject(response);
+			final JSONObject jsonObject = new JSONObject(response);
 			responseArray = jsonObject.getJSONArray("Placemark");
 		} catch (JSONException e) {
-			return results;
+			Log.e("GeoreporterUtils getFromLocation", e.toString());
 		}
 		
 		for(int i = 0; i < responseArray.length() && i < maxResults-1; i++) {
 
 			try {
-				JSONObject jsl = responseArray.getJSONObject(i);
+				final JSONObject jsl = responseArray.getJSONObject(i);
 
-				String addressLine = jsl.getString("address");
+				final String addressLine = jsl.getString("address");
 				results = addressLine;
 				
 			} catch (JSONException e) {
-				e.printStackTrace();
+				Log.e("GeoreporterUtils getFromLocation", e.toString());
 				continue;
 			}
 		}
@@ -82,35 +93,35 @@ public class GeoreporterUtils {
 	}
 	
 	/** Return month correspondent to month's number */
-	public static String getMonth(int month) {
+	public String getMonth(final int month) {
 		String monthString = null;
 		switch (month) {
-        case 1:  monthString = "January";
-                 break;
-        case 2:  monthString = "February";
-                 break;
-        case 3:  monthString = "March";
-                 break;
-        case 4:  monthString = "April";
-                 break;
-        case 5:  monthString = "May";
-                 break;
-        case 6:  monthString = "June";
-                 break;
-        case 7:  monthString = "July";
-                 break;
-        case 8:  monthString = "August";
-                 break;
-        case 9:  monthString = "September";
-                 break;
-        case 10: monthString = "October";
-                 break;
-        case 11: monthString = "November";
-                 break;
-        case 12: monthString = "December";
-                 break;
-        default: monthString = "Invalid month";
-                 break;
+	        case 1:  monthString = "January";
+	                 break;
+	        case 2:  monthString = "February";
+	                 break;
+	        case 3:  monthString = "March";
+	                 break;
+	        case 4:  monthString = "April";
+	                 break;
+	        case 5:  monthString = "May";
+	                 break;
+	        case 6:  monthString = "June";
+	                 break;
+	        case 7:  monthString = "July";
+	                 break;
+	        case 8:  monthString = "August";
+	                 break;
+	        case 9:  monthString = "September";
+	                 break;
+	        case 10: monthString = "October";
+	                 break;
+	        case 11: monthString = "November";
+	                 break;
+	        case 12: monthString = "December";
+	                 break;
+	        default: monthString = "Invalid month";
+	                 break;
     }
 		return monthString;
 	}
