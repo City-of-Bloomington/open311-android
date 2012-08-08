@@ -111,7 +111,8 @@ public class ReportDetail extends Activity {
 				txt_report_location.setText(jo_service_request.getString("address"));
 			}
 			if (jo_service_request.getString("address").equals("null") && !jo_service_request.getString("lat").equals("null") && !jo_service_request.getString("long").equals("null") ) {
-				txt_report_location.setText(GeoreporterUtils.getFromLocation(jo_service_request.getDouble("lat"), jo_service_request.getDouble("long"), 2));
+				GeoreporterUtils georeporterU = new GeoreporterUtils();
+				txt_report_location.setText(georeporterU.getFromLocation(jo_service_request.getDouble("lat"), jo_service_request.getDouble("long"), 2));
 			}
 			else {
 				txt_report_location.setText(jo_service_request.getString("NOT AVAILABLE"));

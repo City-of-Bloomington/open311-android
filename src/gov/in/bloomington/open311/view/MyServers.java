@@ -17,6 +17,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -36,6 +37,7 @@ public class MyServers extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.my_servers);
+		Log.d("MyServers", "MyServers 1");
 	}
 
 	/** Called everytime MyServers is the focused tab or display is resumed */
@@ -45,8 +47,9 @@ public class MyServers extends Activity {
 		list_services=(ListView)findViewById(R.id.list);
 
 		servers = ExternalFileAdapter.readJSONRaw(MyServers.this, R.raw.available_servers);
-
+//		Log.d("MyServers", "MyServers 2"+servers.toString());
 		adapter = new GeoreporterAdapter(MyServers.this, servers, "server");
+//		Log.d("MyServers", "MyServers 3");
 		list_services.setAdapter(adapter);
 		list_services.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 

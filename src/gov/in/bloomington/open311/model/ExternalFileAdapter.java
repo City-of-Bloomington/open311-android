@@ -22,6 +22,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.util.Log;
 
 /*
  * dataAccess (model) class to connect with external file I/O process
@@ -54,7 +55,8 @@ public class ExternalFileAdapter {
 	    InputStream inputstream;
 		try {
 			inputstream = a.openFileInput(filename);
-			result = new JSONArray(GeoreporterUtils.convertStreamToString(inputstream));
+			GeoreporterUtils georeporterU = new GeoreporterUtils();
+			result = new JSONArray(georeporterU.convertStreamToString(inputstream));
 		} catch (FileNotFoundException e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
@@ -70,10 +72,14 @@ public class ExternalFileAdapter {
 	
 	/** Read JSON from raw resource */
 	public static JSONArray readJSONRaw(Activity a, int raw_resource) {
+		Log.d("ExternalFileAdapter", "ExternalFileAdapter 1");
 		JSONArray result = null;
 		InputStream inputStream = a.getResources().openRawResource(raw_resource);		
+		Log.d("ExternalFileAdapter", "ExternalFileAdapter 2");
 		try {
-			result = new JSONArray(GeoreporterUtils.convertStreamToString(inputStream));
+			GeoreporterUtils georeporterU = new GeoreporterUtils();
+			result = new JSONArray(georeporterU.convertStreamToString(inputStream));
+			Log.d("ExternalFileAdapter", "ExternalFileAdapter 3");
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

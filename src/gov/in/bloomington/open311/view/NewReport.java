@@ -218,8 +218,8 @@ public class NewReport extends Activity implements OnClickListener  {
 	    	    	TelephonyManager telephonyManager;                                             
 	    	        telephonyManager  =  ( TelephonyManager )getSystemService( Context.TELEPHONY_SERVICE );
 	    	        device_id = telephonyManager.getDeviceId(); 
-	    	    	
-	    	        if (ServicesItem.hasAttribute(jar_services_global, service_code)) {
+	    	    	ServicesItem serviceI = new ServicesItem();
+	    	        if (serviceI.hasAttribute(jar_services_global, service_code)) {
 	    	        
 		    	        List<NameValuePair> attribute = new ArrayList<NameValuePair>();
 		    	        
@@ -385,7 +385,8 @@ public class NewReport extends Activity implements OnClickListener  {
 		    	        		today.setToNow();
 		    	        		
 		    	        		String datetime;
-		    	        		datetime = GeoreporterUtils.getMonth(today.month+1)+" "+today.monthDay+", "+today.year+" "+today.format("%k:%M:%S");
+		    	        		GeoreporterUtils georeporterU = new GeoreporterUtils();
+		    	        		datetime = georeporterU.getMonth(today.month+1)+" "+today.monthDay+", "+today.year+" "+today.format("%k:%M:%S");
 		    	        		
 		    	        		
 		    	        		
@@ -530,7 +531,8 @@ public class NewReport extends Activity implements OnClickListener  {
 			try {
 				final JSONArray jar_services = new JSONArray(pref.getString("ServerService", ""));
 				jar_services_global = jar_services;
-				final CharSequence[] group = ServicesItem.getGroup(jar_services);
+				ServicesItem serviceI = new ServicesItem();
+				final CharSequence[] group = serviceI.getGroup(jar_services);
 				builder.setItems(group, new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int nid) {
 				    	display_services_dialogbox(group, nid, jar_services);
@@ -554,16 +556,17 @@ public class NewReport extends Activity implements OnClickListener  {
 	    	//make the second alert dialog for services in selected group
 	    	AlertDialog.Builder builder = new AlertDialog.Builder(NewReport.this);
 			builder.setTitle(group[nid]+" Services");
-			final CharSequence[] services = ServicesItem.getServicesByGroup(jar_services, group[nid]);
+			final ServicesItem serviceI = new ServicesItem();
+			final CharSequence[] services = serviceI.getServicesByGroup(jar_services, group[nid]);
     		builder.setItems(services, new DialogInterface.OnClickListener() {
     		    public void onClick(DialogInterface dialog, int nid) {
     		    	
     		    	//set the service_code - for report posting
-					service_code = ServicesItem.getServiceCode(jar_services, services[nid]);
+					service_code = serviceI.getServiceCode(jar_services, services[nid]);
 					service_name = services[nid]+"";
     		    	
     		    	Button btn_service = (Button) findViewById(R.id.btn_service);
-    		    	btn_service.setText(ServicesItem.getServiceDescription(jar_services, services[nid]));
+    		    	btn_service.setText(serviceI.getServiceDescription(jar_services, services[nid]));
     		    	
 		    		//remove previous view
     		    	
@@ -577,11 +580,11 @@ public class NewReport extends Activity implements OnClickListener  {
 	    			}
     		    	
     		    	//check whether the following service has attribute
-    		    	if (ServicesItem.hasAttribute(jar_services, service_code)) {
+    		    	if (serviceI.hasAttribute(jar_services, service_code)) {
     		    		//display the attribute
     		    		
     		    		//fetch the atrribute
-    		    		JSONObject jo_attributes_service = geoApi.getServiceAttribute(ServicesItem.getServiceCode(jar_services, services[nid]));
+    		    		JSONObject jo_attributes_service = geoApi.getServiceAttribute(serviceI.getServiceCode(jar_services, services[nid]));
     		    		
     		    		try {
     		    			jar_attributes = jo_attributes_service.getJSONArray("attributes");

@@ -83,17 +83,17 @@ public class Home extends Activity implements OnClickListener {
 		}
 		
 		//update image
-				ImageView img_splash = (ImageView) findViewById(R.id.img_splash);
-				if (server_name.equals("Bloomington, IN"))
-					img_splash.setImageResource(R.drawable.bloomington);
-				else if (server_name.equals("Baltimore, MD"))
-					img_splash.setImageResource(R.drawable.baltimore);
-				else if (server_name.equals("Boston, MA"))
-					img_splash.setImageResource(R.drawable.boston);
-				else 
-					img_splash.setImageResource(R.drawable.splash);
-				//click listener
-				img_splash.setOnClickListener((OnClickListener)this);
+		ImageView img_splash = (ImageView) findViewById(R.id.img_splash);
+		if ("Bloomington, IN".equals(server_name))
+			img_splash.setImageResource(R.drawable.bloomington);
+		else if ("Bloomington, IN".equals(server_name))
+			img_splash.setImageResource(R.drawable.baltimore);
+		else if ("Boston, MA".equals(server_name))
+			img_splash.setImageResource(R.drawable.boston);
+		else 
+			img_splash.setImageResource(R.drawable.splash);
+		//click listener
+		img_splash.setOnClickListener((OnClickListener)this);
 	}
 	
 	/** handler for updating topic list */
@@ -127,12 +127,16 @@ public class Home extends Activity implements OnClickListener {
 		editor.putBoolean("justChanged", false);
 		editor.commit();
 		
+		Log.d("home", "home connected");
+		
 		pd.dismiss();
     	switchTabInActivity(1);
     }
     
     /** display toast if not connected */
     private void service_update_notconnected_in_ui() {
+    	Log.d("home", "home NOT connected");
+    	
     	pd.dismiss();
     	pd_shown = false;
     	Toast.makeText(getApplicationContext(), "No internet connection or the server URL is not vaild", Toast.LENGTH_LONG).show();

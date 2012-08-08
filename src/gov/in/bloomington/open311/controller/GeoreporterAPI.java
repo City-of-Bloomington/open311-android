@@ -68,6 +68,7 @@ public class GeoreporterAPI {
 		boolean is_connected = false;
 		try {
 			final HttpPost post1 = new HttpPost(serverUrl);
+			Log.d("GeoreporterAPI", "GeoreporterAPI "+serverUrl);
 		    response = client.execute(post1);
 
 			if (response==null) {
@@ -101,7 +102,8 @@ public class GeoreporterAPI {
             /*Checking response */
             if(response!=null){
                 final InputStream inputS = response.getEntity().getContent(); //Get the data in the entity
-                final String str = GeoreporterUtils.convertStreamToString(inputS);
+                final GeoreporterUtils georeporterU = new GeoreporterUtils();
+                final String str = georeporterU.convertStreamToString(inputS);
                 services_list = new JSONArray(str);
             }
 			
@@ -134,7 +136,8 @@ public class GeoreporterAPI {
             /*Checking response */
             if(response!=null){
                 final InputStream inputS = response.getEntity().getContent(); //Get the data in the entity
-                final String str = GeoreporterUtils.convertStreamToString(inputS);
+                final GeoreporterUtils georeporterU = new GeoreporterUtils();
+                final String str = georeporterU.convertStreamToString(inputS);
                 servicesAttribute = new JSONObject(str);
             }
 	        
@@ -185,7 +188,8 @@ public class GeoreporterAPI {
 	        
             if(response!=null){
                 final InputStream inputS = response.getEntity().getContent(); //Get the data in the entity
-                final String str = GeoreporterUtils.convertStreamToString(inputS);
+                final GeoreporterUtils georeporterU = new GeoreporterUtils();
+                final String str = georeporterU.convertStreamToString(inputS);
                 reply = new JSONArray(str);
                 //service_request_id = reply.getJSONObject(0).getString("service_request_id");
             }
@@ -249,7 +253,8 @@ public class GeoreporterAPI {
 	        
             if(response!=null){
                 final InputStream inputS = response.getEntity().getContent(); //Get the data in the entity
-                final String str = GeoreporterUtils.convertStreamToString(inputS);
+                final GeoreporterUtils georeporterU = new GeoreporterUtils();
+                final String str = georeporterU.convertStreamToString(inputS);
                 reply = new JSONArray(str);
                 Log.d("georeporter API", reply.toString());
                 //service_request_id = reply.getJSONObject(0).getString("service_request_id");
@@ -288,7 +293,8 @@ public class GeoreporterAPI {
             /*Checking response */
             if(response!=null){
                 final InputStream inputStream = response.getEntity().getContent(); //Get the data in the entity
-                final String str = GeoreporterUtils.convertStreamToString(inputStream);
+                final GeoreporterUtils georeporterU = new GeoreporterUtils();
+                final String str = georeporterU.convertStreamToString(inputStream);
                 services_request = new JSONArray(str);
             }
 			

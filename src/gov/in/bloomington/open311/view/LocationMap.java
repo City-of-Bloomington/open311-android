@@ -52,8 +52,10 @@ public class LocationMap extends MapActivity {
 			if (longitude != null && latitude != null) {
 				threadadr = new Thread() {
 	    			public void run() {
-	    				while (address.equals(""))
-	    				address = GeoreporterUtils.getFromLocation(latitude, longitude, 2);  
+	    				while (address.equals("")) {
+	    					GeoreporterUtils georeporterU = new GeoreporterUtils();
+	    					address = georeporterU.getFromLocation(latitude, longitude, 2);  
+	    				}
 	    				mHandler.post(mUpdateResults);
 	    			}
 	    		};

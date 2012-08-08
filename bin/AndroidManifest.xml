@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="gov.in.bloomington.open311"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="15" />
+	 <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+	 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
+	 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
+	 <uses-permission android:name="android.permission.CAMERA"></uses-permission>
+	 <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
+    
+    <application
+        android:icon="@drawable/georeporter_icon"
+        android:label="GeoReporter" android:theme="@android:style/Theme.NoTitleBar">
+        <activity
+            android:name=".view.Main"
+            android:label="GeoReporter" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" 
+                    android:launchMode="singleTask"/>
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".view.MyPreferences"></activity>
+        <activity android:name=".view.Home"></activity>
+        <activity android:name=".view.NewReport"></activity>
+        <activity android:name=".view.MyReports"></activity>
+        <activity android:name=".view.MyServers"></activity>
+        <activity android:name=".view.ReportDetail"></activity>
+        <uses-library android:name="com.google.android.maps" />
+        <activity android:name=".view.LocationMap"></activity>
+    </application>
+
+</manifest>
