@@ -88,6 +88,6 @@ public class GeoreporterUtils {
 //		String monthString = null;
 		final String[] monthList = {"January", "February", "March", "April", "May", "June", "July", 
 				"August", "September", "October", "November", "December"};
-		return monthList[month+1];
+		return monthList[month];
 	}
 }

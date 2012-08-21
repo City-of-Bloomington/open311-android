@@ -31,10 +31,11 @@ import android.widget.ListView;
  */
 public class MyReports extends Activity {
 	
-	private ListView list_report;
+	private ListView listReport;
 	private GeoreporterAdapter adapter;
-	private JSONArray ja_reports;
+	private JSONArray jaReportrs;
 	Intent intent;
+	private ExternalFileAdapter extFileAdapt;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -48,14 +49,14 @@ public class MyReports extends Activity {
 	@Override
 	protected void onResume (){
 		super.onResume();
-		list_report=(ListView)findViewById(R.id.list);
-		ja_reports = ExternalFileAdapter.readJSON(MyReports.this, "reports");
-		//ja_reports = ExternalFileAdapter.readJSONRaw(MyReports.this, R.raw.available_servers);
-		adapter = new GeoreporterAdapter(MyReports.this, ja_reports, "report");
+		listReport=(ListView)findViewById(R.id.list);
+		extFileAdapt = new ExternalFileAdapter();
+		jaReportrs = extFileAdapt.readJSON(MyReports.this, "reports");
+		adapter = new GeoreporterAdapter(MyReports.this, jaReportrs, "report");
 		
-		list_report.setAdapter(adapter);
+		listReport.setAdapter(adapter);
 		
-		list_report.setOnItemLongClickListener(new OnItemLongClickListener()
+		listReport.setOnItemLongClickListener(new OnItemLongClickListener()
 		{
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, final int position, long arg3) {
 				// TODO Auto-generated method stub
@@ -67,10 +68,10 @@ public class MyReports extends Activity {
 				        	   
 				        	   //first - convert jsonarray into array
 				        	   ArrayList<JSONObject> list = new ArrayList<JSONObject>();     
-				        	   if (ja_reports != null) { 
-				        	      for (int i=0;i<ja_reports.length();i++){ 
+				        	   if (jaReportrs != null) { 
+				        	      for (int i=0;i<jaReportrs.length();i++){ 
 				        	       try {
-									list.add(ja_reports.getJSONObject(i));
+									list.add(jaReportrs.getJSONObject(i));
 				        	       } catch (JSONException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
@@ -82,10 +83,10 @@ public class MyReports extends Activity {
 				        	   list.remove(position);
 				        	   
 				        	   //third - set the list array as the json array
-				        	   ja_reports = new JSONArray(list);
-				        	   adapter = new GeoreporterAdapter(MyReports.this, ja_reports, "report");
-				        	   list_report.setAdapter(adapter);
-				        	   ExternalFileAdapter.writeJSON(MyReports.this, "reports", ja_reports);
+				        	   jaReportrs = new JSONArray(list);
+				        	   adapter = new GeoreporterAdapter(MyReports.this, jaReportrs, "report");
+				        	   listReport.setAdapter(adapter);
+				        	   extFileAdapt.writeJSON(MyReports.this, "reports", jaReportrs);
 				        	   
 				           }
 				       })
@@ -101,13 +102,13 @@ public class MyReports extends Activity {
 		
 		});
 		
-		list_report.setOnItemClickListener(new OnItemClickListener()
+		listReport.setOnItemClickListener(new OnItemClickListener()
 		{
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long id) {
 				// TODO Auto-generated method stub
 				intent = new Intent(MyReports.this, ReportDetail.class);
 				try {
-					intent.putExtra("report", ja_reports.getJSONObject(position).toString());
+					intent.putExtra("report", jaReportrs.getJSONObject(position).toString());
 					startActivity(intent);
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block

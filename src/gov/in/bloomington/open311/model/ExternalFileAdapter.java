@@ -30,94 +30,88 @@ import android.util.Log;
 public class ExternalFileAdapter {
 	
 	/** Write JSON to external file */
-	public static boolean writeJSON(Activity a, String filename,JSONArray content) {
+	public boolean writeJSON(final Activity act, final String filename,final JSONArray content) {
 		boolean succes = false;
-		String content_string = content.toString();
+		final String content_string = content.toString();
 		FileOutputStream fos;
 		try {
-			fos = a.openFileOutput(filename, Context.MODE_PRIVATE);
+			fos = act.openFileOutput(filename, Context.MODE_PRIVATE);
 			fos.write(content_string.getBytes());
 			fos.close();
 			succes = true;
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e("ExternalFileAdapter writeJSON", e.toString());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e("ExternalFileAdapter writeJSON", e.toString()); 
 		}
 		return succes;
 	}
 	
 	/** Read JSON from external file */
-	public static JSONArray readJSON(Activity a, String filename) {
+	public JSONArray readJSON(final Activity act, final String filename) {
 		JSONArray result = null;
 	    InputStream inputstream;
 		try {
-			inputstream = a.openFileInput(filename);
-			GeoreporterUtils georeporterU = new GeoreporterUtils();
+			inputstream = act.openFileInput(filename);
+			final GeoreporterUtils georeporterU = new GeoreporterUtils();
 			result = new JSONArray(georeporterU.convertStreamToString(inputstream));
-		} catch (FileNotFoundException e2) {
+		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
-			e2.printStackTrace();
+			Log.e("ExternalFileAdapter readJSON", e.toString());
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (Exception e1) {
+			Log.e("ExternalFileAdapter readJSON", e.toString());
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			Log.e("ExternalFileAdapter readJSON", e.toString());
 		}
 		return result;
 	}
 	
 	/** Read JSON from raw resource */
-	public static JSONArray readJSONRaw(Activity a, int raw_resource) {
-		Log.d("ExternalFileAdapter", "ExternalFileAdapter 1");
+	public JSONArray readJSONRaw(final Activity act, final int raw_resource) {
 		JSONArray result = null;
-		InputStream inputStream = a.getResources().openRawResource(raw_resource);		
-		Log.d("ExternalFileAdapter", "ExternalFileAdapter 2");
+		final InputStream inputStream = act.getResources().openRawResource(raw_resource);		
 		try {
-			GeoreporterUtils georeporterU = new GeoreporterUtils();
+			final GeoreporterUtils georeporterU = new GeoreporterUtils();
 			result = new JSONArray(georeporterU.convertStreamToString(inputStream));
-			Log.d("ExternalFileAdapter", "ExternalFileAdapter 3");
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (Exception e1) {
+			Log.e("ExternalFileAdapter readJSONRaw", e.toString());
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			Log.e("ExternalFileAdapter readJSONRaw", e.toString());
 		}
 		
 		return result;
 	}
 	
 	/** Decode Bitmap from URI */
-	 public static Bitmap decodeUri(Uri selectedImage, Activity act) throws FileNotFoundException {
+	 public Bitmap decodeUri(final Uri selectedImage, final Activity act) throws FileNotFoundException {
 
 	        // Decode image size
-	        BitmapFactory.Options o = new BitmapFactory.Options();
-	        o.inJustDecodeBounds = true;
-	        BitmapFactory.decodeStream(act.getContentResolver().openInputStream(selectedImage), null, o);
-
-	        // The new size we want to scale to
-	        final int REQUIRED_SIZE = 70;
+	        final BitmapFactory.Options opt = new BitmapFactory.Options();
+	        opt.inJustDecodeBounds = true;
+	        BitmapFactory.decodeStream(act.getContentResolver().openInputStream(selectedImage), null, opt);
 
 	        // Find the correct scale value. It should be the power of 2.
-	        int width_tmp = o.outWidth, height_tmp = o.outHeight;
+	        int width_tmp = opt.outWidth, height_tmp = opt.outHeight;
 	        int scale = 1;
 	        while (true) {
-	        if (width_tmp / 2 < REQUIRED_SIZE
-	            || height_tmp / 2 < REQUIRED_SIZE)
+	        if (width_tmp / 2 < 70 || height_tmp / 2 < 70) { // 70 = REQUIRED SIZE 
 	            break;
+	        }
 	        width_tmp /= 2;
 	        height_tmp /= 2;
 	        scale *= 2;
 	        }
 
 	        // Decode with inSampleSize
-	        BitmapFactory.Options o2 = new BitmapFactory.Options();
-	        o2.inSampleSize = scale;
-	        return BitmapFactory.decodeStream(act.getContentResolver().openInputStream(selectedImage), null, o2);
+	        final BitmapFactory.Options opt2 = new BitmapFactory.Options();
+	        opt2.inSampleSize = scale;
+	        return BitmapFactory.decodeStream(act.getContentResolver().openInputStream(selectedImage), null, opt2);
 
 	    }
 }

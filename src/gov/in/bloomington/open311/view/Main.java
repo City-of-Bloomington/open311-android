@@ -63,11 +63,9 @@ public class Main extends TabActivity  {
     /** perform action when preference item selected */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	switch (item.getItemId()) {
-    	case R.id.preferences:
+    	if (item.getItemId() == R.id.preferences) {
     		Intent i = new Intent(Main.this, MyPreferences.class);
     		startActivity(i);
-    		break;
     	}
     	return true;
     }

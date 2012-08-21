@@ -23,18 +23,18 @@ import android.widget.Toast;
  * presentation (view) class to display and perform function regarding detail report information
  */
 public class ReportDetail extends Activity {
-	private JSONObject jo_reports;
-	private String jurisdiction_id;
-	private String date_time;
-	private String report_service;
-	private String service_request_id;
-	private Thread thread_report;
+	private JSONObject joReports;
+	private String jurisdictionId;
+	private String dateTime;
+	private String reportService;
+	private String sRequestId;
+	private Thread threadReport;
 	
-	private TextView txt_report_service;
-	private TextView txt_report_date;
-	private TextView txt_report_status;
-	private TextView txt_report_location;
-	private TextView txt_assigned_department;
+	private TextView txtReportService;
+	private TextView txtReportDate;
+	private TextView txtReportStatus;
+	private TextView txtReportLocation;
+	private TextView txtAssignedDepartment;
 	private ProgressDialog pd;
 	private GeoreporterAPI geoApi;
 	
@@ -44,19 +44,19 @@ public class ReportDetail extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.report_detail);
         
-        txt_report_service = (TextView) findViewById(R.id.txt_report_service);
-        txt_report_date = (TextView) findViewById(R.id.txt_report_date);
-        txt_report_status = (TextView) findViewById(R.id.txt_report_status);
-        txt_report_location = (TextView) findViewById(R.id.txt_report_location);
-        txt_assigned_department = (TextView) findViewById(R.id.txt_assigned_department);
+        txtReportService = (TextView) findViewById(R.id.txt_report_service);
+        txtReportDate = (TextView) findViewById(R.id.txt_report_date);
+        txtReportStatus = (TextView) findViewById(R.id.txt_report_status);
+        txtReportLocation = (TextView) findViewById(R.id.txt_report_location);
+        txtAssignedDepartment = (TextView) findViewById(R.id.txt_assigned_department);
         
         Bundle extras = getIntent().getExtras();
         try {
-			jo_reports = new JSONObject(extras.getString("report"));
-			jurisdiction_id = jo_reports.getString("jurisdiction_id");
-			service_request_id = jo_reports.getString("service_request_id");
-			date_time = jo_reports.getString("date_time");
-			report_service = jo_reports.getString("report_service");
+			joReports = new JSONObject(extras.getString("report"));
+			jurisdictionId = joReports.getString("jurisdiction_id");
+			sRequestId = joReports.getString("service_request_id");
+			dateTime = joReports.getString("date_time");
+			reportService = joReports.getString("report_service");
 			
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -66,56 +66,56 @@ public class ReportDetail extends Activity {
         geoApi = new GeoreporterAPI(this);
         
         pd = ProgressDialog.show(ReportDetail.this, "", "Retrieving Report Details...", true, false);
-        thread_report = new Thread() {
+        threadReport = new Thread() {
     		public void run() {	
     			//check whether user connected to the internet
     	    	if (geoApi.isConnected()) {
     	    		//make the first alert dialog for services group
-    	    		service_handler.post(service_get_report_detail);
+    	    		sHandler.post(service_get_report_detail);
         	    	
     	    	}
     	    	//if user is not connected to the internet
     	    	else {
-    	    		service_handler.post(service_notconnected);
+    	    		sHandler.post(service_notconnected);
     	    	}
     		}
         };
-        thread_report.start();
+        threadReport.start();
     }
     
-	/** handler for thread_report */
-	private Handler service_handler = new Handler();
+	/** handler for threadReport */
+	private Handler sHandler = new Handler();
 	
 	/** updates display component with runnable */
 	final Runnable service_get_report_detail = new Runnable() {
 	    public void run() {
-	        service_update_group_in_ui();
+	        sUpdateGroupInUi();
 	    }
 	};
 	/** updates not connected message with runnable */
     final Runnable service_notconnected = new Runnable() {
         public void run() {
-            service_update_notconnected_in_ui();
+            sUpdateNotConnectedInUi();
         }
     };
 	/** performs function in ui for succesfull scenario */
-	private void service_update_group_in_ui() {
+	private void sUpdateGroupInUi() {
 		JSONObject jo_service_request;
 		try {
-			jo_service_request = geoApi.getServiceRequests(jurisdiction_id, service_request_id).getJSONObject(0);
-			txt_report_service.setText(report_service);
-			txt_report_date.setText(date_time);
-			txt_report_status.setText(jo_service_request.getString("status"));
-			txt_assigned_department.setText(jo_service_request.getString("agency_responsible"));
+			jo_service_request = geoApi.getServiceRequests(jurisdictionId, sRequestId).getJSONObject(0);
+			txtReportService.setText(reportService);
+			txtReportDate.setText(dateTime);
+			txtReportStatus.setText(jo_service_request.getString("status"));
+			txtAssignedDepartment.setText(jo_service_request.getString("agency_responsible"));
 			if (!jo_service_request.getString("address").equals("null")) {
-				txt_report_location.setText(jo_service_request.getString("address"));
+				txtReportLocation.setText(jo_service_request.getString("address"));
 			}
 			if (jo_service_request.getString("address").equals("null") && !jo_service_request.getString("lat").equals("null") && !jo_service_request.getString("long").equals("null") ) {
 				GeoreporterUtils georeporterU = new GeoreporterUtils();
-				txt_report_location.setText(georeporterU.getFromLocation(jo_service_request.getDouble("lat"), jo_service_request.getDouble("long"), 2));
+				txtReportLocation.setText(georeporterU.getFromLocation(jo_service_request.getDouble("lat"), jo_service_request.getDouble("long"), 2));
 			}
 			else {
-				txt_report_location.setText(jo_service_request.getString("NOT AVAILABLE"));
+				txtReportLocation.setText(jo_service_request.getString("NOT AVAILABLE"));
 			}
 			
 		} catch (JSONException e) {
@@ -125,7 +125,7 @@ public class ReportDetail extends Activity {
 		pd.dismiss();
 	}
 	/** performs function in ui for failure scenario */
-	private void service_update_notconnected_in_ui(){
+	private void sUpdateNotConnectedInUi(){
 		pd.dismiss();
     	Toast.makeText(getApplicationContext(), "No internet connection or the server URL is not vaild", Toast.LENGTH_LONG).show();
     }

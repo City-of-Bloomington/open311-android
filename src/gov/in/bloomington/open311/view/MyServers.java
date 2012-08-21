@@ -17,7 +17,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -28,37 +27,40 @@ import android.widget.ListView;
  */
 public class MyServers extends Activity {
 	private JSONArray servers;
-	private ListView list_services;
+	private ListView listServices;
 	private GeoreporterAdapter adapter;
 	Intent intent;
+	private ExternalFileAdapter extFileAdapt;
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.my_servers);
-		Log.d("MyServers", "MyServers 1");
+//		Log.d("MyServers", "MyServers 1");
 	}
 
 	/** Called everytime MyServers is the focused tab or display is resumed */
 	@Override
 	protected void onResume() {
 		super.onResume();
-		list_services=(ListView)findViewById(R.id.list);
+		listServices=(ListView)findViewById(R.id.list);
 
-		servers = ExternalFileAdapter.readJSONRaw(MyServers.this, R.raw.available_servers);
+		extFileAdapt = new ExternalFileAdapter();
+		servers = extFileAdapt.readJSONRaw(MyServers.this, R.raw.available_servers);
 //		Log.d("MyServers", "MyServers 2"+servers.toString());
 		adapter = new GeoreporterAdapter(MyServers.this, servers, "server");
 //		Log.d("MyServers", "MyServers 3");
-		list_services.setAdapter(adapter);
-		list_services.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+		listServices.setAdapter(adapter);
+		listServices.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
-		list_services.setOnItemClickListener(new OnItemClickListener() {
+		listServices.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> arg0, View arg1, final int position, long id) {
 				SharedPreferences pref = getSharedPreferences("server",0);
 				SharedPreferences.Editor editor = pref.edit();
 				try {
 					editor.putString("selectedServer", servers.getString(position));
+//					Log.d("MyServers", "servers: "+servers.getString(position));
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

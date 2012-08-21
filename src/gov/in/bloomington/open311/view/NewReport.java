@@ -65,27 +65,27 @@ import android.widget.Toast;
  */
 public class NewReport extends Activity implements OnClickListener  {
 		//for threading
-		private Thread thread_service;
-		private JSONArray jar_attributes;
+		private Thread threadService;
+		private JSONArray jarAttributes;
 		private int id;
-		private int last_id = 0;
+		private int lastId = 0;
 		private int i;
-		private int n_rb;
+		private int nRb;
 		private RelativeLayout r0;
-		private String server_name;
+		private String serverName;
 		
 		
-		private ImageView img_photo;
-		private EditText edt_newReport;
-		private EditText edt_firstName;
-		private EditText edt_lastName;
-		private EditText edt_email;
-		private EditText edt_phone;
-		private Button btn_send;
+		private ImageView imgPhoto;
+		private EditText edtNewReport;
+		private EditText edtFirstName;
+		private EditText edtLastName;
+		private EditText edtEmail;
+		private EditText edtPhone;
+		private Button btnSend;
 		private TextView failed;
-		private Button btn_service;
-		private Button btn_picture;
-		private Button btn_location;
+		private Button btnService;
+		private Button btnPicture;
+		private Button btnLocation;
 
 		private String content;
 		Bitmap photo = null;
@@ -100,20 +100,21 @@ public class NewReport extends Activity implements OnClickListener  {
 		private double latitude;
 		
 		//for send report
-		private String server_jurisdiction_id;
-		private String service_code;
-		private String service_name;
-		private String first_name;
-		private String last_name;
+		private String serverJurisdictionId;
+		private String serviceCode;
+		private String serviceName;
+		private String firstName;
+		private String lastName;
 		private String email;
 		private String phone;
-		private String device_id;
-		private String attribute_content;
-		private JSONArray jar_services_global;
+		private String deviceId;
+		private String attributeContent;
+		private JSONArray jarServicesGlobal;
 		private JSONArray reply;
 		
 		SharedPreferences pref;
 		private GeoreporterAPI geoApi;
+		private ExternalFileAdapter extFileAdapt;
 		
 		/** Called when the activity is first created. */
 	    @Override
@@ -135,41 +136,41 @@ public class NewReport extends Activity implements OnClickListener  {
 			}
 	        
 	        //for click listener
-		    img_photo = (ImageView) findViewById(R.id.img_photo);
-		    img_photo.setOnClickListener((OnClickListener) this);
+		    imgPhoto = (ImageView) findViewById(R.id.img_photo);
+		    imgPhoto.setOnClickListener((OnClickListener) this);
 		    
-		    edt_newReport = (EditText) findViewById(R.id.edt_newReport);
-		    edt_newReport.setOnFocusChangeListener(new OnFocusChangeListener() {
+		    edtNewReport = (EditText) findViewById(R.id.edt_newReport);
+		    edtNewReport.setOnFocusChangeListener(new OnFocusChangeListener() {
 				public void onFocusChange(View v, boolean hasFocus) {
-					if (edt_newReport.getText().toString().equals("Fill your report here")) {
-			        	edt_newReport.setText(""); 
+					if (edtNewReport.getText().toString().equals("Fill your report here")) {
+			        	edtNewReport.setText(""); 
 					}
-					 edt_newReport.setTextColor(Color.BLACK);
+					 edtNewReport.setTextColor(Color.BLACK);
 				}
 			});
 		    
-		    btn_send = (Button) findViewById(R.id.btn_submit);
-		    btn_send.setOnClickListener((OnClickListener)this);
+		    btnSend = (Button) findViewById(R.id.btn_submit);
+		    btnSend.setOnClickListener((OnClickListener)this);
 		    
 			failed = (TextView) findViewById(R.id.txt_SendingFailed);
 			failed.setVisibility(TextView.GONE);
 			
-			btn_service = (Button) findViewById(R.id.btn_service);
-			btn_service.setOnClickListener((OnClickListener)this);
+			btnService = (Button) findViewById(R.id.btn_service);
+			btnService.setOnClickListener((OnClickListener)this);
 			
-			btn_picture = (Button) findViewById(R.id.btn_picture);
-			btn_picture.setOnClickListener((OnClickListener)this);
+			btnPicture = (Button) findViewById(R.id.btn_picture);
+			btnPicture.setOnClickListener((OnClickListener)this);
 			
-			btn_location = (Button) findViewById(R.id.btn_location);
-			btn_location.setOnClickListener((OnClickListener)this);
+			btnLocation = (Button) findViewById(R.id.btn_location);
+			btnLocation.setOnClickListener((OnClickListener)this);
 			
-			geoApi = new GeoreporterAPI(NewReport.this);
+			extFileAdapt = new ExternalFileAdapter();
 	    }
 	    
 	    /** return function that will be initiate when click is perform to display component */
 	    public void onClick(View v) {
 			// TODO Auto-generated method stub
-		    content = edt_newReport.getText().toString();
+		    content = edtNewReport.getText().toString();
 
 			switch (v.getId()) {
 			case R.id.btn_location:
@@ -209,66 +210,66 @@ public class NewReport extends Activity implements OnClickListener  {
 				
 				//check whether report is filled
 	    	    if (!content.equals("") && !content.equals("Fill your report here")) {
-	    	    	first_name = edt_firstName.getText().toString();
-	    	    	last_name = edt_lastName.getText().toString();
-	    	    	email = edt_email.getText().toString();
-	    	    	phone = edt_phone.getText().toString();
+	    	    	firstName = edtFirstName.getText().toString();
+	    	    	lastName = edtLastName.getText().toString();
+	    	    	email = edtEmail.getText().toString();
+	    	    	phone = edtPhone.getText().toString();
 	    	    	
 	    	    	//to get device id
 	    	    	TelephonyManager telephonyManager;                                             
 	    	        telephonyManager  =  ( TelephonyManager )getSystemService( Context.TELEPHONY_SERVICE );
-	    	        device_id = telephonyManager.getDeviceId(); 
+	    	        deviceId = telephonyManager.getDeviceId(); 
 	    	    	ServicesItem serviceI = new ServicesItem();
-	    	        if (serviceI.hasAttribute(jar_services_global, service_code)) {
+	    	        if (serviceI.hasAttribute(jarServicesGlobal, serviceCode)) {
 	    	        
 		    	        List<NameValuePair> attribute = new ArrayList<NameValuePair>();
 		    	        
 		    	        id = 101;
-		    	        for (i=0;i<jar_attributes.length();i++) {
-		    	        	attribute_content = "";
+		    	        for (i=0;i<jarAttributes.length();i++) {
+		    	        	attributeContent = "";
 		    	        	
 	    		            //check datatype of input
 	    		            try {
-								if (jar_attributes.getJSONObject(i).getString("type").equals("text")) {
+								if (jarAttributes.getJSONObject(i).getString("type").equals("text")) {
 									//if datatype == text
 									EditText edt_contentAttribute = (EditText) findViewById(++id);
-									attribute_content = edt_contentAttribute.getText().toString();
-									Log.d("new report", "1 edit text "+ attribute_content);
+									attributeContent = edt_contentAttribute.getText().toString();
+									Log.d("new report", "1 edit text "+ attributeContent);
 								}
-								else if (jar_attributes.getJSONObject(i).getString("type").equals("singlevaluelist")) {
+								else if (jarAttributes.getJSONObject(i).getString("type").equals("singlevaluelist")) {
 									//if datatype == singlevaluelist
-									JSONArray jar_value = jar_attributes.getJSONObject(i).getJSONArray("values");
-									n_rb = jar_value.length();
+									JSONArray jar_value = jarAttributes.getJSONObject(i).getJSONArray("values");
+									nRb = jar_value.length();
 									id++; // for radio group
 									
-									for (int j=0; j< n_rb; j++) {
+									for (int j=0; j< nRb; j++) {
 										RadioButton rb_contentAttribute = (RadioButton) findViewById(++id);
 										if (rb_contentAttribute.isChecked()) {
-											attribute_content = rb_contentAttribute.getText().toString();
+											attributeContent = rb_contentAttribute.getText().toString();
 										}
 									}
-									Log.d("new report", "2 radio button "+ attribute_content);
+									Log.d("new report", "2 radio button "+ attributeContent);
 								}
-								else if (jar_attributes.getJSONObject(i).getString("type").equals("multivaluelist")) {
+								else if (jarAttributes.getJSONObject(i).getString("type").equals("multivaluelist")) {
 									//if datatype == multivaluelist
 									boolean isfirst = true;
-									JSONArray jar_value = jar_attributes.getJSONObject(i).getJSONArray("values");
+									JSONArray jar_value = jarAttributes.getJSONObject(i).getJSONArray("values");
 									int n_cb = jar_value.length();
 									
 									for (int j=0; j< n_cb; j++) {
 										CheckBox cb_contentAttribute = (CheckBox) findViewById(++id);
 										if (cb_contentAttribute.isChecked()) {
 											if (isfirst) {
-												attribute_content = cb_contentAttribute.getText().toString();
+												attributeContent = cb_contentAttribute.getText().toString();
 												isfirst = false;
 											}
 											else 
-												attribute_content = attribute_content + ", " +  cb_contentAttribute.getText().toString();
+												attributeContent = attributeContent + ", " +  cb_contentAttribute.getText().toString();
 										}
 									}
-									Log.d("new report", "3 checkbox "+ attribute_content);
+									Log.d("new report", "3 checkbox "+ attributeContent);
 								}
-								attribute.add(new BasicNameValuePair(jar_attributes.getJSONObject(i).getString("name"), attribute_content));
+								attribute.add(new BasicNameValuePair(jarAttributes.getJSONObject(i).getString("name"), attributeContent));
 								id++;
 							} catch (JSONException e) {
 								// TODO Auto-generated catch block
@@ -277,19 +278,19 @@ public class NewReport extends Activity implements OnClickListener  {
 			    		}
 		    	        if (photo == null) {
 		    	        	final List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-		    				pairs.add(new BasicNameValuePair("jurisdiction_id", server_jurisdiction_id));
-		    		        pairs.add(new BasicNameValuePair("service_code", service_code));
+		    				pairs.add(new BasicNameValuePair("jurisdiction_id", serverJurisdictionId));
+		    		        pairs.add(new BasicNameValuePair("serviceCode", serviceCode));
 		    		        pairs.add(new BasicNameValuePair("lat", latitude+""));
 		    		        pairs.add(new BasicNameValuePair("long", longitude+""));
 		    		        pairs.add(new BasicNameValuePair("attribute", attribute.toString()));
 		    		        pairs.add(new BasicNameValuePair("email", email));
-		    		        pairs.add(new BasicNameValuePair("device_id", device_id));
-		    		        pairs.add(new BasicNameValuePair("first_name", first_name));
-		    		        pairs.add(new BasicNameValuePair("last_name", last_name));
+		    		        pairs.add(new BasicNameValuePair("deviceId", deviceId));
+		    		        pairs.add(new BasicNameValuePair("firstName", firstName));
+		    		        pairs.add(new BasicNameValuePair("lastName", lastName));
 		    		        pairs.add(new BasicNameValuePair("phone", phone));
 		    		        pairs.add(new BasicNameValuePair("description", content));
 		    		        reply = geoApi.sendReport(pairs);
-		    	        	//reply = geoApi.sendReport(NewReport.this, server_jurisdiction_id, service_code, latitude, longitude, true, attribute, email, device_id, first_name, last_name, phone, content);
+		    	        	//reply = geoApi.sendReport(NewReport.this, serverJurisdictionId, serviceCode, latitude, longitude, true, attribute, email, deviceId, firstName, lastName, phone, content);
 		    	        	
 		    	        }
 		    	        else { 
@@ -300,15 +301,15 @@ public class NewReport extends Activity implements OnClickListener  {
 		    	        	final MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 			    	        try {
 			    	        	entity.addPart("media", new ByteArrayBody(data,"photo.jpg"));
-								entity.addPart("jurisdiction_id", new StringBody(server_jurisdiction_id));
-			    	            entity.addPart("service_code", new StringBody(service_code));
+								entity.addPart("jurisdiction_id", new StringBody(serverJurisdictionId));
+			    	            entity.addPart("serviceCode", new StringBody(serviceCode));
 			    	            entity.addPart("lat", new StringBody(latitude+""));
 			    	            entity.addPart("long", new StringBody(longitude+""));
 			    	            entity.addPart("attribute", new StringBody(attribute.toString()));
 			    	            entity.addPart("email", new StringBody(email));
-			    	            entity.addPart("device_id", new StringBody(device_id));
-			    	            entity.addPart("first_name", new StringBody(first_name));
-			    	            entity.addPart("last_name", new StringBody(last_name));
+			    	            entity.addPart("deviceId", new StringBody(deviceId));
+			    	            entity.addPart("firstName", new StringBody(firstName));
+			    	            entity.addPart("lastName", new StringBody(lastName));
 			    	            entity.addPart("phone", new StringBody(phone));
 			    	            entity.addPart("description", new StringBody(content));
 		    	        	} catch (UnsupportedEncodingException e) {
@@ -316,24 +317,24 @@ public class NewReport extends Activity implements OnClickListener  {
 								e.printStackTrace();
 							}
 		    	            reply = geoApi.sendReportWithPicture(entity);
-		    	        	//reply = geoApi.sendReportWithPicture(NewReport.this, photo, server_jurisdiction_id, service_code, latitude, longitude, true, attribute, email, device_id, first_name, last_name, phone, content);
+		    	        	//reply = geoApi.sendReportWithPicture(NewReport.this, photo, serverJurisdictionId, serviceCode, latitude, longitude, true, attribute, email, deviceId, firstName, lastName, phone, content);
 		    	        }
 		    	    }
 	    	        else {
 	    	        	if (photo == null) {
 	    	        		final List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-		    				pairs.add(new BasicNameValuePair("jurisdiction_id", server_jurisdiction_id));
-		    		        pairs.add(new BasicNameValuePair("service_code", service_code));
+		    				pairs.add(new BasicNameValuePair("jurisdiction_id", serverJurisdictionId));
+		    		        pairs.add(new BasicNameValuePair("serviceCode", serviceCode));
 		    		        pairs.add(new BasicNameValuePair("lat", latitude+""));
 		    		        pairs.add(new BasicNameValuePair("long", longitude+""));
 		    		        pairs.add(new BasicNameValuePair("email", email));
-		    		        pairs.add(new BasicNameValuePair("device_id", device_id));
-		    		        pairs.add(new BasicNameValuePair("first_name", first_name));
-		    		        pairs.add(new BasicNameValuePair("last_name", last_name));
+		    		        pairs.add(new BasicNameValuePair("deviceId", deviceId));
+		    		        pairs.add(new BasicNameValuePair("firstName", firstName));
+		    		        pairs.add(new BasicNameValuePair("lastName", lastName));
 		    		        pairs.add(new BasicNameValuePair("phone", phone));
 		    		        pairs.add(new BasicNameValuePair("description", content));
 		    		        reply = geoApi.sendReport(pairs);
-	    	        		//reply = geoApi.sendReport(NewReport.this, server_jurisdiction_id, service_code, latitude, longitude, false, null, email, device_id, first_name, last_name, phone, content);
+	    	        		//reply = geoApi.sendReport(NewReport.this, serverJurisdictionId, serviceCode, latitude, longitude, false, null, email, deviceId, firstName, lastName, phone, content);
 	    	        	}
 	    	        	else {
 	    	        		//for picture
@@ -343,14 +344,14 @@ public class NewReport extends Activity implements OnClickListener  {
 		    	        	final MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 			    	        try {
 			    	        	entity.addPart("media", new ByteArrayBody(data,"photo.jpg"));
-								entity.addPart("jurisdiction_id", new StringBody(server_jurisdiction_id));
-			    	            entity.addPart("service_code", new StringBody(service_code));
+								entity.addPart("jurisdiction_id", new StringBody(serverJurisdictionId));
+			    	            entity.addPart("serviceCode", new StringBody(serviceCode));
 			    	            entity.addPart("lat", new StringBody(latitude+""));
 			    	            entity.addPart("long", new StringBody(longitude+""));
 			    	            entity.addPart("email", new StringBody(email));
-			    	            entity.addPart("device_id", new StringBody(device_id));
-			    	            entity.addPart("first_name", new StringBody(first_name));
-			    	            entity.addPart("last_name", new StringBody(last_name));
+			    	            entity.addPart("deviceId", new StringBody(deviceId));
+			    	            entity.addPart("firstName", new StringBody(firstName));
+			    	            entity.addPart("lastName", new StringBody(lastName));
 			    	            entity.addPart("phone", new StringBody(phone));
 			    	            entity.addPart("description", new StringBody(content));
 		    	        	} catch (UnsupportedEncodingException e) {
@@ -359,7 +360,7 @@ public class NewReport extends Activity implements OnClickListener  {
 							}
 		    	            reply = geoApi.sendReportWithPicture(entity);
 	    	        		
-	    	        		//reply = geoApi.sendReportWithPicture(NewReport.this, photo, server_jurisdiction_id, service_code, latitude, longitude, false, null, email, device_id, first_name, last_name, phone, content);
+	    	        		//reply = geoApi.sendReportWithPicture(NewReport.this, photo, serverJurisdictionId, serviceCode, latitude, longitude, false, null, email, deviceId, firstName, lastName, phone, content);
 	    	        	}
 	    	        }
 	    	        	
@@ -371,11 +372,11 @@ public class NewReport extends Activity implements OnClickListener  {
 		    	        	Toast.makeText(getApplicationContext(), "Report has been sent with service request id :"+service_request_id, Toast.LENGTH_LONG).show();
 		    	        	
 		    	        	JSONArray ja_savedreports;
-		    	        	if (ExternalFileAdapter.readJSON(NewReport.this, "reports") == null) {
+		    	        	if (extFileAdapt.readJSON(NewReport.this, "reports") == null) {
 		    	        		ja_savedreports = new JSONArray();
 		    	        	}
 		    	        	else {
-		    	        		ja_savedreports = ExternalFileAdapter.readJSON(NewReport.this, "reports");
+		    	        		ja_savedreports = extFileAdapt.readJSON(NewReport.this, "reports");
 		    	        	}
 		    	        	
 		    	        	
@@ -386,22 +387,22 @@ public class NewReport extends Activity implements OnClickListener  {
 		    	        		
 		    	        		String datetime;
 		    	        		GeoreporterUtils georeporterU = new GeoreporterUtils();
-		    	        		datetime = georeporterU.getMonth(today.month+1)+" "+today.monthDay+", "+today.year+" "+today.format("%k:%M:%S");
-		    	        		
+		    	        		datetime = georeporterU.getMonth(today.month)+" "+today.monthDay+", "+today.year+" "+today.format("%k:%M:%S");
 		    	        		
 		    	        		
 		    	        		object.put("service_request_id", service_request_id);
-		    	        		object.put("jurisdiction_id", server_jurisdiction_id);
-		    	        		object.put("report_service", service_name);
+		    	        		object.put("jurisdiction_id", serverJurisdictionId);
+		    	        		object.put("report_service", serviceName);
 		    	        		object.put("date_time", datetime);
-		    	        		object.put("server_name", server_name);
+		    	        		object.put("server_name", serverName);
 		    	        	} catch (JSONException e) {
 		    	        		e.printStackTrace();
 		    	        	}
 		    	        	
 		    	        	ja_savedreports.put(object);
 		    	        	
-		    	        	ExternalFileAdapter.writeJSON(NewReport.this, "reports", ja_savedreports);
+		    	        	extFileAdapt = new ExternalFileAdapter();
+		    	        	extFileAdapt.writeJSON(NewReport.this, "reports", ja_savedreports);
 		    	        	//switch to my report screen
 		    				switchTabInActivity(2);
 		    	        }
@@ -423,7 +424,7 @@ public class NewReport extends Activity implements OnClickListener  {
 			
 			case R.id.btn_service:
 				//for showing group, services, and attributes
-		        thread_service = new Thread() {
+		        threadService = new Thread() {
 					public void run() {	
 						
 				      //get the current server
@@ -432,8 +433,8 @@ public class NewReport extends Activity implements OnClickListener  {
 						
 						try {
 							server = new JSONObject(pref.getString("selectedServer", ""));
-							server_name = server.getString("name");
-							server_jurisdiction_id = server.getString("jurisdiction_id");
+							serverName = server.getString("name");
+							serverJurisdictionId = server.getString("jurisdiction_id");
 						} catch (JSONException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -451,7 +452,7 @@ public class NewReport extends Activity implements OnClickListener  {
 				    	}
 					}
 		        };
-		        thread_service.start();
+		        threadService.start();
 				break;
 			}
 		}
@@ -460,20 +461,20 @@ public class NewReport extends Activity implements OnClickListener  {
 	    protected void onActivityResult(int requestCode, int resultCode, Intent data) {  
 	        if (requestCode == CAMERA_REQUEST) {  
 	        	if (resultCode == Activity.RESULT_OK) {
-	        		img_photo.setVisibility(ImageView.VISIBLE);
-	        		btn_picture.setText("Change Picture");
+	        		imgPhoto.setVisibility(ImageView.VISIBLE);
+	        		btnPicture.setText("Change Picture");
 		            photo = (Bitmap) data.getExtras().get("data"); 
-		            img_photo.setImageBitmap(photo);
+		            imgPhoto.setImageBitmap(photo);
 	        	}
 	        }
 	        else if (requestCode == GALLERY_REQUEST) {
 		        if(resultCode == RESULT_OK){  
-		        	img_photo.setVisibility(ImageView.VISIBLE);
-	        		btn_picture.setText("Change Picture");
+		        	imgPhoto.setVisibility(ImageView.VISIBLE);
+	        		btnPicture.setText("Change Picture");
 		            Uri selectedImage = data.getData();
 					try {
-						photo = ExternalFileAdapter.decodeUri(selectedImage, this);
-			            img_photo.setImageBitmap(photo);
+						photo = extFileAdapt.decodeUri(selectedImage, this);
+			            imgPhoto.setImageBitmap(photo);
 			            
 					} catch (FileNotFoundException e) {
 						// TODO Auto-generated catch block
@@ -491,51 +492,52 @@ public class NewReport extends Activity implements OnClickListener  {
 			
 			//for Shared Preferences
 	        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-	        edt_firstName = (EditText) findViewById(R.id.edt_firstname);
-	        edt_firstName.setText(preferences.getString("firstname", ""));
+	        edtFirstName = (EditText) findViewById(R.id.edt_firstname);
+	        edtFirstName.setText(preferences.getString("firstname", ""));
 	        
-	        edt_lastName = (EditText) findViewById(R.id.edt_lastname);
-	        edt_lastName.setText(preferences.getString("lastname", ""));
+	        edtLastName = (EditText) findViewById(R.id.edt_lastname);
+	        edtLastName.setText(preferences.getString("lastname", ""));
 	        
-	        edt_email = (EditText) findViewById(R.id.edt_email);
-	        edt_email.setText(preferences.getString("email", ""));
+	        edtEmail = (EditText) findViewById(R.id.edt_email);
+	        edtEmail.setText(preferences.getString("email", ""));
 	        
-	        edt_phone = (EditText) findViewById(R.id.edt_phone);
-	        edt_phone.setText(preferences.getString("phone", ""));
+	        edtPhone = (EditText) findViewById(R.id.edt_phone);
+	        edtPhone.setText(preferences.getString("phone", ""));
 	        
+	        geoApi = new GeoreporterAPI(NewReport.this);
 	    }
 	    
-	    /** handler for thread_service */
+	    /** handler for threadService */
 	    final Handler service_handler = new Handler();
 
 	    
 	    /** display service group with runnable */
 	    final Runnable service_update_group = new Runnable() {
 	        public void run() {
-	            service_update_group_in_ui();
+	            sUpdateGroupInUi();
 	        }
 	    };
 	    
 	    /** update not connected message using runnable */
 	    final Runnable service_update_notconnected = new Runnable() {
 	        public void run() {
-	            service_update_notconnected_in_ui();
+	            sUpdateNotConnectedInUi();
 	        }
 	    };
 	    
 	    /** display service group dialogbox */
-	    private void service_update_group_in_ui() {
+	    private void sUpdateGroupInUi() {
 	    	AlertDialog.Builder builder = new AlertDialog.Builder(NewReport.this);
-			builder.setTitle("Available Service Groups from "+server_name);
+			builder.setTitle("Available Service Groups from "+serverName);
 			//final JSONArray jar_services = GeoreporterAPI.getServices(NewReport.this);
 			try {
 				final JSONArray jar_services = new JSONArray(pref.getString("ServerService", ""));
-				jar_services_global = jar_services;
+				jarServicesGlobal = jar_services;
 				ServicesItem serviceI = new ServicesItem();
 				final CharSequence[] group = serviceI.getGroup(jar_services);
 				builder.setItems(group, new DialogInterface.OnClickListener() {
 				    public void onClick(DialogInterface dialog, int nid) {
-				    	display_services_dialogbox(group, nid, jar_services);
+				    	displaySDialogbox(group, nid, jar_services);
 				    }
 				});
 				AlertDialog alert = builder.create();
@@ -547,12 +549,12 @@ public class NewReport extends Activity implements OnClickListener  {
 	    }
 	    
 	    /** display toast for unsuccessful request */
-	    private void service_update_notconnected_in_ui(){
+	    private void sUpdateNotConnectedInUi(){
 	    	Toast.makeText(getApplicationContext(), "No internet connection or the server URL is not vaild", Toast.LENGTH_LONG).show();
 	    }
 	    
 	    /** display second service group dialogbox (detail service) and manage view displayed */
-	    private void display_services_dialogbox(CharSequence[] group, int nid, final JSONArray jar_services) {
+	    private void displaySDialogbox(CharSequence[] group, int nid, final JSONArray jar_services) {
 	    	//make the second alert dialog for services in selected group
 	    	AlertDialog.Builder builder = new AlertDialog.Builder(NewReport.this);
 			builder.setTitle(group[nid]+" Services");
@@ -561,61 +563,60 @@ public class NewReport extends Activity implements OnClickListener  {
     		builder.setItems(services, new DialogInterface.OnClickListener() {
     		    public void onClick(DialogInterface dialog, int nid) {
     		    	
-    		    	//set the service_code - for report posting
-					service_code = serviceI.getServiceCode(jar_services, services[nid]);
-					service_name = services[nid]+"";
+    		    	//set the serviceCode - for report posting
+					serviceCode = serviceI.getServiceCode(jar_services, services[nid]);
+					serviceName = services[nid]+"";
     		    	
-    		    	Button btn_service = (Button) findViewById(R.id.btn_service);
-    		    	btn_service.setText(serviceI.getServiceDescription(jar_services, services[nid]));
+    		    	btnService.setText(serviceI.getServiceDescription(jar_services, services[nid]));
     		    	
 		    		//remove previous view
     		    	
     		    	r0 = (RelativeLayout) findViewById(R.id.r0);
     		    	
-		    		if (last_id==id) {
-    		    		for (int i=100; i<=last_id; i++) {
+		    		if (lastId==id) {
+    		    		for (int i=100; i<=lastId; i++) {
     		    			r0.removeView(findViewById(i));
     		    		}
-    		    		last_id = 0;
+    		    		lastId = 0;
 	    			}
     		    	
     		    	//check whether the following service has attribute
-    		    	if (serviceI.hasAttribute(jar_services, service_code)) {
+    		    	if (serviceI.hasAttribute(jar_services, serviceCode)) {
     		    		//display the attribute
     		    		
     		    		//fetch the atrribute
     		    		JSONObject jo_attributes_service = geoApi.getServiceAttribute(serviceI.getServiceCode(jar_services, services[nid]));
     		    		
     		    		try {
-    		    			jar_attributes = jo_attributes_service.getJSONArray("attributes");
+    		    			jarAttributes = jo_attributes_service.getJSONArray("attributes");
     		    			
 	    		    		id = 100;
-	    		    		n_rb = 0;
-	    		    		for (i=0;i<jar_attributes.length();i++) {
+	    		    		nRb = 0;
+	    		    		for (i=0;i<jarAttributes.length();i++) {
 	    		    			
 	    		    			//print the text label
-	    		    			display_textview();
+	    		    			displayTextview();
 	    		    			
     	    		            //chekck datatype of input
-    	    		            if (jar_attributes.getJSONObject(i).getString("datatype").equals("text")) {
+    	    		            if (jarAttributes.getJSONObject(i).getString("datatype").equals("text")) {
     	    		            	//if datatype == text
-    	    		            	display_edittext();
+    	    		            	displayEdittext();
     	    		            }
-    	    		            else if (jar_attributes.getJSONObject(i).getString("datatype").equals("singlevaluelist")) {
+    	    		            else if (jarAttributes.getJSONObject(i).getString("datatype").equals("singlevaluelist")) {
     	    		            	//if datatype == singlevaluelist
-    	    		            	display_radiobutton();
+    	    		            	dsiplayRadioButton();
     	    		            }
-    	    		            else if (jar_attributes.getJSONObject(i).getString("datatype").equals("multivaluelist")) {
+    	    		            else if (jarAttributes.getJSONObject(i).getString("datatype").equals("multivaluelist")) {
     	    		            	//if datatype == multivaluelist
-    	    		            	display_combobox();
+    	    		            	displayComboBox();
     	    		            }
-    	    		            last_id = id;
+    	    		            lastId = id;
 	    		    		}
 	    		    		
 	    		    		//add first name etc at the right place
 	    		            TextView txt_picture = (TextView) findViewById(R.id.txt_picture);
 	    		            RelativeLayout.LayoutParams txt_picture_params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-	    		            txt_picture_params.addRule(RelativeLayout.BELOW, id-n_rb);
+	    		            txt_picture_params.addRule(RelativeLayout.BELOW, id-nRb);
 	    		            txt_picture_params.setMargins(15, 20, 0, 0);
 	    		            txt_picture.setLayoutParams(txt_picture_params);
     		            
@@ -640,11 +641,11 @@ public class NewReport extends Activity implements OnClickListener  {
 	    }
 	    
 	    /** display textview if required by selected service */
-	    private void display_textview() {
+	    private void displayTextview() {
 	        // Back in the UI thread -- update our UI elements based on the data in mResults
 	    	TextView txt_attribute= new TextView(NewReport.this);
             try {
-				txt_attribute.setText(jar_attributes.getJSONObject(i).getString("description"));
+				txt_attribute.setText(jarAttributes.getJSONObject(i).getString("description"));
 	            txt_attribute.setTextColor(Color.BLACK);
 	            txt_attribute.setId(++id);
 	            RelativeLayout.LayoutParams txt_params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -653,12 +654,12 @@ public class NewReport extends Activity implements OnClickListener  {
 	            	txt_params.setMargins(15, 15, 15, 0);
 	            }
 	            else {
-	            	txt_params.addRule(RelativeLayout.BELOW, id-n_rb-1);
+	            	txt_params.addRule(RelativeLayout.BELOW, id-nRb-1);
 	            	txt_params.setMargins(15, 0, 15, 0);
 	            }
 	            txt_attribute.setLayoutParams(txt_params);
 	            r0.addView(txt_attribute);
-	        	n_rb = 0;
+	        	nRb = 0;
             } catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -666,28 +667,28 @@ public class NewReport extends Activity implements OnClickListener  {
 	    }
 	    
 	    /** display edittext if required by selected service */
-	    private void display_edittext() {
+	    private void displayEdittext() {
 	    	EditText edt_attribute = new EditText(NewReport.this);
             edt_attribute.setId(++id);
             RelativeLayout.LayoutParams edt_params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            edt_params.addRule(RelativeLayout.BELOW, id-n_rb-1);
+            edt_params.addRule(RelativeLayout.BELOW, id-nRb-1);
             edt_params.setMargins(15, 0, 15, 0);
             edt_attribute.setLayoutParams(edt_params);
             r0.addView(edt_attribute);
-        	n_rb = 0;
+        	nRb = 0;
 	    }
 	    
 	    /** display radiobutton if required by selected service */
-	    private void display_radiobutton() {
+	    private void dsiplayRadioButton() {
 	    	JSONArray jar_value;
 			try {
-				jar_value = jar_attributes.getJSONObject(i).getJSONArray("values");
-	        	n_rb = jar_value.length();
-	        	RadioButton[] rb = new RadioButton[n_rb];
+				jar_value = jarAttributes.getJSONObject(i).getJSONArray("values");
+	        	nRb = jar_value.length();
+	        	RadioButton[] rb = new RadioButton[nRb];
 	            RadioGroup rg = new RadioGroup(NewReport.this); 
 	            rg.setOrientation(RadioGroup.VERTICAL);
 	            rg.setId(++id);
-	            for(int j=0; j<n_rb; j++){
+	            for(int j=0; j<nRb; j++){
 	                rb[j]  = new RadioButton(NewReport.this);
 	                rb[j].setId(++id);
 	                rb[j].setText(jar_value.getJSONObject(j).getString("name"));
@@ -707,13 +708,13 @@ public class NewReport extends Activity implements OnClickListener  {
 	    }
 
 	    /** display combobox if required by selected service */
-	    private void display_combobox() {
+	    private void displayComboBox() {
 	    	JSONArray jar_value;
 			try {
-				jar_value = jar_attributes.getJSONObject(i).getJSONArray("values");
+				jar_value = jarAttributes.getJSONObject(i).getJSONArray("values");
 	        	int n_cb = jar_value.length();
 	        	CheckBox[] cb = new CheckBox[n_cb];
-	        	n_rb = 0;
+	        	nRb = 0;
 	            for(int j=0; j<n_cb; j++){
 	                cb[j]  = new CheckBox(NewReport.this);
 	                cb[j].setId(++id);

@@ -28,134 +28,135 @@ import org.json.JSONException;
  */
 public class Home extends Activity implements OnClickListener {
 	
-	private String server_name;
-	private ProgressDialog pd;
-	private Thread thread_service;
-	private boolean pd_shown = false;
-	private boolean need_to_load; //need to load server = TRUE if just created or server just changed
-	private GeoreporterAPI geoApi;
+	private transient ProgressDialog progressd;
+	private transient Thread threadService;
+	private transient boolean pdShown = false;
+	private transient boolean needToLoad; //need to load server = TRUE if just created or server just changed
+	private transient GeoreporterAPI geoApi;
 	
 	/** Called when the activity first created */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.home);
-		need_to_load = true;
-		geoApi = new GeoreporterAPI(this);
+		needToLoad = true;
 	}
 	
 	/** Called everytime Home is the focused tab or display is resumed */
 	@Override
 	protected void onResume (){
+		
+		String serverName = "";
+		
 		super.onResume();
 		
+		geoApi = new GeoreporterAPI(this);
+		
 		//update server information
-		SharedPreferences pref = getSharedPreferences("server",0);
+		final SharedPreferences pref = getSharedPreferences("server",0);
 		try {
-			JSONObject server = new JSONObject(pref.getString("selectedServer", ""));
-			server_name = server.getString("name");
-			Log.d("home", "home "+server_name);
-			Log.d("home", "home "+need_to_load);
-			need_to_load = need_to_load || pref.getBoolean("justChanged", false);
-			Log.d("home", "home "+need_to_load);
+			final JSONObject server = new JSONObject(pref.getString("selectedServer", ""));
+			serverName = server.getString("name");
 			
-			if (!pd_shown && need_to_load) {
-				pd = ProgressDialog.show(Home.this, "", "Fetching Server Information...", true, false);
-		        pd_shown = true;
-				thread_service = new Thread() {
+			needToLoad = needToLoad || pref.getBoolean("justChanged", false);
+			
+			if (!pdShown && needToLoad) {
+				progressd = ProgressDialog.show(Home.this, "", "Fetching Server Information...", true, false);
+		        pdShown = true;
+				threadService = new Thread() {
 		    		public void run() {	
 		    			//check whether user connected to the internet
 		    	    	if (geoApi.isConnected()) {
-		    	    		service_handler.post(service_get_report_detail);
+		    	    		sHandler.post(sGetReportDetail);
 		    	    	}
 		    	    	//if user is not connected to the internet
 		    	    	else {
-		    	    		service_handler.post(service_notconnected);
+		    	    		sHandler.post(sNotConnected);
 		    	    	}
 		    		}
 		        };
-		        thread_service.start();
+		        threadService.start();
 			}
 			
 		}
 		catch (JSONException e) {
-			e.printStackTrace();
+			Log.e("Home onResume", e.toString());
 		}
 		
 		//update image
-		ImageView img_splash = (ImageView) findViewById(R.id.img_splash);
-		if ("Bloomington, IN".equals(server_name))
+		final ImageView img_splash = (ImageView) findViewById(R.id.img_splash);
+		if ("Bloomington, IN".equals(serverName)) {
 			img_splash.setImageResource(R.drawable.bloomington);
-		else if ("Bloomington, IN".equals(server_name))
+		}
+		else if ("Bloomington, IN".equals(serverName)) {
 			img_splash.setImageResource(R.drawable.baltimore);
-		else if ("Boston, MA".equals(server_name))
+		}
+		else if ("Boston, MA".equals(serverName)) {
 			img_splash.setImageResource(R.drawable.boston);
-		else 
+		}
+		else { 
 			img_splash.setImageResource(R.drawable.splash);
+		}
 		//click listener
 		img_splash.setOnClickListener((OnClickListener)this);
 	}
 	
 	/** handler for updating topic list */
-	private Handler service_handler = new Handler();
+	private final transient Handler sHandler = new Handler();
 	
 	/** get report detail using runnable */
-	final Runnable service_get_report_detail = new Runnable() {
+	private final transient Runnable sGetReportDetail = new Runnable() {
 	    public void run() {
-	        service_update_group_in_ui();
+	        sUpdateGroupInUi();
 	    }
 	};
 	
 	/** display not connected message using runnable */
-    final Runnable service_notconnected = new Runnable() {
+    private final transient Runnable sNotConnected = new Runnable() {
         public void run() {
-            service_update_notconnected_in_ui();
+            sUpdateNotConnectedInUi();
         }
     };
     
     /** get report detail in UI */
-    private void service_update_group_in_ui() {
+    private void sUpdateGroupInUi() {
     	//get service
-    	JSONArray jar_services = geoApi.getServices();
-    	SharedPreferences pref = getSharedPreferences("server",0);
-		SharedPreferences.Editor editor = pref.edit();
+    	final JSONArray jar_services = geoApi.getServices();
+    	final SharedPreferences pref = getSharedPreferences("server",0);
+		final SharedPreferences.Editor editor = pref.edit();
 		
 		editor.putString("ServerService", jar_services.toString());
 		//condition adjustment
-    	pd_shown = false;
-    	need_to_load = false;
+    	pdShown = false;
+    	needToLoad = false;
 		editor.putBoolean("justChanged", false);
 		editor.commit();
 		
 		Log.d("home", "home connected");
 		
-		pd.dismiss();
+		progressd.dismiss();
     	switchTabInActivity(1);
     }
     
     /** display toast if not connected */
-    private void service_update_notconnected_in_ui() {
-    	Log.d("home", "home NOT connected");
-    	
-    	pd.dismiss();
-    	pd_shown = false;
+    private void sUpdateNotConnectedInUi() {
+    	progressd.dismiss();
+    	pdShown = false;
     	Toast.makeText(getApplicationContext(), "No internet connection or the server URL is not vaild", Toast.LENGTH_LONG).show();
     }
     
     /** switch to other desired activity */
-    public void switchTabInActivity(int indexTabToSwitchTo){
+    public void switchTabInActivity(final int iTabToSwitchTo){
 		Main ParentActivity;
 		ParentActivity = (Main) this.getParent();
-		ParentActivity.switchTab(indexTabToSwitchTo);
+		ParentActivity.switchTab(iTabToSwitchTo);
 	}
     
     /** perform action when display item clicked */
-	public void onClick(View v) {
+	public void onClick(final View view) {
 		// TODO Auto-generated method stub
-		switch (v.getId()) {
-			case R.id.img_splash:
-				switchTabInActivity(1);
-				break;
+		if (view.getId() == R.id.img_splash) {
+			switchTabInActivity(1);
 		}
 	}
 }
