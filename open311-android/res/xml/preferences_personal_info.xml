@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <Preference android:title="First name" android:key="first_name"/>
+    <Preference android:title="Last name" android:key="last_name"/>
+    <Preference android:title="Email" android:key="email"/>
+    <Preference android:title="Phone" android:key="phone"/>
+    
+
+</PreferenceScreen>
