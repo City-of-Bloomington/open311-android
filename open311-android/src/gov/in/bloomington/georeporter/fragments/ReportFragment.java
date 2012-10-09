@@ -8,7 +8,6 @@ package gov.in.bloomington.georeporter.fragments;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -17,7 +16,6 @@ import gov.in.bloomington.georeporter.activities.ChooseLocationActivity;
 import gov.in.bloomington.georeporter.activities.MainActivity;
 import gov.in.bloomington.georeporter.dialogs.DatePickerDialogFragment;
 import gov.in.bloomington.georeporter.models.Open311;
-import gov.in.bloomington.georeporter.models.PostServiceRequest;
 import gov.in.bloomington.georeporter.tasks.ReverseGeocodingTask;
 import gov.in.bloomington.georeporter.util.Util;
 
@@ -337,7 +335,7 @@ public class ReportFragment extends SherlockFragment {
 		return post;
 	}
 	
-	private class ServiceRequestPost extends AsyncTask<HashMap<String, String>, Void, JSONArray> {
+	private class ServiceRequestPost extends AsyncTask<HashMap<String, String>, Void, Boolean> {
 		ProgressDialog dialog;
 		
 		@Override
@@ -347,15 +345,24 @@ public class ReportFragment extends SherlockFragment {
 		}
 
 		@Override
-		protected JSONArray doInBackground(HashMap<String, String>... params) {
-			return Open311.postServiceRequest(params[0]);
+		protected Boolean doInBackground(HashMap<String, String>... params) {
+			Boolean result = false;
+			
+			JSONArray response = Open311.postServiceRequest(params[0]);
+			if (response != null && response.length()>0) {
+				result = Open311.saveServiceRequest(getActivity(), response);
+			}
+			return result;
 		}
 		
 		@Override
-		protected void onPostExecute(JSONArray result) {
+		protected void onPostExecute(Boolean result) {
 			dialog.dismiss();
-			if (result) {
-				Util.displayCrashDialog(getActivity(), "Failed to load service information");
+			if (!result) {
+				Util.displayCrashDialog(getActivity(), "Failed to post report to server");
+			}
+			else {
+				// TODO send them to the saved reports activity
 			}
 			super.onPostExecute(result);
 		}

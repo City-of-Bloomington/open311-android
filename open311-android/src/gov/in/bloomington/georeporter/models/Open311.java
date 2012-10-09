@@ -5,6 +5,9 @@
  */
 package gov.in.bloomington.georeporter.models;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -28,6 +31,8 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.content.Context;
 
 public class Open311 {
 	/**
@@ -85,6 +90,8 @@ public class Open311 {
 	
 	private static DefaultHttpClient mClient = null;
 	private static final int TIMEOUT = 3000;
+	
+	private static final String SAVED_REPORTS_FILE = "service_requests";
 	
 	private static Open311 mInstance;
 	private Open311() {}
@@ -244,9 +251,15 @@ public class Open311 {
 		for (Map.Entry<String, String> entry : data.entrySet()) {
 			pairs.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
 		}
+		if (mJurisdiction != null) {
+			pairs.add(new BasicNameValuePair(JURISDICTION, mJurisdiction));
+		}
+		if (mApiKey != null) {
+			pairs.add(new BasicNameValuePair(API_KEY, mApiKey));
+		}
 		
 		HttpPost request = new HttpPost(mBaseUrl + "/requests.json");
-		JSONArray response = new JSONArray();
+		JSONArray response = null;
 		try {
 			request.setEntity(new UrlEncodedFormEntity(pairs));
 			HttpResponse r = mClient.execute(request);
@@ -269,6 +282,79 @@ public class Open311 {
 		}
 		return response;
 	}
+	
+	/**
+	 * Reads the saved reports file into a JSONArray
+	 * 
+	 * Reports are stored as a file on the device internal storage
+	 * The file is a serialized JSONArray of reports.
+	 * 
+	 * @return
+	 * JSONArray
+	 */
+	public static JSONArray loadServiceRequests(Context c) {
+		JSONArray service_requests = new JSONArray();
+		
+		StringBuffer buffer = new StringBuffer("");
+		byte[] bytes = new byte[1024];
+		int length;
+		try {
+			FileInputStream in = c.openFileInput(SAVED_REPORTS_FILE);
+			while ((length = in.read(bytes)) != -1) {
+				buffer.append(new String(bytes));
+			}
+			service_requests = new JSONArray(new String(buffer));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return service_requests;
+	}
+	
+	/**
+	 * Writes the stored reports back out the file
+	 * 
+	 * @param c
+	 * @param requests
+	 * void
+	 */
+	private static Boolean saveServiceRequests(Context c, JSONArray requests) {
+		String json = requests.toString();
+		FileOutputStream out;
+		try {
+			out = c.openFileOutput(SAVED_REPORTS_FILE, Context.MODE_PRIVATE);
+			out.write(json.getBytes());
+			out.close();
+		} catch (FileNotFoundException e) {
+			return false;
+		} catch (IOException e) {
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Adds a service_request to the collection of saved reports
+	 * 
+	 * Reports are stored as a file on the device internal storage
+	 * The file is a serialized JSONArray of reports.
+	 *  
+	 * @param report
+	 * @return
+	 * Boolean
+	 */
+	public static Boolean saveServiceRequest(Context c, JSONArray request) {
+		JSONArray saved_requests = loadServiceRequests(c);
+		saved_requests.put(request);
+		return saveServiceRequests(c, saved_requests);
+	}
+	
 	
 	/**
 	 * Returns the response content from an HTTP request
