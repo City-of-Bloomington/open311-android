@@ -6,6 +6,7 @@
 package gov.in.bloomington.georeporter.adapters;
 
 import gov.in.bloomington.georeporter.R;
+import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.models.Preferences;
 
 import org.json.JSONArray;
@@ -71,8 +72,8 @@ public class ServersAdapter extends BaseAdapter {
 			holder = (ViewHolder) convertView.getTag();
 		}
 		
-		String name = mServers.optJSONObject(position).optString("name");
-		String url  = mServers.optJSONObject(position).optString("url");
+		String name = mServers.optJSONObject(position).optString(Open311.NAME);
+		String url  = mServers.optJSONObject(position).optString(Open311.URL);
 		if (name.equals(mCurrentServerName)) {
 			holder.radio.setChecked(true);
 		}

@@ -44,6 +44,7 @@ public class Open311 {
 	public static final String JURISDICTION = "jurisdiction_id";
 	public static final String API_KEY      = "api_key";
 	public static final String SERVICE_CODE = "service_code";
+	public static final String SERVICE_NAME = "service_name";
 	// Global basic fields
 	public static final String MEDIA        = "media";
 	public static final String MEDIA_URL    = "media_url";
@@ -74,9 +75,15 @@ public class Open311 {
 	public static final String TEXT         = "text";
 	public static final String SINGLEVALUELIST = "singlevaluelist";
 	public static final String MULTIVALUELIST  = "multivaluelist";
-	// Additional key names from /res/raw/available_servers.json
+	// Key names from /res/raw/available_servers.json
 	public static final String URL            = "url";
 	public static final String SUPPORTS_MEDIA = "supports_media";
+	// Key names for the saved reports file
+	private static final String SAVED_REPORTS_FILE = "service_requests";
+	public  static final String SERVER             = "server";
+	public  static final String SERVICE_REQUEST    = "service_request";
+	public  static final String SERVICE_REQUEST_ID = "service_request_id";
+	public  static final String TOKEN              = "token";
 	
 	public static Boolean                     sReady = false;
 	public static JSONArray                   sServiceList = null;
@@ -84,6 +91,7 @@ public class Open311 {
 	public static ArrayList<String>           sGroups;
 	
 	
+	private static JSONObject mEndpoint;
 	private static String mBaseUrl;
 	private static String mJurisdiction;
 	private static String mApiKey;
@@ -91,7 +99,6 @@ public class Open311 {
 	private static DefaultHttpClient mClient = null;
 	private static final int TIMEOUT = 3000;
 	
-	private static final String SAVED_REPORTS_FILE = "service_requests";
 	
 	private static Open311 mInstance;
 	private Open311() {}
@@ -188,7 +195,8 @@ public class Open311 {
 			e.printStackTrace();
 			return false;
 		}
-		sReady = true;
+		mEndpoint = current_server;
+		sReady    = true;
 		return sReady;
 	}
 	
@@ -258,7 +266,7 @@ public class Open311 {
 			pairs.add(new BasicNameValuePair(API_KEY, mApiKey));
 		}
 		
-		HttpPost request = new HttpPost(mBaseUrl + "/requests.json");
+		HttpPost  request  = new HttpPost(mBaseUrl + "/requests.json");
 		JSONArray response = null;
 		try {
 			request.setEntity(new UrlEncodedFormEntity(pairs));
@@ -319,24 +327,42 @@ public class Open311 {
 	
 	/**
 	 * Writes the stored reports back out the file
+	 *
+	 * Requests will be saved as JSON in the format of
+	 * [
+	 * 	{ server:          { },
+	 * 	  service_request: { }
+	 * 	},
+	 *  { server:          { },
+	 *    service_request: { }
+	 *  }
+	 * ]
+	 * server: a copy of the endpoint information so we have
+	 * enough information to make requests for up-to-date information
+	 * 
+	 * service_request: a cache of all the information from the report.
+	 * This gets updated as we see new information from the server
 	 * 
 	 * @param c
 	 * @param requests
 	 * void
 	 */
-	private static Boolean saveServiceRequests(Context c, JSONArray requests) {
+	private static boolean saveServiceRequests(Context c, JSONArray requests) {
 		String json = requests.toString();
 		FileOutputStream out;
 		try {
 			out = c.openFileOutput(SAVED_REPORTS_FILE, Context.MODE_PRIVATE);
 			out.write(json.getBytes());
 			out.close();
+			return true;
 		} catch (FileNotFoundException e) {
-			return false;
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch (IOException e) {
-			return false;
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		return true;
+		return false;
 	}
 	
 	/**
@@ -344,15 +370,35 @@ public class Open311 {
 	 * 
 	 * Reports are stored as a file on the device internal storage
 	 * The file is a serialized JSONArray of reports.
+	 * 
+	 * Reports are in the form of:
+	 *  { server:          { },
+	 *    service_request: { }
+	 *  }
+	 * server: a copy of the endpoint information so we have
+	 * enough information to make requests for up-to-date information
+	 * 
+	 * service_request: a cache of all the information from the report.
+	 * This gets updated as we see new information from the server
 	 *  
 	 * @param report
 	 * @return
 	 * Boolean
 	 */
-	public static Boolean saveServiceRequest(Context c, JSONArray request) {
-		JSONArray saved_requests = loadServiceRequests(c);
-		saved_requests.put(request);
-		return saveServiceRequests(c, saved_requests);
+	public static boolean saveServiceRequest(Context c, JSONArray request) {
+		JSONObject report = new JSONObject();
+		try {
+			report.put(SERVER, mEndpoint);
+			report.put(SERVICE_REQUEST, request.getJSONObject(0));
+			
+			JSONArray saved_requests = loadServiceRequests(c);
+			saved_requests.put(report);
+			return saveServiceRequests(c, saved_requests);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 	
@@ -363,7 +409,8 @@ public class Open311 {
 	 * @return
 	 * String
 	 */
-	private static String loadStringFromUrl(String url) throws ClientProtocolException, IOException, IllegalStateException {
+	private static String loadStringFromUrl(String url)
+			throws ClientProtocolException, IOException, IllegalStateException {
 		HttpResponse r = getClient().execute(new HttpGet(url));
 		String response = EntityUtils.toString(r.getEntity());
 		

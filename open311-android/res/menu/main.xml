@@ -9,4 +9,5 @@
         android:orderInCategory="101"
         android:showAsAction="always"
         android:icon="@drawable/ic_menu_start_conversation" />
+    <item android:id="@+id/menu_archive" android:orderInCategory="102" android:title="@string/menu_archive" android:icon="@drawable/ic_menu_archive" android:showAsAction="always"></item>
 </menu>
