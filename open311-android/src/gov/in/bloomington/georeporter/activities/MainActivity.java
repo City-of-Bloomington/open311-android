@@ -11,6 +11,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 
 import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.models.Open311;
@@ -29,8 +30,9 @@ public class MainActivity extends BaseActivity {
 		super.onResume();
 		
 		JSONObject current_server = Preferences.getCurrentServer(this);
-		
+		Log.i("current_server", current_server.toString());
 		if (current_server == null) {
+			Log.i("MainActivity onResume", "null");
     		startActivity(new Intent(this, SettingsActivity.class));
 		}
 		else {
@@ -59,6 +61,7 @@ public class MainActivity extends BaseActivity {
 				Util.displayCrashDialog(MainActivity.this, "Failed to load service information");
 			}
 			super.onPostExecute(result);
+			startActivity(new Intent(MainActivity.this, ReportActivity.class));
 		}
 	}
 }

@@ -5,11 +5,17 @@
  */
 package gov.in.bloomington.georeporter.models;
 
+import gov.in.bloomington.georeporter.util.Open311Parser;
+import gov.in.bloomington.georeporter.util.Open311XmlParser;
+
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,8 +37,10 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
+import android.util.Log;
 
 public class Open311 {
 	/**
@@ -43,6 +51,7 @@ public class Open311 {
 	// Global required fields
 	public static final String JURISDICTION = "jurisdiction_id";
 	public static final String API_KEY      = "api_key";
+	public static final String FORMAT      = "format";
 	public static final String SERVICE_CODE = "service_code";
 	public static final String SERVICE_NAME = "service_name";
 	// Global basic fields
@@ -84,18 +93,23 @@ public class Open311 {
 	public  static final String SERVICE_REQUEST    = "service_request";
 	public  static final String SERVICE_REQUEST_ID = "service_request_id";
 	public  static final String TOKEN              = "token";
+	// Key names for formats
+	private static final String JSON = "json";
+	public  static final String XML = "xml";
+
+	
 	
 	public static Boolean                     sReady = false;
 	public static JSONArray                   sServiceList = null;
 	public static HashMap<String, JSONObject> sServiceDefinitions;
 	public static ArrayList<String>           sGroups;
 	
-	
 	private static JSONObject mEndpoint;
 	private static String mBaseUrl;
 	private static String mJurisdiction;
 	private static String mApiKey;
-	
+	public static String mFormat = "json";
+
 	private static DefaultHttpClient mClient = null;
 	private static final int TIMEOUT = 3000;
 	
@@ -145,6 +159,7 @@ public class Open311 {
 		mBaseUrl      = null;
 		mJurisdiction = null;
 		mApiKey       = null;
+		mFormat       = null;
 		sGroups       = new ArrayList<String>();
 		sServiceList  = null;
 		sServiceDefinitions = new HashMap<String, JSONObject>();
@@ -153,12 +168,19 @@ public class Open311 {
 			mBaseUrl      = current_server.getString(URL);
 			mJurisdiction = current_server.optString(JURISDICTION);
 			mApiKey       = current_server.optString(API_KEY);
+			mFormat       = current_server.optString(FORMAT);
+			Log.i("setEndpoint", mFormat);
 		} catch (JSONException e) {
 			return false;
 		}
 		try {
-			sServiceList = new JSONArray(loadStringFromUrl(getServiceListUrl()));
-			
+			Log.i("Open311 getServiceListUrl",getServiceListUrl());
+			//sServiceList = new JSONArray(loadStringFromUrl(getServiceListUrl()));
+			//Log.i("Open 311 bloo",sServiceList.toString());
+			//Open311XmlParser oparser= new Open311XmlParser();
+			Open311Parser oparser= new Open311Parser(mFormat);
+			sServiceList = oparser.parseServices(loadStringFromUrl(getServiceListUrl()));
+			Log.i("Open 311 ned",sServiceList.toString());
 			// Go through all the services and pull out the seperate groups
 			// Also, while we're running through, load any service_definitions
 			String group = "";
@@ -190,7 +212,12 @@ public class Open311 {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
-		} catch (IOException e) {
+		} catch (XmlPullParserException e) {
+			Log.e("XmlPullParserException",e.getMessage());
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
@@ -211,15 +238,19 @@ public class Open311 {
 	public static ArrayList<JSONObject> getServices(String group) {
 		ArrayList<JSONObject> services = new ArrayList<JSONObject>();
 		int len = sServiceList.length();
+		Log.i("Open 311 len",sServiceList.toString());
+		Log.i("Open 311 len","len");
 		for (int i=0; i<len; i++) {
 			try {
 				JSONObject s = sServiceList.getJSONObject(i);
+				Log.i("Open 311 getServices",group);
 				if (s.optString("group").equals(group)) { services.add(s); }
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+		Log.i("services" , services.toString());
 		return services;
 	}
 	
@@ -266,12 +297,14 @@ public class Open311 {
 			pairs.add(new BasicNameValuePair(API_KEY, mApiKey));
 		}
 		
-		HttpPost  request  = new HttpPost(mBaseUrl + "/requests.json");
+		HttpPost  request  = new HttpPost(mBaseUrl + "/requests." + mFormat);
 		JSONArray response = null;
 		try {
 			request.setEntity(new UrlEncodedFormEntity(pairs));
 			HttpResponse r = mClient.execute(request);
-			response = new JSONArray(EntityUtils.toString(r.getEntity()));
+			String str = EntityUtils.toString(r.getEntity());
+			Log.i("Open311 EntityUtils.toString", str);
+			response = new JSONArray(str);
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -311,7 +344,9 @@ public class Open311 {
 			while ((length = in.read(bytes)) != -1) {
 				buffer.append(new String(bytes));
 			}
-			service_requests = new JSONArray(new String(buffer));
+			String str = new String(buffer);
+			Log.i("Open 311 loadServiceRequests",str);
+			service_requests = new JSONArray(str);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -349,11 +384,19 @@ public class Open311 {
 	 */
 	private static boolean saveServiceRequests(Context c, JSONArray requests) {
 		String json = requests.toString();
-		FileOutputStream out;
+		//FileOutputStream out;
 		try {
-			out = c.openFileOutput(SAVED_REPORTS_FILE, Context.MODE_PRIVATE);
-			out.write(json.getBytes());
-			out.close();
+			File file = new File (c.getFilesDir(), SAVED_REPORTS_FILE);
+			Writer out = new OutputStreamWriter(new FileOutputStream(file)); // Here
+		    try
+		    {
+		        out.write(json);
+		    } finally {
+		        out.close();
+		    }
+			//out = c.openFileOutput(SAVED_REPORTS_FILE, Context.MODE_PRIVATE);
+			//out.write(json.getBytes());
+			//out.close();
 			return true;
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -416,14 +459,38 @@ public class Open311 {
 		
 		return response;
 	}
-	
+
+	private static String loadXmlServices(){
+	String str = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
++"<services>"
++"    <service>"
++"        <service_code>001</service_code>"
++"        <service_name>Afval</service_name>"
++"        <description>Afval</description>"
++"        <metadata>false</metadata>"
++"        <type>realtime</type>"
++"        <keywords>Afval</keywords>"
++"        <group>Afval</group>"
++"    </service>"
++"    <service>"
++"        <service_code>002</service_code>"
++"        <service_name>Verlichting</service_name>"
++"        <description>Verlichting</description>"
++"        <metadata>false</metadata>"
++"        <type>realtime</type>"
++"        <keywords>Verlichting</keywords>"
++"        <group>Verlichting</group>"
++"    </service>"
++"</services>";
+	return str;
+}
 	
 	/**
 	 * @return
 	 * String
 	 */
 	private static String getServiceListUrl() {
-		return mBaseUrl + "/services.json?" + JURISDICTION + "=" + mJurisdiction;
+		return mBaseUrl + "/services." + mFormat + "?" + JURISDICTION + "=" + mJurisdiction;
 	}
 	
 	/**
@@ -432,6 +499,6 @@ public class Open311 {
 	 * String
 	 */
 	private static String getServiceDefinitionUrl(String service_code) {
-		return mBaseUrl + "/services/" + service_code + ".json?" + JURISDICTION + "=" + mJurisdiction;
+		return mBaseUrl + "/services/" + service_code + "." + mFormat + "?" + JURISDICTION + "=" + mJurisdiction;
 	}
 }
