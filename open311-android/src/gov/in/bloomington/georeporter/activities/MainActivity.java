@@ -30,7 +30,7 @@ public class MainActivity extends BaseActivity {
 		super.onResume();
 		
 		JSONObject current_server = Preferences.getCurrentServer(this);
-		Log.i("current_server", current_server.toString());
+		//Log.i("current_server", current_server.toString());
 		if (current_server == null) {
 			Log.i("MainActivity onResume", "null");
     		startActivity(new Intent(this, SettingsActivity.class));

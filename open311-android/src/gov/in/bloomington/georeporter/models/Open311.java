@@ -13,7 +13,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -304,8 +306,13 @@ public class Open311 {
 			HttpResponse r = mClient.execute(request);
 			String str = EntityUtils.toString(r.getEntity());
 			Log.i("Open311 EntityUtils.toString", str);
-			response = new JSONArray(str);
+			Open311Parser oparser= new Open311Parser(mFormat);
+			response = oparser.parseRequests(str);
+			//response = new JSONArray(str);
 		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (XmlPullParserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ClientProtocolException e) {
@@ -317,10 +324,7 @@ public class Open311 {
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
 		return response;
 	}
 	
@@ -340,10 +344,16 @@ public class Open311 {
 		byte[] bytes = new byte[1024];
 		int length;
 		try {
-			FileInputStream in = c.openFileInput(SAVED_REPORTS_FILE);
+			File file = new File (c.getFilesDir(), SAVED_REPORTS_FILE);
+			FileInputStream in = new FileInputStream(file); // Here
 			while ((length = in.read(bytes)) != -1) {
 				buffer.append(new String(bytes));
 			}
+			//out = c
+			//FileInputStream in = c.openFileInput(SAVED_REPORTS_FILE);
+			//while ((length = in.read(bytes)) != -1) {
+			//	buffer.append(new String(bytes));
+			//}
 			String str = new String(buffer);
 			Log.i("Open 311 loadServiceRequests",str);
 			service_requests = new JSONArray(str);
