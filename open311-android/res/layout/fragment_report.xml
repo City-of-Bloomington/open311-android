@@ -37,12 +37,14 @@
 	        android:paddingLeft="16dip"
 	        android:textAppearance="?android:attr/textAppearanceMedium" />
 	
-	    <ImageButton
+	    <ImageView
 	        android:id="@+id/media_button"
 	        android:layout_width="80dip"
 	        android:layout_height="60dip"
 	        android:layout_below="@+id/service_description"
 	        android:layout_centerHorizontal="true"
+	        android:adjustViewBounds="true"
+	        android:scaleType="fitCenter"
 	        android:src="@android:drawable/ic_menu_camera" />
 	
 	    <EditText

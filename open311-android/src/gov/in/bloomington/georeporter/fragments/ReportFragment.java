@@ -17,6 +17,7 @@ import gov.in.bloomington.georeporter.activities.MainActivity;
 import gov.in.bloomington.georeporter.dialogs.DatePickerDialogFragment;
 import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.tasks.ReverseGeocodingTask;
+import gov.in.bloomington.georeporter.util.Media;
 import gov.in.bloomington.georeporter.util.Util;
 
 import org.json.JSONArray;
@@ -24,10 +25,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,6 +44,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -45,15 +54,17 @@ import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.google.android.maps.GeoPoint;
 
-public class ReportFragment extends SherlockFragment {
-	public static final int CHOOSE_LOCATION_REQUEST = 1;
+public class ReportFragment extends SherlockFragment implements OnClickListener {
+	public static final int MEDIA_REQUEST    = 0;
+	public static final int LOCATION_REQUEST = 1;
 	
 	private JSONObject mService, mDefinition;
 	private JSONArray  mAttributes;
 	private HashMap<String, View> mAttributeViews;
 	
-	private EditText   mLocationView, mDescription;
-	private Double     mLatitude, mLongitude;
+	private ImageView mMediaButton;
+	private EditText  mLocationView, mDescription;
+	private Double    mLatitude, mLongitude;
 	
 	/**
 	 * Initialize this report with a service
@@ -92,34 +103,69 @@ public class ReportFragment extends SherlockFragment {
 			}
 		}
 		
+		int viewId = getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)
+			? R.layout.fragment_report
+			: R.layout.fragment_report_nomedia;
 		
-		View v = getLayoutInflater(savedInstanceState).inflate(R.layout.fragment_report, container, false);
-		mLocationView = (EditText) v.findViewById(R.id.address_string);
-		mDescription  = (EditText) v.findViewById(R.id.description);
+		View v = getLayoutInflater(savedInstanceState).inflate(viewId, container, false);
+		mMediaButton  = (ImageView) v.findViewById(R.id.media_button);
+		mLocationView = (EditText)  v.findViewById(R.id.address_string);
+		mDescription  = (EditText)  v.findViewById(R.id.description);
 		
 		// Register onClick handlers for all the clickables in the layout
-		v.findViewById(R.id.mapChooserButton).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
+		v.findViewById(R.id.mapChooserButton).setOnClickListener(this);
+		v.findViewById(R.id.button_cancel)   .setOnClickListener(this);
+		v.findViewById(R.id.button_submit)   .setOnClickListener(this);
+		if (mMediaButton != null) {
+			mMediaButton.setOnClickListener(this);
+		}
+		
+		return v;
+	}
+	
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+			case R.id.media_button:
+				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+				builder.setMessage(R.string.choose_media_source)
+				       .setPositiveButton(R.string.camera, new DialogInterface.OnClickListener() {
+				           public void onClick(DialogInterface dialog, int id) {
+				        	   Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+				        	   i.putExtra(MediaStore.EXTRA_OUTPUT, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES));
+				               startActivityForResult(i, MEDIA_REQUEST);
+				           }
+				       })
+				       .setNeutralButton(R.string.gallery, new DialogInterface.OnClickListener() {
+				           public void onClick(DialogInterface dialog, int id) {
+				        	   Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+				   			   startActivityForResult(i, MEDIA_REQUEST);
+				           }
+				       })
+				       .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+				           public void onClick(DialogInterface dialog, int id) {
+				    	    	dialog.cancel();
+				           }
+				       });
+				AlertDialog alert = builder.create();
+				alert.show();
+			break;
+			
+			case R.id.mapChooserButton:
 				Intent i = new Intent(getActivity(), ChooseLocationActivity.class);
-				startActivityForResult(i, CHOOSE_LOCATION_REQUEST);
-			}
-		});
-		v.findViewById(R.id.button_cancel).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
+				startActivityForResult(i, LOCATION_REQUEST);
+				break;
+				
+			case R.id.button_cancel:
 				Intent intent = new Intent(getActivity(), MainActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
-			}
-		});
-		v.findViewById(R.id.button_submit).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
+				break;
+				
+			case R.id.button_submit:
 				submit(v);
-			}
-		});
-		return v;
+				break;
+		}
 	}
 	
 	@Override
@@ -160,27 +206,36 @@ public class ReportFragment extends SherlockFragment {
 		}
 	}
 	
-	/**
-	 * Callback from ChooseLocationActivity
-	 * 
-	 * Intent data should have latitude and longitude
-	 */
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		
-		if (requestCode == CHOOSE_LOCATION_REQUEST) {
-			if (resultCode == Activity.RESULT_OK) {
-				int latitudeE6  = data.getIntExtra(Open311.LATITUDE,  0);
-				int longitudeE6 = data.getIntExtra(Open311.LONGITUDE, 0);
-				
-				String latitude  = Double.toString(latitudeE6  / 1e6);
-				String longitude = Double.toString(longitudeE6 / 1e6);
-				// Display the lat/long as text for now
-				// It will get replaced with the address when ReverseGeoCodingTask returns
-				mLocationView.setText(String.format("%s, %s", latitude, longitude));
-				
-				new ReverseGeocodingTask(getActivity(), mLocationView).execute(new GeoPoint(latitudeE6, longitudeE6));
+		if (resultCode == Activity.RESULT_OK) {
+			switch (requestCode) {
+				// Intent data should have Uri to image file
+				case MEDIA_REQUEST:
+					Uri imageFile = data.getData();
+					if (imageFile != null) {
+						Bitmap image = Media.decodeSampledBitmapFromUri(
+							imageFile, mMediaButton.getWidth(), mMediaButton.getHeight(), getActivity()
+						);
+						mMediaButton.setImageBitmap(image);
+					}
+					break;
+					
+				// Intent data should have latitude and longitude
+				case LOCATION_REQUEST:
+					int latitudeE6  = data.getIntExtra(Open311.LATITUDE,  0);
+					int longitudeE6 = data.getIntExtra(Open311.LONGITUDE, 0);
+					
+					String latitude  = Double.toString(latitudeE6  / 1e6);
+					String longitude = Double.toString(longitudeE6 / 1e6);
+					// Display the lat/long as text for now
+					// It will get replaced with the address when ReverseGeoCodingTask returns
+					mLocationView.setText(String.format("%s, %s", latitude, longitude));
+					
+					new ReverseGeocodingTask(getActivity(), mLocationView).execute(new GeoPoint(latitudeE6, longitudeE6));
+					break;
 			}
 		}
 	}

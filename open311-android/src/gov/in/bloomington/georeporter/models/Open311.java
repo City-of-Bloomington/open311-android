@@ -33,6 +33,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.util.Log;
 
 public class Open311 {
 	/**
@@ -313,8 +314,7 @@ public class Open311 {
 			}
 			service_requests = new JSONArray(new String(buffer));
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.w("Open311.loadServiceRequests", "Saved Reports File does not exist");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
