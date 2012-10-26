@@ -18,6 +18,15 @@ import android.net.Uri;
 import android.provider.MediaStore;
 
 public class Media {
+	/**
+	 * Calculate a the sample size value based on a target width and height
+	 * 
+	 * @param options
+	 * @param reqWidth
+	 * @param reqHeight
+	 * @return
+	 * int
+	 */
 	public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
 	    // Raw height and width of image
 	    final int height = options.outHeight;
@@ -34,6 +43,14 @@ public class Media {
 	    return inSampleSize;
 	}
 	
+	/**
+	 * @param uri
+	 * @param reqWidth
+	 * @param reqHeight
+	 * @param c
+	 * @return
+	 * Bitmap
+	 */
 	public static Bitmap decodeSampledBitmapFromUri(Uri uri, int reqWidth, int reqHeight, Context c) {
 	    final BitmapFactory.Options options = new BitmapFactory.Options();
 	    final String path = getPath(uri, c);
