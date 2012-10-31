@@ -378,8 +378,8 @@ public class Open311 {
 	 * server: a copy of the endpoint information so we have
 	 * enough information to make requests for up-to-date information
 	 * 
-	 * service_request: a cache of all the information from the report.
-	 * This gets updated as we see new information from the server
+	 * service_request: the json data returned by the server,
+	 * obtained by calling GET Service Request
 	 *  
 	 * @param report
 	 * @return
