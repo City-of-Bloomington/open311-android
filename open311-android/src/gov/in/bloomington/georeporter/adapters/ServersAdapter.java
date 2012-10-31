@@ -30,7 +30,7 @@ public class ServersAdapter extends BaseAdapter {
 		mInflater = LayoutInflater.from(c);
 		
 		JSONObject currentServer = Preferences.getCurrentServer(c);
-		mCurrentServerName = currentServer==null ? "" : currentServer.optString("name");
+		mCurrentServerName = currentServer==null ? "" : currentServer.optString(Open311.NAME);
 	}
 
 	@Override
