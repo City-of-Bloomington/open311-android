@@ -14,6 +14,7 @@ import gov.in.bloomington.georeporter.fragments.ReportFragment;
 import gov.in.bloomington.georeporter.fragments.ChooseGroupFragment.OnGroupSelectedListener;
 import gov.in.bloomington.georeporter.fragments.ChooseServiceFragment.OnServiceSelectedListener;
 import gov.in.bloomington.georeporter.models.Open311;
+import gov.in.bloomington.georeporter.models.ServiceRequest;
 
 import android.os.Bundle;
 
@@ -53,10 +54,11 @@ public class ReportActivity extends BaseFragmentActivity
 	
 	@Override
 	public void onServiceSelected(JSONObject service) {
-		mActionBar.setTitle(service.optString("service_name"));
+		mActionBar.setTitle(service.optString(Open311.SERVICE_NAME));
 		
-		mReportFragment = new ReportFragment();
-		mReportFragment.setService(service);
+		ServiceRequest sr = new ServiceRequest(service);
+		mReportFragment = ReportFragment.newInstance(sr);
+		
 		getSupportFragmentManager() .beginTransaction()
 									.replace(android.R.id.content, mReportFragment)
 									.addToBackStack(null)

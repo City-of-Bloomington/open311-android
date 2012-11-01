@@ -17,6 +17,7 @@
     <string name="camera">Camera</string>
     <string name="gallery">Gallery</string>
     <string name="location">Location</string>
+    <string name="report_attributes">Attributes</string>
     <string name="report_description">Description of problem</string>
     <string name="submit">Submit</string>
     <string name="cancel">Cancel</string>
