@@ -18,6 +18,7 @@ import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.models.ServiceRequest;
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,15 +34,19 @@ public class ServiceRequestAdapter extends BaseAdapter {
 	private static final int TYPE_ITEM   = 1;
 	private static final int TYPE_MEDIA  = 2;
 	
-	// A key string for every item in the listview
-	// We use this to define the order of fields in the listview
+	/**
+	 * A key string for every item in the listview
+	 * We use this to define the order of fields in the listview
+	 */
 	private static final ArrayList<String> labels = new ArrayList<String>(Arrays.asList(
 		Open311.SERVICE_NAME,
 		Open311.MEDIA,
 		Open311.ADDRESS,
 		Open311.DESCRIPTION
 	));
-	// The int positions of labels that are supposed to be headers
+	/**
+	 * The int positions of labels that are supposed to be headers
+	 */
 	private static final ArrayList<Integer> headers = new ArrayList<Integer>(Arrays.asList(0));
 	
 	/**
@@ -158,7 +163,15 @@ public class ServiceRequestAdapter extends BaseAdapter {
                 else {
                     media = (MediaViewHolder)convertView.getTag();
                 }
-                // TODO populate chosen image
+                
+                String m = mServiceRequest.post_data.optString(Open311.MEDIA);
+                if (!m.equals("")) {
+                    Uri imageUri = Uri.parse(m);
+                    if (imageUri != null) {
+                        media.image.setImageURI(imageUri);
+                    }
+                }
+                
                 break;
                 
 			case TYPE_ITEM:
@@ -175,11 +188,14 @@ public class ServiceRequestAdapter extends BaseAdapter {
 					item = (ItemViewHolder)convertView.getTag();
 				}
 				
-				// TODO Populate view strings
 				String label        = "";
 				String displayValue = "";
 				
 				if (labelKey.equals(Open311.ADDRESS)) {
+				    // TODO display user input as a string
+				    // I'm still not sure of how best to store post_data
+				    // Need to build some dialogs and try and POST to the endpoint
+				    
 	                // Display the address, if we have it already, otherwise
 				    // show the lat/long. Users are going to be choosing the
 				    // lat/long with a map. Since we're looking up the address
@@ -197,9 +213,8 @@ public class ServiceRequestAdapter extends BaseAdapter {
 				    }
 				}
 				else if (labelKey.equals(Open311.DESCRIPTION)) {
-				    // Just show whatever the user typed
                     label = convertView.getResources().getString(R.string.report_description);
-                    displayValue = mServiceRequest.post_data.optString(Open311.DESCRIPTION);
+                    // TODO display user input as string
                 }
 				else {
 				    // For each attribute, display what the user has entered.
@@ -208,13 +223,13 @@ public class ServiceRequestAdapter extends BaseAdapter {
 				    label       = mServiceRequest.getAttributeDescription(labelKey);
 				    String type = mServiceRequest.getAttributeDatatype   (labelKey);
 				    if      (type.equals(Open311.SINGLEVALUELIST)) {
-				        
+				        // TODO display user input as a string
 				    }
 				    else if (type.equals(Open311.MULTIVALUELIST)) {
-                        
+				        // TODO display user input as a string
                     }
 				    else {
-				        
+				        // TODO display user input as a string
 				    }
 				}
 				item.label       .setText(label);

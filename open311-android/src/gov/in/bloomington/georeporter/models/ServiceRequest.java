@@ -1,4 +1,14 @@
 /**
+ * Model for working with all the information about a single Service Request
+ * 
+ * Includes the service information to query the endpoint for fresh data.
+ * Includes service definition information.
+ * Includes the raw data the user entered.
+ * Includes a cache of data from endpoint.
+ * 
+ * Serialize this object by calling toString, which will return JSON.
+ * Restore this object's state by passing a JSON String to the constructor. 
+ * 
  * @copyright 2012 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/gpl.txt GNU/GPL, see LICENSE.txt
  * @author Cliff Ingham <inghamn@bloomington.in.gov>
@@ -12,6 +22,7 @@ import org.json.JSONObject;
 public class ServiceRequest {
 	public static final String SERVICE            = "service";
 	public static final String SERVICE_DEFINITION = "service_definition";
+	public static final String POST_DATA          = "post_data";
 	
 	/**
 	 * The JSON for a single service from GET Service List
@@ -27,13 +38,18 @@ public class ServiceRequest {
 	public JSONObject service_request;
 	/**
 	 * The data that gets sent to POST Service Request
+	 * 
+	 * JSON property names will be the code from service_definition.
+	 * Most JSON properties will just contain single values entered by the user.
+	 * Media will contain the URI to the image file.
+     * MultiValueList attributes will an array of the chosen values.
 	 */
 	public JSONObject post_data;
 	
 	/**
 	 * Creates a new, empty ServiceRequest
 	 * 
-	 * This does not incorporate any user submitted data and should only be
+	 * This does not load any user-submitted data and should only be
 	 * used for initial startup. Subsequent loads should be done using the
 	 * JSON String version
 	 * 
@@ -69,8 +85,8 @@ public class ServiceRequest {
 			JSONObject sr = new JSONObject(json);
 			if (sr.has(SERVICE))                 service            = sr.getJSONObject(SERVICE);
 			if (sr.has(SERVICE_DEFINITION))      service_definition = sr.getJSONObject(SERVICE_DEFINITION);
+            if (sr.has(POST_DATA))               post_data          = sr.getJSONObject(POST_DATA);
 			if (sr.has(Open311.SERVICE_REQUEST)) service_request    = sr.getJSONObject(Open311.SERVICE_REQUEST);
-			if (sr.has("post_data"))             post_data          = sr.getJSONObject("post_data");
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -86,8 +102,8 @@ public class ServiceRequest {
 		try {
 			sr.put(SERVICE, service);
 			if (service_definition != null) sr.put(SERVICE_DEFINITION,      service_definition);
+            if (post_data          != null) sr.put(POST_DATA,               post_data);
 			if (service_request    != null) sr.put(Open311.SERVICE_REQUEST, service_request);
-			if (post_data          != null) sr.put("post_data",             post_data);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -105,8 +121,8 @@ public class ServiceRequest {
 	
 	/**
 	 * @param code
-	 * @return
 	 * @throws JSONException
+     * @return
 	 * JSONObject
 	 */
 	private JSONObject getAttribute(String code) throws JSONException {
@@ -165,5 +181,27 @@ public class ServiceRequest {
             e.printStackTrace();
         }
 	    return type;
+	}
+	
+	/**
+	 * Returns the values for an attribute
+	 * 
+	 * If it cannot determine the attribute, it returns an empty JSONArray
+	 * 
+	 * @param code
+	 * @return
+	 * JSONArray
+	 */
+	public JSONArray getAttributeValues(String code) {
+	    JSONArray values = new JSONArray();
+	    try {
+            JSONObject a = getAttribute(code);
+            values = a.getJSONArray(Open311.VALUES);
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+	    
+	    return values;
 	}
 }

@@ -1,6 +1,9 @@
 /**
  * Methods for effeciently handling images
  * 
+ * Google recommendations for using the camera and grabbing pictures
+ * http://developer.android.com/guide/topics/media/camera.html#saving-media
+ *  
  * Methods from Google's best practices for handling large bitmaps
  * http://developer.android.com/training/displaying-bitmaps/load-bitmap.html
  * 
@@ -10,14 +13,71 @@
  */
 package gov.in.bloomington.georeporter.util;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.provider.MediaStore;
+import android.os.Environment;
+import android.util.Log;
 
 public class Media {
+    public static final int MEDIA_TYPE_IMAGE = 1;
+    public static final int MEDIA_TYPE_VIDEO = 2;
+    
+    private static final String APP_NAME = "GeoReporter";
+    
+    /**
+     * Create a file Uri for saving an image or video
+     * 
+     * @param type
+     * @return
+     * Uri
+     */
+    public static Uri getOutputMediaFileUri(int type) {
+        return Uri.fromFile(getOutputMediaFile(type));
+    }
+    
+    /**
+     * Create a File for saving an image or video
+     * 
+     * @param type
+     * @return
+     * File
+     */
+    private static File getOutputMediaFile(int type) {
+        // To be safe, you should check that the SDCard is mounted
+        // using Environment.getExternalStorageState() before doing this.
+
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), APP_NAME);
+        // This location works best if you want the created images to be shared
+        // between applications and persist after your app has been uninstalled.
+
+        // Create the storage directory if it does not exist
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+                Log.d(APP_NAME, "failed to create media directory");
+                return null;
+            }
+        }
+
+        // Create a media file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        File mediaFile;
+        if (type == MEDIA_TYPE_IMAGE) {
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_"+ timeStamp + ".jpg");
+        } else if (type == MEDIA_TYPE_VIDEO) {
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator + "VID_"+ timeStamp + ".mp4");
+        } else {
+            return null;
+        }
+
+        return mediaFile;
+    }
+    
 	/**
 	 * Calculate a the sample size value based on a target width and height
 	 * 
@@ -53,7 +113,7 @@ public class Media {
 	 */
 	public static Bitmap decodeSampledBitmapFromUri(Uri uri, int reqWidth, int reqHeight, Context c) {
 	    final BitmapFactory.Options options = new BitmapFactory.Options();
-	    final String path = getPath(uri, c);
+	    final String path = uri.toString();
 	    
 	    // First decode with inJustDecodeBounds=true to check dimensions
 	    options.inJustDecodeBounds = true;
@@ -65,16 +125,5 @@ public class Media {
 	    // Decode bitmap with inSampleSize set
 	    options.inJustDecodeBounds = false;
 	    return BitmapFactory.decodeFile(path, options);
-	}
-	
-	private static String getPath(Uri uri, Context c) {
-		String[] gallery = { MediaStore.Images.Media.DATA };
-		Cursor cursor = c.getContentResolver().query(uri, gallery, null, null, null);
-		cursor.moveToFirst();
-		
-		int index = cursor.getColumnIndex(gallery[0]);
-		String path = cursor.getString(index);
-		cursor.close();
-		return path;
 	}
 }
