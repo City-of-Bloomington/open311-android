@@ -15,10 +15,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import gov.in.bloomington.georeporter.R;
+import gov.in.bloomington.georeporter.activities.AttributeEntryActivity;
 import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.models.ServiceRequest;
 import android.content.Context;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -237,17 +239,46 @@ public class ServiceRequestAdapter extends BaseAdapter {
 				    // For each attribute, display what the user has entered.
 				    // We'll need to do some custom formatting depending on the
 				    // attribute type
-				    label       = mServiceRequest.getAttributeDescription(labelKey);
-				    String type = mServiceRequest.getAttributeDatatype   (labelKey);
-				    if      (type.equals(Open311.SINGLEVALUELIST)) {
-				        // TODO display user input as a string
-				    }
-				    else if (type.equals(Open311.MULTIVALUELIST)) {
-				        // TODO display user input as a string
+				    label              = mServiceRequest.getAttributeDescription(labelKey);
+				    String type        = mServiceRequest.getAttributeDatatype   (labelKey);
+                    String code        = String.format("%s[%s]", AttributeEntryActivity.ATTRIBUTE, labelKey);
+                    String chosenValue = mServiceRequest.post_data.optString(code);
+                    Log.i("ServiceRequestAdapter", String.format("%s: %s", code, chosenValue));
+				    
+                    if (!chosenValue.equals("")) {
+                        if (type.equals(Open311.SINGLEVALUELIST) || type.equals(Open311.MULTIVALUELIST)) {
+                            try {
+                                JSONArray attributeValues = mServiceRequest.getAttributeValues(labelKey);
+                                int len = attributeValues.length();
+                                
+            				    if (type.equals(Open311.SINGLEVALUELIST)) {
+            				        // chosenValue will contain the attribute.value.key.
+            				        // Display the attribute.value.name
+            				        displayValue = mServiceRequest.getAttributeValueName(labelKey, chosenValue);
+            				    }
+            				    else if (type.equals(Open311.MULTIVALUELIST)) {
+            				        // chosenValue will contain a JSONArray of keys.
+            				        // Display the names of these keys as a comma-
+            				        // separated list
+                                    ArrayList<String> names = new ArrayList<String>();
+            				        JSONArray keys          = new JSONArray(chosenValue);
+            				        len     = keys.length();
+            				        for (int i=0; i<len; i++) {
+            				            names.add(mServiceRequest.getAttributeValueName(labelKey, keys.getString(i)));
+            				        }
+            				        displayValue = TextUtils.join(", ", names);
+                                }
+                            }
+                            catch (JSONException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        }
+    				    else {
+    				        Log.i("ServiceRequestAdapter", "Setting displayValue to: " + displayValue);
+    				        displayValue = chosenValue;
+    				    }
                     }
-				    else {
-				        // TODO display user input as a string
-				    }
 				}
 				Log.i("ServiceRequestAdapter", String.format("Adapter %s is %s", label, displayValue));
 				item.label       .setText(label);

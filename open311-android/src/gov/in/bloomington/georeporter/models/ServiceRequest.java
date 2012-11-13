@@ -204,4 +204,30 @@ public class ServiceRequest {
 	    
 	    return values;
 	}
+	
+	/**
+	 * Returns the name from a single value in an attribute
+	 * 
+	 * @param code The attribute code
+	 * @param key The value key
+	 * @return
+	 * String
+	 */
+	public String getAttributeValueName(String code, String key) {
+	    JSONArray values = getAttributeValues(code);
+	    int len = values.length();
+	    try {
+    	    for (int i=0; i<len; i++) {
+    	        JSONObject v = values.getJSONObject(i);
+    	        String k = v.getString(Open311.KEY);
+    	        if (k.equals(key)) {
+    	            return v.getString(Open311.NAME);
+    	        }
+    	    }
+	    } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+	    }
+	    return null;
+	}
 }

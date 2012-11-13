@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -227,6 +228,24 @@ public class ReportFragment extends SherlockListFragment {
                 case ATTRIBUTE_REQUEST:
                     String code     = data.getStringExtra(Open311.CODE);
                     String datatype = data.getStringExtra(Open311.DATATYPE);
+                    String value    = data.getStringExtra(AttributeEntryActivity.VALUE);
+                    
+                    String key = String.format("%s[%s]", AttributeEntryActivity.ATTRIBUTE, code);
+                    
+                    try {
+                        // Multivaluelist attributes will return a JSON string
+                        // containg a JSONArray of values the user chose
+                        if (datatype.equals(Open311.MULTIVALUELIST)) {
+                            JSONArray array = new JSONArray(value);
+                            mServiceRequest.post_data.put(key, array);
+                        }
+                        else {
+                            mServiceRequest.post_data.put(key, value);
+                        }
+                    } catch (JSONException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                     break;
 
                 default:
@@ -268,7 +287,11 @@ public class ReportFragment extends SherlockListFragment {
 	        Calendar c = Calendar.getInstance();
 	        c.set(year, monthOfYear, dayOfMonth);
 	        try {
-                mServiceRequest.post_data.put(mAttributeCode, DateFormat.getDateFormat(getActivity()).format(c.getTime()));
+	            String code = String.format("%s[%s]", AttributeEntryActivity.ATTRIBUTE, mAttributeCode);
+	            String date = DateFormat.getDateFormat(getActivity()).format(c.getTime());
+	            Log.i("ReportFragment", String.format("Saving %s, %s", code, date));
+                mServiceRequest.post_data.put(code, date);
+                refreshAdapter();
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

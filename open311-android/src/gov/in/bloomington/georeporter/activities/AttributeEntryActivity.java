@@ -21,6 +21,8 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager.LayoutParams;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -30,17 +32,19 @@ import android.widget.TextView;
 
 public class AttributeEntryActivity extends BaseActivity {
     public static final String ATTRIBUTE = "attribute";
+    public static final String VALUE     = "value";
     
     private JSONObject   mAttribute;
     private String       mCode;
     private String       mDatatype;
+    private LinearLayout mLayout;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.activity_data_entry);
-        LinearLayout layout = (LinearLayout) findViewById(R.id.attribute_layout);
+                    mLayout = (LinearLayout) findViewById(R.id.attribute_layout);
         TextView     prompt = (TextView)     findViewById(R.id.prompt);
         
         Intent i = getIntent();
@@ -50,8 +54,11 @@ public class AttributeEntryActivity extends BaseActivity {
             mDatatype  = mAttribute.optString(Open311.DATATYPE, Open311.STRING);
             
             prompt.setText(mAttribute.getString(Open311.DESCRIPTION));
-            layout.addView(loadAttributeEntryView());
+            mLayout.addView(loadAttributeEntryView());
             
+            if (mDatatype.equals(Open311.STRING) || mDatatype.equals(Open311.NUMBER) || mDatatype.equals(Open311.TEXT)) {
+                this.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+            }
         } catch (JSONException e) {
             setResult(RESULT_CANCELED);
             finish();
@@ -87,6 +94,13 @@ public class AttributeEntryActivity extends BaseActivity {
             return v;
         }
         else if (mDatatype.equals(Open311.SINGLEVALUELIST) || mDatatype.equals(Open311.MULTIVALUELIST)) {
+            /**
+             * Each value object has a key and a name: {key:"", name:""}
+             * We want to display the name to the user, but need to POST
+             * the key to the endpoint.
+             * 
+             * We rely on the order to keep track of which value is which
+             */
             JSONArray values = mAttribute.optJSONArray(Open311.VALUES);
             int len = values.length();
 
@@ -119,7 +133,9 @@ public class AttributeEntryActivity extends BaseActivity {
     /**
      * OnClick handler for the submit button
      * 
-     * Send the entered data back to ReportFragment
+     * Send the entered data back to ReportFragment.
+     * Multivaluelist data should be sent as a serialized JSONArray.
+     * All the other datatypes should be sent as a plain string.
      * 
      * @param v
      * void
@@ -128,10 +144,58 @@ public class AttributeEntryActivity extends BaseActivity {
         Intent result = new Intent();
         result.putExtra(Open311.CODE,     mCode);
         result.putExtra(Open311.DATATYPE, mDatatype);
-        // TODO read user input from the view and add to the intent
-        // We need to figure out how we're going to be storing the user's
-        // input inside of a ServiceRequest.
-        // Take a look at what we're doing with ServiceRequest.post_data
+        
+        if (mDatatype.equals(Open311.STRING) || mDatatype.equals(Open311.NUMBER) || mDatatype.equals(Open311.TEXT)) {
+            EditText input = (EditText) mLayout.findViewById(R.id.input);
+            result.putExtra(VALUE, input.getText().toString());
+        }
+        else if (mDatatype.equals(Open311.SINGLEVALUELIST) || mDatatype.equals(Open311.MULTIVALUELIST)) {
+            /**
+             * Each value object has a key and a name: { key:"", name:"" }
+             * We want to display the name to the user, but need to POST
+             * the key to the endpoint.
+             * 
+             * We rely on the order to keep track of which value is which
+             */
+            JSONArray values = mAttribute.optJSONArray(Open311.VALUES);
+
+            try {
+                if (mDatatype.equals(Open311.SINGLEVALUELIST)) {
+                    RadioGroup  input = (RadioGroup)  mLayout.findViewById(R.id.input);
+                    
+                    int count = input.getChildCount();
+                    for (int i = 0; i < count; i++) {
+                        RadioButton b = (RadioButton) input.getChildAt(i);
+                        if (b.isChecked()) {
+                            result.putExtra(VALUE, values.getJSONObject(i).getString(Open311.KEY));
+                        }
+                    }
+                }
+                else if (mDatatype.equals(Open311.MULTIVALUELIST)){
+                    JSONArray submittedValues = new JSONArray();
+                    
+                    LinearLayout input = (LinearLayout) mLayout.findViewById(R.id.input);
+                    int count = input.getChildCount();
+                    for (int i=0; i < count; i++) {
+                        CheckBox checkbox = (CheckBox) input.getChildAt(i);
+                        if (checkbox.isChecked()) {
+                            submittedValues.put(values.getJSONObject(i).getString(Open311.KEY));
+                        }
+                    }
+                    result.putExtra(VALUE, submittedValues.toString());
+                }
+            }
+            catch (JSONException e) {
+                e.printStackTrace();
+                cancel(v);
+                return;
+            }
+        }
+        else {
+            // Unknown datatype
+            cancel(v);
+            return;
+        }
         
         setResult(RESULT_OK, result);
         finish();
