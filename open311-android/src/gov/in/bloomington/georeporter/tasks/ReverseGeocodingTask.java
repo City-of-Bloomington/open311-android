@@ -5,9 +5,14 @@
  */
 package gov.in.bloomington.georeporter.tasks;
 
+import gov.in.bloomington.georeporter.models.Open311;
+import gov.in.bloomington.georeporter.models.ServiceRequest;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+
+import org.json.JSONException;
 
 import com.google.android.maps.GeoPoint;
 
@@ -15,11 +20,10 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
-import android.widget.EditText;
 
 public class ReverseGeocodingTask extends AsyncTask<GeoPoint, Void, String> {
     Context mContext;
-    EditText mLocationDisplay;
+    ServiceRequest mServiceRequest;
 
     /**
      * Updates the given view when Google returns an address
@@ -27,10 +31,10 @@ public class ReverseGeocodingTask extends AsyncTask<GeoPoint, Void, String> {
      * @param context
      * @param view
      */
-    public ReverseGeocodingTask(Context context, EditText view) {
+    public ReverseGeocodingTask(Context context, ServiceRequest sr) {
         super();
-        mContext = context;
-        mLocationDisplay = view;
+        mContext        = context;
+        mServiceRequest = sr;
     }
 
     @Override
@@ -56,10 +60,15 @@ public class ReverseGeocodingTask extends AsyncTask<GeoPoint, Void, String> {
     }
     
     @Override
-    protected void onPostExecute(String result) {
-    	if (result != null) {
-    		mLocationDisplay.setText(result);
+    protected void onPostExecute(String address) {
+    	if (address != null) {
+    	    try {
+                mServiceRequest.post_data.put(Open311.ADDRESS, address);
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
     	}
-    	super.onPostExecute(result);
+    	super.onPostExecute(address);
     }
 }

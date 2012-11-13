@@ -125,7 +125,7 @@ public class ServiceRequest {
      * @return
 	 * JSONObject
 	 */
-	private JSONObject getAttribute(String code) throws JSONException {
+	public JSONObject getAttribute(String code) throws JSONException {
 	    JSONObject attribute = null;
 	    
         JSONArray attributes = service_definition.optJSONArray(Open311.ATTRIBUTES);

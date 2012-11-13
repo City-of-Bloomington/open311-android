@@ -18,8 +18,7 @@
         android:theme="@style/AppTheme">
         <uses-library android:name="com.google.android.maps" />
         
-        <activity android:name=".activities.MainActivity"          android:screenOrientation="portrait"
-                  android:label="@string/title_activity_main">
+        <activity android:name=".activities.MainActivity"          android:screenOrientation="portrait" android:label="@string/title_activity_main">
             <intent-filter>
                 <action   android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -28,6 +27,8 @@
         <activity android:name=".activities.SettingsActivity"       android:screenOrientation="portrait"/>
         <activity android:name=".activities.ReportActivity"         android:screenOrientation="portrait"/>
         <activity android:name=".activities.ChooseLocationActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".activities.DataEntryActivity"      android:screenOrientation="portrait"/>
+        <activity android:name=".activities.AttributeEntryActivity" android:screenOrientation="portrait"/>
         <activity android:name=".activities.SavedReportsActivity"   android:screenOrientation="portrait"/>
     </application>
 

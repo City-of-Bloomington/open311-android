@@ -19,6 +19,7 @@ import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.models.ServiceRequest;
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,15 +31,17 @@ public class ServiceRequestAdapter extends BaseAdapter {
 	private ServiceRequest mServiceRequest;
 	private static LayoutInflater mLayoutInflater;
 	
-	private static final int TYPE_HEADER = 0;
-	private static final int TYPE_ITEM   = 1;
-	private static final int TYPE_MEDIA  = 2;
+	public static final int TYPE_HEADER = 0;
+	public static final int TYPE_ITEM   = 1;
+	public static final int TYPE_MEDIA  = 2;
+	
+	private static final String mTag = "ServiceRequestAdapter";
 	
 	/**
 	 * A key string for every item in the listview
 	 * We use this to define the order of fields in the listview
 	 */
-	private static final ArrayList<String> labels = new ArrayList<String>(Arrays.asList(
+	public ArrayList<String> labels = new ArrayList<String>(Arrays.asList(
 		Open311.SERVICE_NAME,
 		Open311.MEDIA,
 		Open311.ADDRESS,
@@ -47,7 +50,7 @@ public class ServiceRequestAdapter extends BaseAdapter {
 	/**
 	 * The int positions of labels that are supposed to be headers
 	 */
-	private static final ArrayList<Integer> headers = new ArrayList<Integer>(Arrays.asList(0));
+	private ArrayList<Integer> headers = new ArrayList<Integer>(Arrays.asList(0));
 	
 	/**
 	 * Prepare display strings from the ServiceRequest
@@ -83,6 +86,13 @@ public class ServiceRequestAdapter extends BaseAdapter {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void updateServiceRequest(ServiceRequest sr) {
+	    Log.i(mTag, "Adapter data is changing");
+	    mServiceRequest = sr;
+	    Log.i(mTag, mServiceRequest.post_data.toString());
+	    super.notifyDataSetChanged();
 	}
 	
 	@Override
@@ -192,6 +202,7 @@ public class ServiceRequestAdapter extends BaseAdapter {
 				String displayValue = "";
 				
 				if (labelKey.equals(Open311.ADDRESS)) {
+				    Log.i(mTag, "Reading address from ServiceRequest");
 				    // TODO display user input as a string
 				    // I'm still not sure of how best to store post_data
 				    // Need to build some dialogs and try and POST to the endpoint
@@ -205,12 +216,18 @@ public class ServiceRequestAdapter extends BaseAdapter {
 				    label = convertView.getResources().getString(R.string.location);
 				    displayValue = mServiceRequest.post_data.optString(Open311.ADDRESS);
 				    if (displayValue.equals("")) {
+				        Log.i(mTag, "No address found");
 				        double latitude  = mServiceRequest.post_data.optDouble(Open311.LATITUDE);
 				        double longitude = mServiceRequest.post_data.optDouble(Open311.LONGITUDE);
-				        if (!Double.isNaN(latitude) && Double.isNaN(longitude)) {
+				        Log.i(mTag, String.format("Lat long should be %f, %f", latitude, longitude));
+				        if (!Double.isNaN(latitude) && !Double.isNaN(longitude)) {
 				            displayValue = String.format("%f, %f", latitude, longitude);
 				        }
+				        else {
+				            Log.i(mTag, "No lat long found");
+				        }
 				    }
+				    Log.i(mTag, String.format("label: %s, displaValue: %s", label, displayValue));
 				}
 				else if (labelKey.equals(Open311.DESCRIPTION)) {
                     label = convertView.getResources().getString(R.string.report_description);
@@ -232,6 +249,7 @@ public class ServiceRequestAdapter extends BaseAdapter {
 				        // TODO display user input as a string
 				    }
 				}
+				Log.i("ServiceRequestAdapter", String.format("Adapter %s is %s", label, displayValue));
 				item.label       .setText(label);
 				item.displayValue.setText(displayValue);
 				break;
