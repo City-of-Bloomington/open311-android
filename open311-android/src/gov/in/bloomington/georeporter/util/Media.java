@@ -1,6 +1,12 @@
 /**
  * Methods for effeciently handling images
  * 
+ * We need to save the full size images the user takes from the camera.
+ * However, we want to downsize them before POST to the endpoint.
+ * We store the Uri to a chosen image in the ServiceRequest,
+ * then, when the user is ready to POST, we create a smaller bitmap
+ * from the full size image and add the small bitmap to the multipart/form-data
+ * 
  * Google recommendations for using the camera and grabbing pictures
  * http://developer.android.com/guide/topics/media/camera.html#saving-media
  *  
