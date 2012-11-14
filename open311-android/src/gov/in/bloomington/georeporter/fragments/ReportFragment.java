@@ -5,366 +5,343 @@
  */
 package gov.in.bloomington.georeporter.fragments;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-
-import gov.in.bloomington.georeporter.R;
-import gov.in.bloomington.georeporter.activities.ChooseLocationActivity;
-import gov.in.bloomington.georeporter.activities.MainActivity;
-import gov.in.bloomington.georeporter.dialogs.DatePickerDialogFragment;
-import gov.in.bloomington.georeporter.models.Open311;
-import gov.in.bloomington.georeporter.tasks.ReverseGeocodingTask;
-import gov.in.bloomington.georeporter.util.Util;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import gov.in.bloomington.georeporter.R;
+import gov.in.bloomington.georeporter.activities.AttributeEntryActivity;
+import gov.in.bloomington.georeporter.activities.ChooseLocationActivity;
+import gov.in.bloomington.georeporter.activities.DataEntryActivity;
+import gov.in.bloomington.georeporter.adapters.ServiceRequestAdapter;
+import gov.in.bloomington.georeporter.models.Open311;
+import gov.in.bloomington.georeporter.models.ServiceRequest;
+import gov.in.bloomington.georeporter.util.Media;
+
 import android.app.Activity;
-import android.app.ProgressDialog;
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.app.DatePickerDialog.OnDateSetListener;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.InputType;
-import android.view.LayoutInflater;
+import android.provider.MediaStore;
+import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
+import android.widget.ListView;
 
 import com.actionbarsherlock.app.SherlockDialogFragment;
-import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.app.SherlockListFragment;
 import com.google.android.maps.GeoPoint;
 
-public class ReportFragment extends SherlockFragment {
-	public static final int CHOOSE_LOCATION_REQUEST = 1;
-	
-	private JSONObject mService, mDefinition;
-	private JSONArray  mAttributes;
-	private HashMap<String, View> mAttributeViews;
-	
-	private EditText   mLocationView, mDescription;
-	private Double     mLatitude, mLongitude;
+public class ReportFragment extends SherlockListFragment {
+    public static final int DATA_ENTRY_REQUEST = 0;
+    public static final int MEDIA_REQUEST      = 1;
+    public static final int LOCATION_REQUEST   = 2;
+    public static final int ATTRIBUTE_REQUEST  = 3;
+    
+	private ServiceRequest mServiceRequest;
+	private Uri mImageUri;
 	
 	/**
-	 * Initialize this report with a service
-	 * 
-	 * This should be called before adding this fragment to the stack
-	 * Since fragments cannot have constructors, you must call
-	 * this function immediately after instantiating this fragment.
-	 * 
-	 * @param service
-	 * void
+	 * @param sr
+	 * @return
+	 * ReportFragment
 	 */
-	public void setService(JSONObject service) {
-		mService = service;
-		if (mService.optBoolean(Open311.METADATA)) {
-			mDefinition     = Open311.sServiceDefinitions.get(mService.opt(Open311.SERVICE_CODE));
-			mAttributes     = mDefinition.optJSONArray(Open311.ATTRIBUTES);
-			mAttributeViews = new HashMap<String, View>(mAttributes.length());
-		}
+	public static ReportFragment newInstance(ServiceRequest sr) {
+	    ReportFragment fragment = new ReportFragment();
+	    Bundle args = new Bundle();
+	    args.putString(Open311.SERVICE_REQUEST, sr.toString());
+	    fragment.setArguments(args);
+	    return fragment;
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+	    super.onCreate(savedInstanceState);
+	    
+	    mServiceRequest = new ServiceRequest(getArguments().getString(Open311.SERVICE_REQUEST));
+	    setListAdapter(new ServiceRequestAdapter(mServiceRequest, getActivity()));
 	}
 	
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putString("service", mService.toString());
-	}
-	
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		if (savedInstanceState != null) {
-			try {
-				JSONObject s = new JSONObject(savedInstanceState.getString("service"));
-				setService(s);
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		
-		View v = getLayoutInflater(savedInstanceState).inflate(R.layout.fragment_report, container, false);
-		mLocationView = (EditText) v.findViewById(R.id.address_string);
-		mDescription  = (EditText) v.findViewById(R.id.description);
-		
-		// Register onClick handlers for all the clickables in the layout
-		v.findViewById(R.id.mapChooserButton).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent i = new Intent(getActivity(), ChooseLocationActivity.class);
-				startActivityForResult(i, CHOOSE_LOCATION_REQUEST);
-			}
-		});
-		v.findViewById(R.id.button_cancel).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent intent = new Intent(getActivity(), MainActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(intent);
-			}
-		});
-		v.findViewById(R.id.button_submit).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				submit(v);
-			}
-		});
-		return v;
-	}
-	
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		
-		TextView service_description = (TextView) getView().findViewById(R.id.service_description);
-		service_description.setText(mService.optString(Open311.DESCRIPTION));
-		
-		// Inflate all the views for the service attributes
-		if (mService.optBoolean(Open311.METADATA)) {
-			LinearLayout layout     = (LinearLayout) getView().findViewById(R.id.attributes);
-			
-			int len = mAttributes.length();
-			for (int i=0; i<len; i++) {
-				JSONObject a;
-				try {
-					a = mAttributes.getJSONObject(i);
-					
-					View v = loadViewForAttribute(a, savedInstanceState);
-					if (v != null) {
-						String description = a.getString(Open311.DESCRIPTION);
-						TextView label = (TextView) v.findViewById(R.id.label);
-						label.setText(description);
-						
-						// Store the reference to this view
-						// We'll need to grab data from it when we submit
-						mAttributeViews.put(a.getString(Open311.CODE), v);
-						
-						layout.addView(v);
-					}
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-			}
-		}
+	    super.onSaveInstanceState(outState);
+	    outState.putString(Open311.SERVICE_REQUEST, mServiceRequest.toString());
 	}
 	
 	/**
-	 * Callback from ChooseLocationActivity
+	 * Starts a seperate activity for each report field
 	 * 
-	 * Intent data should have latitude and longitude
+	 * The id (same as position) of the item clicked should be passed as the
+	 * requestCode in startActivityForResult().  That way we can use the 
+	 * request code inside of onActivityResult to update the correct data 
+	 * in mServiceRequest.
+	 * 
+	 * Design background:
+	 * We cannot fit all the text and controls onto a single screen.
+	 * In addition, controls like the Camera and Map chooser must be in a
+	 * seperate activity anyway.  This streamlines the process so each 
+	 * report field is handled the same way.
+	 */
+	@Override
+	public void onListItemClick(ListView l, View v, int position, long id) {
+	    super.onListItemClick(l, v, position, id);
+	    
+	    if (getListAdapter().getItemViewType(position) != ServiceRequestAdapter.TYPE_HEADER) {
+	        // TODO Figure out which type of dialog to draw
+	        String labelKey = (String) getListAdapter().getItem(position);
+	        
+	        if (labelKey.equals(Open311.MEDIA)) {
+	            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+	            builder.setMessage(R.string.choose_media_source)
+	                   .setPositiveButton(R.string.camera, new DialogInterface.OnClickListener() {
+	                       /**
+	                        * Start the camera activity
+	                        * 
+	                        * To avoid differences in non-google-provided camera activities,
+	                        * we should always tell the camera activity to explicitly save
+	                        * the file in a Uri of our choosing.
+	                        * 
+	                        * The camera activity may, or may not, also save an image file 
+	                        * in the gallery.  For now, I'm just not going to worry about
+	                        * creating duplicate files on people's phones.  Users can clean
+	                        * those up themselves, if they want.
+	                        */
+	                       public void onClick(DialogInterface dialog, int id) {
+	                           mImageUri = Media.getOutputMediaFileUri(Media.MEDIA_TYPE_IMAGE);
+	                           
+	                           Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+	                           i.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
+	                           startActivityForResult(i, MEDIA_REQUEST);
+	                       }
+	                   })
+	                   .setNeutralButton(R.string.gallery, new DialogInterface.OnClickListener() {
+	                       public void onClick(DialogInterface dialog, int id) {
+	                           Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+	                           i.setType("image/*");
+	                           startActivityForResult(i, MEDIA_REQUEST);
+	                       }
+	                   })
+	                   .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+	                       public void onClick(DialogInterface dialog, int id) {
+	                            dialog.cancel();
+	                       }
+	                   });
+	            AlertDialog alert = builder.create();
+	            alert.show();
+	        }
+	        else if (labelKey.equals(Open311.ADDRESS)) {
+	            Intent i = new Intent(getActivity(), ChooseLocationActivity.class);
+	            startActivityForResult(i, LOCATION_REQUEST);
+	        }
+	        else if (labelKey.equals(Open311.DESCRIPTION)) {
+	            Intent i = new Intent(getActivity(), DataEntryActivity.class);
+	            startActivityForResult(i, DATA_ENTRY_REQUEST);
+	        }
+	        else {
+	            // Create a chooser activity that can handle all attributes
+	            // We'll need to send in the attribute definition
+	            try {
+                    JSONObject attribute = mServiceRequest.getAttribute(labelKey);
+                    
+                    // For datetime attributes, we'll just pop open a date picker dialog
+                    String datatype = attribute.optString(Open311.DATATYPE, Open311.STRING);
+                    if (datatype.equals(Open311.DATETIME)) {
+                        DatePickerDialogFragment datePicker = new DatePickerDialogFragment(labelKey);
+                        datePicker.show(getActivity().getSupportFragmentManager(), "datePicker");
+                    }
+                    // all other attribute types get a full seperate Activity
+                    else {
+                        String c = "gov.in.bloomington.georeporter.activities.AttributeEntryActivity";
+                        Intent i = new Intent(getActivity(), Class.forName(c));
+                        i.putExtra(AttributeEntryActivity.ATTRIBUTE, attribute.toString());
+                        startActivityForResult(i, ATTRIBUTE_REQUEST);
+                    }
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+	            
+	        }
+	    }
+	}
+	
+	/**
+	 * Reads data returned from activities and updates mServiceRequest
+	 * 
 	 */
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		
-		if (requestCode == CHOOSE_LOCATION_REQUEST) {
-			if (resultCode == Activity.RESULT_OK) {
-				int latitudeE6  = data.getIntExtra(Open311.LATITUDE,  0);
-				int longitudeE6 = data.getIntExtra(Open311.LONGITUDE, 0);
-				
-				String latitude  = Double.toString(latitudeE6  / 1e6);
-				String longitude = Double.toString(longitudeE6 / 1e6);
-				// Display the lat/long as text for now
-				// It will get replaced with the address when ReverseGeoCodingTask returns
-				mLocationView.setText(String.format("%s, %s", latitude, longitude));
-				
-				new ReverseGeocodingTask(getActivity(), mLocationView).execute(new GeoPoint(latitudeE6, longitudeE6));
-			}
-		}
+	    super.onActivityResult(requestCode, resultCode, data);
+	    
+	    if (resultCode == Activity.RESULT_OK) {
+	        switch (requestCode) {
+                case MEDIA_REQUEST:
+                    // Determine if this is from the camera or gallery
+                    Uri imageUri = (mImageUri != null) ? mImageUri : data.getData();
+                    if (imageUri != null) {
+                        try {
+                            mServiceRequest.post_data.put(Open311.MEDIA, imageUri.toString());
+                            mImageUri = null; // Remember to wipe it out, so we don't confuse camera and gallery
+                        } catch (JSONException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
+                    
+                case LOCATION_REQUEST:
+                    int latitudeE6  = data.getIntExtra(Open311.LATITUDE,  0);
+                    int longitudeE6 = data.getIntExtra(Open311.LONGITUDE, 0);
+                    
+                    try {
+                        mServiceRequest.post_data.put(Open311.LATITUDE , latitudeE6  / 1e6);
+                        mServiceRequest.post_data.put(Open311.LONGITUDE, longitudeE6 / 1e6);
+                        
+                    } catch (JSONException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    // Display the lat/long as text for now
+                    // It will get replaced with the address when ReverseGeoCodingTask returns
+                    new ReverseGeocodingTask().execute(new GeoPoint(latitudeE6, longitudeE6));
+                    break;
+                    
+                case DATA_ENTRY_REQUEST:
+                    break;
+                    
+                case ATTRIBUTE_REQUEST:
+                    String code     = data.getStringExtra(Open311.CODE);
+                    String datatype = data.getStringExtra(Open311.DATATYPE);
+                    String value    = data.getStringExtra(AttributeEntryActivity.VALUE);
+                    
+                    String key = String.format("%s[%s]", AttributeEntryActivity.ATTRIBUTE, code);
+                    
+                    try {
+                        // Multivaluelist attributes will return a JSON string
+                        // containg a JSONArray of values the user chose
+                        if (datatype.equals(Open311.MULTIVALUELIST)) {
+                            JSONArray array = new JSONArray(value);
+                            mServiceRequest.post_data.put(key, array);
+                        }
+                        else {
+                            mServiceRequest.post_data.put(key, value);
+                        }
+                    } catch (JSONException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+	    }
+	    
+	    refreshAdapter();
+	}
+	
+	private void refreshAdapter() {
+        ServiceRequestAdapter a = (ServiceRequestAdapter) getListAdapter();
+        a.updateServiceRequest(mServiceRequest);
 	}
 	
 	/**
-	 * Inflates the appropriate view for each datatype
+	 * A basic date picker used for DateTime attributes
 	 * 
-	 * @param attribute
-	 * @param savedInstanceState
-	 * @return
-	 * View
+	 * Pass in the attribute code that you want the user to enter a date for
 	 */
-	private View loadViewForAttribute(JSONObject attribute, Bundle savedInstanceState) {
-		LayoutInflater inflater = getLayoutInflater(savedInstanceState);
-		String         datatype = attribute.optString(Open311.DATATYPE, Open311.STRING);
+	private class DatePickerDialogFragment extends SherlockDialogFragment implements OnDateSetListener {
+	    private String mAttributeCode;
+	    
+	    /**
+	     * @param code The attribute code to update in mServiceRequest
+	     */
+	    public DatePickerDialogFragment(String code) {
+	        mAttributeCode = code;
+	    }
+	    
+	    @Override
+	    public Dialog onCreateDialog(Bundle savedInstanceState) {
+	        Calendar c = Calendar.getInstance();
+	        return new DatePickerDialog(getActivity(), this, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+	    }
 
-		if (datatype.equals(Open311.STRING) || datatype.equals(Open311.NUMBER) || datatype.equals(Open311.TEXT)) {
-			View v = inflater.inflate(R.layout.list_item_report_attributes_string, null);
-			EditText input = (EditText) v.findViewById(R.id.input);
-			
-			if (datatype.equals(Open311.NUMBER)) {
-				input.setInputType(InputType.TYPE_CLASS_NUMBER);
-			}
-			if (datatype.equals(Open311.TEXT)) {
-				input.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-			}
-			return v;
-		}
-		else if (datatype.equals(Open311.DATETIME)) {
-			View v = inflater.inflate(R.layout.list_item_report_attributes_datetime, null);
-			TextView input = (TextView) v.findViewById(R.id.input);
-			input.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					SherlockDialogFragment picker = new DatePickerDialogFragment(v);
-					picker.show(getActivity().getSupportFragmentManager(), "datePicker");
-				}
-			});
-			return v;
-		}
-		else if (datatype.equals(Open311.SINGLEVALUELIST) || datatype.equals(Open311.MULTIVALUELIST)) {
-			JSONArray values = attribute.optJSONArray(Open311.VALUES);
-			int len = values.length();
-			
-			if (datatype.equals(Open311.SINGLEVALUELIST)) {
-				View v = inflater.inflate(R.layout.list_item_report_attributes_singlevaluelist, null);
-				RadioGroup input = (RadioGroup) v.findViewById(R.id.input);
-				for (int i=0; i<len; i++) {
-					JSONObject value = values.optJSONObject(i);
-					RadioButton button = (RadioButton) inflater.inflate(R.layout.radiobutton, null);
-					button.setText(value.optString(Open311.KEY));
-					input.addView(button);
-				}
-				return v;
-			}
-			else if (datatype.equals(Open311.MULTIVALUELIST)) {
-				View v = inflater.inflate(R.layout.list_item_report_attributes_multivaluelist, null);
-				LinearLayout input = (LinearLayout) v.findViewById(R.id.input);
-				for (int i=0; i<len; i++) {
-					JSONObject value = values.optJSONObject(i);
-					CheckBox checkbox = (CheckBox) inflater.inflate(R.layout.checkbox, null);
-					checkbox.setText(value.optString(Open311.KEY));
-					input.addView(checkbox);
-				}
-				return v;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Reads in all the values from the ReportFragment view
-	 * POSTs the report to the server
-	 * Sends the user to the saved report screen
-	 * 
-	 * @param v
-	 * void
-	 */
-	public void submit(View v) {
-		HashMap<String, String> post;
-		try {
-			post = generatePost(v);
-			new ServiceRequestPost().execute(post);
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	    @Override
+	    public void onDateSet(android.widget.DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+	        Calendar c = Calendar.getInstance();
+	        c.set(year, monthOfYear, dayOfMonth);
+	        try {
+	            String code = String.format("%s[%s]", AttributeEntryActivity.ATTRIBUTE, mAttributeCode);
+	            String date = DateFormat.getDateFormat(getActivity()).format(c.getTime());
+	            Log.i("ReportFragment", String.format("Saving %s, %s", code, date));
+                mServiceRequest.post_data.put(code, date);
+                refreshAdapter();
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+	    }
 	}
 	
 	/**
-	 * Reads in all the values from the view layout
+	 * Task for using Google's Geocoder
 	 * 
-	 * @param v
-	 * @return
-	 * HashMap<String,String>
-	 * @throws JSONException 
+	 * Queries Google's geocode, updates the address in ServiceRequest,
+	 * then refreshes the view so the user can see the change
 	 */
-	private HashMap<String, String> generatePost(View v) throws JSONException {
-		HashMap<String, String> post = new HashMap<String, String>();
-		post.put(Open311.SERVICE_CODE, mService.getString(Open311.SERVICE_CODE));
-		post.put(Open311.ADDRESS,      mLocationView.getText().toString());
-		post.put(Open311.DESCRIPTION,  mDescription .getText().toString());
-		if (mLatitude != null && mLongitude != null) {
-			post.put(Open311.LATITUDE,  mLatitude.toString());
-			post.put(Open311.LONGITUDE, mLongitude.toString());
-		}
-		if (mService.optBoolean(Open311.METADATA)) {
-			int len = mAttributes.length();
-			for (int i=0; i<len; i++) {
-				JSONObject attribute = mAttributes.getJSONObject(i);
-				String     code      = attribute.getString(Open311.CODE);
-				String     datatype  = attribute.optString(Open311.DATATYPE, Open311.STRING);
-				String     key       = String.format("attribute[%s]", code);
-				
-				if (datatype.equals(Open311.STRING) || datatype.equals(Open311.NUMBER) || datatype.equals(Open311.TEXT)) {
-					EditText input = (EditText) mAttributeViews.get(code);
-					post.put(key, input.getText().toString());
-				}
-				else if (datatype.equals(Open311.DATETIME)) {
-					// TODO read date string from text field and add it to POST
-					TextView input = (TextView) mAttributeViews.get(code);
-					DateFormat df = DateFormat.getInstance();
-					try {
-						Date date = df.parse(input.getText().toString());
-						SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-						post.put(key, format.format(date));
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-				else if (datatype.equals(Open311.SINGLEVALUELIST) || datatype.equals(Open311.MULTIVALUELIST)) {
-					ViewGroup input = (ViewGroup) mAttributeViews.get(code);
-					JSONArray values = attribute.optJSONArray(Open311.VALUES);
-					int l = values.length();
-					for (int j=0; j<l; j++) {
-						CompoundButton b = (CompoundButton) input.getChildAt(j);
-						if (b.isChecked()) {
-							String value = values.getJSONObject(j).getString(Open311.NAME);
-							if (datatype.equals(Open311.SINGLEVALUELIST)) {
-								post.put(key, value);
-								break;
-							}
-							else {
-								post.put(key + "[]", value);
-							}
-						}
-					}
-				}
-			}
-		}
-		return post;
-	}
-	
-	private class ServiceRequestPost extends AsyncTask<HashMap<String, String>, Void, Boolean> {
-		ProgressDialog dialog;
-		
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			dialog = ProgressDialog.show(getActivity(), getResources().getString(R.string.dialog_loading_services), "", true);
-		}
+	private class ReverseGeocodingTask extends AsyncTask<GeoPoint, Void, String> {
+	    @Override
+	    protected String doInBackground(GeoPoint... params) {
+	        Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
+	        GeoPoint point = params[0];
+	        double latitude  = point.getLatitudeE6()  / 1e6;
+	        double longitude = point.getLongitudeE6() / 1e6;
 
-		@Override
-		protected Boolean doInBackground(HashMap<String, String>... params) {
-			Boolean result = false;
-			
-			JSONArray response = Open311.postServiceRequest(params[0]);
-			if (response != null && response.length()>0) {
-				result = Open311.saveServiceRequest(getActivity(), response);
-			}
-			return result;
-		}
-		
-		@Override
-		protected void onPostExecute(Boolean result) {
-			dialog.dismiss();
-			if (!result) {
-				Util.displayCrashDialog(getActivity(), "Failed to post report to server");
-			}
-			else {
-				// TODO send them to the saved reports activity
-			}
-			super.onPostExecute(result);
-		}
+	        List<Address> addresses = null;
+	        try {
+	            addresses = geocoder.getFromLocation(latitude, longitude, 1);
+	        } catch (IOException e) {
+	            // TODO Auto-generated catch block
+	            e.printStackTrace();
+	        }
+	        
+	        if (addresses != null && addresses.size() > 0) {
+	            Address address = addresses.get(0);
+	            return String.format("%s", address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) : "");
+	        }
+	        return null;
+	    }
+	    
+	    @Override
+	    protected void onPostExecute(String address) {
+	        if (address != null) {
+	            try {
+	                mServiceRequest.post_data.put(Open311.ADDRESS, address);
+	                refreshAdapter();
+	                Log.i("ReverseGeocodingTask", "Updated adapter with address " + address);
+	            } catch (JSONException e) {
+	                // TODO Auto-generated catch block
+	                e.printStackTrace();
+	            }
+	        }
+	        super.onPostExecute(address);
+	    }
 	}
+
 }

@@ -4,28 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.ChooseLocationActivity" >
+    
+    <include layout="@layout/submit_cancel_buttons"/>
 
-    <LinearLayout
-        android:id="@+id/map_buttons"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
-
-        <Button
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="submit"
-            android:text="@string/submit" />
-
-        <Button
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="cancel"
-            android:text="@string/cancel" />
-    </LinearLayout>
     <RelativeLayout 
-        android:layout_below="@+id/map_buttons"
+        android:layout_below="@+id/submit_cancel_buttons"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 	    <com.google.android.maps.MapView

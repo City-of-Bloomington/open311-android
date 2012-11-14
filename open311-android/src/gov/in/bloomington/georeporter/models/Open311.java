@@ -20,6 +20,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -283,32 +284,58 @@ public class Open311 {
 	/**
 	 * POST new service request data to the endpoint
 	 * 
-	 * @param data
+     * In the JSON data:
+     * Attribute names will be the code from service_definition.
+     * Most attributes will just contain single values entered by the user.
+     * MultiValueList attributes will an array of the chosen values.
+     * Media attributes will contain the URI to the image file.
+     * 
+	 * @param data JSON representation of user input
 	 * @return
 	 * JSONObject
 	 */
-	public static JSONArray postServiceRequest(HashMap<String, String> data) {
+	public static JSONArray postServiceRequest(JSONObject data) {
 		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-		for (Map.Entry<String, String> entry : data.entrySet()) {
-			pairs.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
-		}
-		if (mJurisdiction != null) {
-			pairs.add(new BasicNameValuePair(JURISDICTION, mJurisdiction));
-		}
-		if (mApiKey != null) {
-			pairs.add(new BasicNameValuePair(API_KEY, mApiKey));
-		}
+        if (mJurisdiction != null) {
+            pairs.add(new BasicNameValuePair(JURISDICTION, mJurisdiction));
+        }
+        if (mApiKey != null) {
+            pairs.add(new BasicNameValuePair(API_KEY, mApiKey));
+        }
+        
+        Iterator<?>keys = data.keys();
+        while (keys.hasNext()) {
+            String key = (String)keys.next();
+            Object o;
+            try {
+                o = data.get(key);
+                if (key.equals(MEDIA)) {
+                    // TODO create an image bytestream for media
+                }
+                else if (o instanceof JSONArray) {
+                    // MultiValueSelect
+                    // TODO create entries for each of the chosen values 
+                }
+                else {
+                    // TODO just add the value to pairs.
+                }
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+       
 		
 		HttpPost  request  = new HttpPost(mBaseUrl + "/requests." + mFormat);
 		JSONArray response = null;
 		try {
 			request.setEntity(new UrlEncodedFormEntity(pairs));
-			HttpResponse r = mClient.execute(request);
+			HttpResponse r = getClient().execute(request);
 			String str = EntityUtils.toString(r.getEntity());
 			Log.i("Open311 EntityUtils.toString", str);
 			Open311Parser oparser= new Open311Parser(mFormat);
 			response = oparser.parseRequests(str);
-			//response = new JSONArray(str);
+			//response = new JSONArray(EntityUtils.toString(r.getEntity()));
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -358,8 +385,7 @@ public class Open311 {
 			Log.i("Open 311 loadServiceRequests",str);
 			service_requests = new JSONArray(str);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.w("Open311.loadServiceRequests", "Saved Reports File does not exist");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -431,8 +457,8 @@ public class Open311 {
 	 * server: a copy of the endpoint information so we have
 	 * enough information to make requests for up-to-date information
 	 * 
-	 * service_request: a cache of all the information from the report.
-	 * This gets updated as we see new information from the server
+	 * service_request: the json data returned by the server,
+	 * obtained by calling GET Service Request
 	 *  
 	 * @param report
 	 * @return
