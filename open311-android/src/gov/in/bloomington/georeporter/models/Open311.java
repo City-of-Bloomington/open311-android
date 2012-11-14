@@ -183,6 +183,7 @@ public class Open311 {
 			//Open311XmlParser oparser= new Open311XmlParser();
 			Open311Parser oparser= new Open311Parser(mFormat);
 			sServiceList = oparser.parseServices(loadStringFromUrl(getServiceListUrl()));
+			if (sServiceList == null) return false; 
 			Log.i("Open 311 ned",sServiceList.toString());
 			// Go through all the services and pull out the seperate groups
 			// Also, while we're running through, load any service_definitions
