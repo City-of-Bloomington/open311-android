@@ -5,6 +5,7 @@ import gov.in.bloomington.georeporter.activities.MainActivity;
 import gov.in.bloomington.georeporter.activities.ReportActivity;
 import gov.in.bloomington.georeporter.activities.SavedReportsActivity;
 import gov.in.bloomington.georeporter.activities.SettingsActivity;
+import gov.in.bloomington.georeporter.models.Open311;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -26,7 +27,7 @@ public class Open311Parser {
 		Log.i("Open311Parser format",mFormat);
 		Log.i("Open311Parser c",xml);
 		try {
-			if (mFormat.equals("json")){
+			if (mFormat.equals(Open311.JSON)){
 	    		return new JSONArray(xml);
 			} else {
 	    		Open311XmlParser oparser= new Open311XmlParser();
@@ -40,7 +41,7 @@ public class Open311Parser {
 
 	public JSONArray parseRequests(String xml) throws XmlPullParserException, IOException {
 		try {
-			if (mFormat.equals("json")){
+			if (mFormat.equals(Open311.JSON)){
 	    		return new JSONArray(xml);
 			} else {
 	    		Open311XmlParser oparser= new Open311XmlParser();

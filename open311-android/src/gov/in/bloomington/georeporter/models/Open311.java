@@ -97,7 +97,7 @@ public class Open311 {
 	public  static final String SERVICE_REQUEST_ID = "service_request_id";
 	public  static final String TOKEN              = "token";
 	// Key names for formats
-	private static final String JSON = "json";
+	public 	static final String JSON = "json";
 	public  static final String XML = "xml";
 
 	
