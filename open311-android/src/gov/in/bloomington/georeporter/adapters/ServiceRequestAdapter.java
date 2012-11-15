@@ -21,7 +21,6 @@ import gov.in.bloomington.georeporter.models.ServiceRequest;
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,8 +35,6 @@ public class ServiceRequestAdapter extends BaseAdapter {
 	public static final int TYPE_HEADER = 0;
 	public static final int TYPE_ITEM   = 1;
 	public static final int TYPE_MEDIA  = 2;
-	
-	private static final String mTag = "ServiceRequestAdapter";
 	
 	/**
 	 * A key string for every item in the listview
@@ -91,9 +88,7 @@ public class ServiceRequestAdapter extends BaseAdapter {
 	}
 	
 	public void updateServiceRequest(ServiceRequest sr) {
-	    Log.i(mTag, "Adapter data is changing");
 	    mServiceRequest = sr;
-	    Log.i(mTag, mServiceRequest.post_data.toString());
 	    super.notifyDataSetChanged();
 	}
 	
@@ -204,7 +199,6 @@ public class ServiceRequestAdapter extends BaseAdapter {
 				String displayValue = "";
 				
 				if (labelKey.equals(Open311.ADDRESS)) {
-				    Log.i(mTag, "Reading address from ServiceRequest");
 				    // TODO display user input as a string
 				    // I'm still not sure of how best to store post_data
 				    // Need to build some dialogs and try and POST to the endpoint
@@ -218,18 +212,12 @@ public class ServiceRequestAdapter extends BaseAdapter {
 				    label = convertView.getResources().getString(R.string.location);
 				    displayValue = mServiceRequest.post_data.optString(Open311.ADDRESS);
 				    if (displayValue.equals("")) {
-				        Log.i(mTag, "No address found");
 				        double latitude  = mServiceRequest.post_data.optDouble(Open311.LATITUDE);
 				        double longitude = mServiceRequest.post_data.optDouble(Open311.LONGITUDE);
-				        Log.i(mTag, String.format("Lat long should be %f, %f", latitude, longitude));
 				        if (!Double.isNaN(latitude) && !Double.isNaN(longitude)) {
 				            displayValue = String.format("%f, %f", latitude, longitude);
 				        }
-				        else {
-				            Log.i(mTag, "No lat long found");
-				        }
 				    }
-				    Log.i(mTag, String.format("label: %s, displaValue: %s", label, displayValue));
 				}
 				else if (labelKey.equals(Open311.DESCRIPTION)) {
                     label = convertView.getResources().getString(R.string.report_description);
@@ -243,7 +231,6 @@ public class ServiceRequestAdapter extends BaseAdapter {
 				    String type        = mServiceRequest.getAttributeDatatype   (labelKey);
                     String code        = String.format("%s[%s]", AttributeEntryActivity.ATTRIBUTE, labelKey);
                     String chosenValue = mServiceRequest.post_data.optString(code);
-                    Log.i("ServiceRequestAdapter", String.format("%s: %s", code, chosenValue));
 				    
                     if (!chosenValue.equals("")) {
                         if (type.equals(Open311.SINGLEVALUELIST) || type.equals(Open311.MULTIVALUELIST)) {
@@ -275,12 +262,10 @@ public class ServiceRequestAdapter extends BaseAdapter {
                             }
                         }
     				    else {
-    				        Log.i("ServiceRequestAdapter", "Setting displayValue to: " + displayValue);
     				        displayValue = chosenValue;
     				    }
                     }
 				}
-				Log.i("ServiceRequestAdapter", String.format("Adapter %s is %s", label, displayValue));
 				item.label       .setText(label);
 				item.displayValue.setText(displayValue);
 				break;

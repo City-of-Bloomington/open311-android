@@ -18,6 +18,7 @@ import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.activities.AttributeEntryActivity;
 import gov.in.bloomington.georeporter.activities.ChooseLocationActivity;
 import gov.in.bloomington.georeporter.activities.DataEntryActivity;
+import gov.in.bloomington.georeporter.activities.MainActivity;
 import gov.in.bloomington.georeporter.adapters.ServiceRequestAdapter;
 import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.models.ServiceRequest;
@@ -30,6 +31,7 @@ import android.app.Dialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
@@ -38,21 +40,27 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.AdapterView.OnItemClickListener;
 
 import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.app.SherlockFragment;
 import com.google.android.maps.GeoPoint;
 
-public class ReportFragment extends SherlockListFragment {
+public class ReportFragment extends SherlockFragment implements OnItemClickListener{
     public static final int DATA_ENTRY_REQUEST = 0;
     public static final int MEDIA_REQUEST      = 1;
     public static final int LOCATION_REQUEST   = 2;
     public static final int ATTRIBUTE_REQUEST  = 3;
     
 	private ServiceRequest mServiceRequest;
-	private Uri mImageUri;
+    private ListView       mListView;
+	private Uri            mImageUri;
 	
 	/**
 	 * @param sr
@@ -72,7 +80,31 @@ public class ReportFragment extends SherlockListFragment {
 	    super.onCreate(savedInstanceState);
 	    
 	    mServiceRequest = new ServiceRequest(getArguments().getString(Open311.SERVICE_REQUEST));
-	    setListAdapter(new ServiceRequestAdapter(mServiceRequest, getActivity()));
+	}
+	
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	    View v = inflater.inflate(R.layout.fragment_report, container, false);
+	    mListView = (ListView) v.findViewById(R.id.reportListView);
+        mListView.setAdapter(new ServiceRequestAdapter(mServiceRequest, getActivity()));
+        mListView.setOnItemClickListener(this);
+        
+        v.findViewById(R.id.submit_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                
+            }
+        });
+        v.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+        });
+	    return v;
 	}
 	
 	@Override
@@ -84,24 +116,18 @@ public class ReportFragment extends SherlockListFragment {
 	/**
 	 * Starts a seperate activity for each report field
 	 * 
-	 * The id (same as position) of the item clicked should be passed as the
-	 * requestCode in startActivityForResult().  That way we can use the 
-	 * request code inside of onActivityResult to update the correct data 
-	 * in mServiceRequest.
-	 * 
 	 * Design background:
 	 * We cannot fit all the text and controls onto a single screen.
 	 * In addition, controls like the Camera and Map chooser must be in a
 	 * seperate activity anyway.  This streamlines the process so each 
 	 * report field is handled the same way.
 	 */
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-	    super.onListItemClick(l, v, position, id);
+	public void onItemClick(AdapterView<?> l, View v, int position, long id) {
+	    ServiceRequestAdapter adapter = (ServiceRequestAdapter) l.getAdapter();
 	    
-	    if (getListAdapter().getItemViewType(position) != ServiceRequestAdapter.TYPE_HEADER) {
+	    if (adapter.getItemViewType(position) != ServiceRequestAdapter.TYPE_HEADER) {
 	        // TODO Figure out which type of dialog to draw
-	        String labelKey = (String) getListAdapter().getItem(position);
+	        String labelKey = (String) adapter.getItem(position);
 	        
 	        if (labelKey.equals(Open311.MEDIA)) {
 	            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -257,7 +283,7 @@ public class ReportFragment extends SherlockListFragment {
 	}
 	
 	private void refreshAdapter() {
-        ServiceRequestAdapter a = (ServiceRequestAdapter) getListAdapter();
+        ServiceRequestAdapter a = (ServiceRequestAdapter) mListView.getAdapter();
         a.updateServiceRequest(mServiceRequest);
 	}
 	
