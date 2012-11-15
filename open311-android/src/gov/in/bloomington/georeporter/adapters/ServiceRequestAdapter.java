@@ -221,7 +221,7 @@ public class ServiceRequestAdapter extends BaseAdapter {
 				}
 				else if (labelKey.equals(Open311.DESCRIPTION)) {
                     label = convertView.getResources().getString(R.string.report_description);
-                    // TODO display user input as string
+                    displayValue = mServiceRequest.post_data.optString(Open311.DESCRIPTION);
                 }
 				else {
 				    // For each attribute, display what the user has entered.

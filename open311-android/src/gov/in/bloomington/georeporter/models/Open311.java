@@ -5,6 +5,9 @@
  */
 package gov.in.bloomington.georeporter.models;
 
+import gov.in.bloomington.georeporter.util.Media;
+
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -14,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -24,6 +26,9 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.CoreConnectionPNames;
@@ -34,6 +39,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.net.Uri;
 import android.util.Log;
 
 public class Open311 {
@@ -167,7 +175,7 @@ public class Open311 {
 			int len = sServiceList.length();
 			for (int i=0; i<len; i++) {
 				JSONObject s = sServiceList.getJSONObject(i);
-				// Add groups to mGroups
+				// Add groups to sGroups
 				group = s.optString("group");
 				if (group != "" && !sGroups.contains(group)) { sGroups.add(group); }
 				
@@ -180,22 +188,10 @@ public class Open311 {
 					}
 				}
 			}
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
+		}
+		catch (Exception e) {
+		    e.printStackTrace();
+		    return false;
 		}
 		mEndpoint = current_server;
 		sReady    = true;
@@ -233,18 +229,10 @@ public class Open311 {
 	public static JSONObject getServiceDefinition(String service_code) {
 		try {
 			return new JSONObject(loadStringFromUrl(getServiceDefinitionUrl(service_code)));
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}
+		catch (Exception e) {
+            // TODO Auto-generated catch block
+		    e.printStackTrace();
 		}
 		return null;
 	}
@@ -252,51 +240,33 @@ public class Open311 {
 	/**
 	 * POST new service request data to the endpoint
 	 * 
+	 * The JSONObject should come from ServiceRequest.post_data
+	 * 
      * In the JSON data:
-     * Attribute names will be the code from service_definition.
-     * Most attributes will just contain single values entered by the user.
-     * MultiValueList attributes will an array of the chosen values.
+     * All the keys should already be named correctly.  Attribute keys will
+     * already be in the form of "attribute[code]".
+     * Most attributes will just contain single values entered by the user;
+     * however, MultiValueList attributes will be an array of the chosen values
+     * We will need to iterate over MultiValueList values and add a seperate
+     * pair to the POST for each value.
+     * 
      * Media attributes will contain the URI to the image file.
      * 
 	 * @param data JSON representation of user input
 	 * @return
 	 * JSONObject
 	 */
-	public static JSONArray postServiceRequest(JSONObject data) {
-		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-        if (mJurisdiction != null) {
-            pairs.add(new BasicNameValuePair(JURISDICTION, mJurisdiction));
-        }
-        if (mApiKey != null) {
-            pairs.add(new BasicNameValuePair(API_KEY, mApiKey));
-        }
-        
-        Iterator<?>keys = data.keys();
-        while (keys.hasNext()) {
-            String key = (String)keys.next();
-            Object o;
-            try {
-                o = data.get(key);
-                if (key.equals(MEDIA)) {
-                    // TODO create an image bytestream for media
-                }
-                else if (o instanceof JSONArray) {
-                    // MultiValueSelect
-                    // TODO create entries for each of the chosen values 
-                }
-                else {
-                    // TODO just add the value to pairs.
-                }
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        
-		HttpPost  request  = new HttpPost(mBaseUrl + "/requests.json");
-		JSONArray response = null;
+	public static JSONArray postServiceRequest(ServiceRequest sr, Context context) {
+		HttpPost   request  = new HttpPost(mBaseUrl + "/requests.json");
+		JSONArray  response = null;
+		JSONObject data     = sr.post_data;
 		try {
-			request.setEntity(new UrlEncodedFormEntity(pairs));
+		    if (data.has(Open311.MEDIA)) {
+		        request.setEntity(prepareMultipartEntity(data, context));
+		    }
+		    else {
+		        request.setEntity(prepareUrlEncodedEntity(data));
+		    }
 			HttpResponse r = getClient().execute(request);
 			response = new JSONArray(EntityUtils.toString(r.getEntity()));
 		} catch (UnsupportedEncodingException e) {
@@ -316,6 +286,113 @@ public class Open311 {
 			e.printStackTrace();
 		}
 		return response;
+	}
+	
+	/**
+	 * Prepares a POST that does not contain a media attachment
+	 *  
+	 * @param data
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 * UrlEncodedFormEntity
+	 */
+	private static UrlEncodedFormEntity prepareUrlEncodedEntity(JSONObject data) throws UnsupportedEncodingException {
+        List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+        if (mJurisdiction != null) {
+            pairs.add(new BasicNameValuePair(JURISDICTION, mJurisdiction));
+        }
+        if (mApiKey != null) {
+            pairs.add(new BasicNameValuePair(API_KEY, mApiKey));
+        }
+        
+        Iterator<?>keys = data.keys();
+        while (keys.hasNext()) {
+            String key = (String)keys.next();
+            Object o;
+            try {
+                o = data.get(key);
+                // Add MULTIVALUELIST values
+                if (o instanceof JSONArray) {
+                    String k = key + "[]"; // Key name to POST multiple values
+                    JSONArray values = (JSONArray) o;
+                    int len = values.length();
+                    for (int i=0; i<len; i++) {
+                        try {
+                            pairs.add(new BasicNameValuePair(k, values.getString(i)));
+                        } catch (JSONException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                // All other fields can just be plain key-value pairs
+                else {
+                    pairs.add(new BasicNameValuePair(key, (String) o));
+                }
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return new UrlEncodedFormEntity(pairs);
+	}
+	
+	/**
+	 * Prepares a POST that includes a media attachment
+	 * 
+	 * @param data
+	 * @param context
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 * MultipartEntity
+	 */
+	private static MultipartEntity prepareMultipartEntity(JSONObject data, Context context) throws UnsupportedEncodingException {
+	    MultipartEntity post = new MultipartEntity();
+        if (mJurisdiction != null) {
+            post.addPart(JURISDICTION, new StringBody(mJurisdiction));
+        }
+        if (mApiKey != null) {
+            post.addPart(API_KEY,      new StringBody(mApiKey));
+        }
+        Iterator<?>keys = data.keys();
+        while (keys.hasNext()) {
+            String key = (String)keys.next();
+            Object o;
+            try {
+                o = data.get(key);
+                // Attach media to the post
+                if (key == MEDIA) {
+                    final Uri uri = Uri.parse((String) o);
+                    final Bitmap media = Media.decodeSampledBitmapFromUri(uri, Media.UPLOAD_WIDTH, Media.UPLOAD_HEIGHT, context);
+                    final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    media.compress(CompressFormat.PNG, 100, stream);
+                    final byte[] binaryData = stream.toByteArray();
+                    post.addPart(Open311.MEDIA, new ByteArrayBody(binaryData, Media.UPLOAD_FILENAME));
+                }
+                // Attach MULTIVALUELIST values
+                else if (o instanceof JSONArray) {
+                    String k = key + "[]"; // Key name to POST multiple values
+                    JSONArray values = (JSONArray) o;
+                    int len = values.length();
+                    for (int i=0; i<len; i++) {
+                        try {
+                            post.addPart(k, new StringBody(values.getString(i)));
+                        } catch (JSONException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                // All other fields can be attached as plain key-value pairs
+                else {
+                    post.addPart(key, new StringBody((String) o));
+                }
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return post;
 	}
 	
 	/**
@@ -354,23 +431,8 @@ public class Open311 {
 	/**
 	 * Writes the stored reports back out the file
 	 *
-	 * Requests will be saved as JSON in the format of
-	 * [
-	 * 	{ server:          { },
-	 * 	  service_request: { }
-	 * 	},
-	 *  { server:          { },
-	 *    service_request: { }
-	 *  }
-	 * ]
-	 * server: a copy of the endpoint information so we have
-	 * enough information to make requests for up-to-date information
-	 * 
-	 * service_request: a cache of all the information from the report.
-	 * This gets updated as we see new information from the server
-	 * 
 	 * @param c
-	 * @param requests
+	 * @param requests An array of JSON-serialized ServiceRequest objects
 	 * void
 	 */
 	private static boolean saveServiceRequests(Context c, JSONArray requests) {
@@ -392,38 +454,25 @@ public class Open311 {
 	}
 	
 	/**
-	 * Adds a service_request to the collection of saved reports
+	 * Adds a ServiceRequest to the collection of saved reports
 	 * 
 	 * Reports are stored as a file on the device internal storage
-	 * The file is a serialized JSONArray of reports.
+	 * The file is a serialized JSONArray of ServiceRequest objects.
 	 * 
-	 * Reports are in the form of:
-	 *  { server:          { },
-	 *    service_request: { }
-	 *  }
-	 * server: a copy of the endpoint information so we have
-	 * enough information to make requests for up-to-date information
-	 * 
-	 * service_request: the json data returned by the server,
-	 * obtained by calling GET Service Request
-	 *  
 	 * @param report
 	 * @return
 	 * Boolean
 	 */
-	public static boolean saveServiceRequest(Context c, JSONArray request) {
-		JSONObject report = new JSONObject();
-		try {
-			report.put(SERVER, mEndpoint);
-			report.put(SERVICE_REQUEST, request.getJSONObject(0));
-			
-			JSONArray saved_requests = loadServiceRequests(c);
-			saved_requests.put(report);
-			return saveServiceRequests(c, saved_requests);
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public static boolean saveServiceRequest(Context c, ServiceRequest sr) {
+        try {
+            JSONObject report         = new JSONObject(sr.toString());
+            JSONArray  saved_requests = loadServiceRequests(c);
+            saved_requests.put(report);
+            return saveServiceRequests(c, saved_requests);
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 		return false;
 	}
 	
