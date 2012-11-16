@@ -64,7 +64,7 @@ public class Open311 {
 	public static final String DESCRIPTION  = "description";
 	// Personal Information fields
 	public static final String EMAIL        = "email";
-	public static final String DEVICE_ID    = "devide_id";
+	public static final String DEVICE_ID    = "device_id";
 	public static final String FIRST_NAME   = "first_name";
 	public static final String LAST_NAME    = "last_name";
 	public static final String PHONE        = "phone";
@@ -90,8 +90,6 @@ public class Open311 {
 	public static final String SUPPORTS_MEDIA = "supports_media";
 	// Key names for the saved reports file
 	private static final String SAVED_REPORTS_FILE = "service_requests";
-	public  static final String SERVER             = "server";
-	public  static final String SERVICE_REQUEST    = "service_request";
 	public  static final String SERVICE_REQUEST_ID = "service_request_id";
 	public  static final String TOKEN              = "token";
 	
@@ -259,16 +257,17 @@ public class Open311 {
 	public static JSONArray postServiceRequest(ServiceRequest sr, Context context) {
 		HttpPost   request  = new HttpPost(mBaseUrl + "/requests.json");
 		JSONArray  response = null;
-		JSONObject data     = sr.post_data;
 		try {
-		    if (data.has(Open311.MEDIA)) {
-		        request.setEntity(prepareMultipartEntity(data, context));
+		    if (sr.post_data.has(Open311.MEDIA)) {
+		        request.setEntity(prepareMultipartEntity(sr, context));
 		    }
 		    else {
-		        request.setEntity(prepareUrlEncodedEntity(data));
+		        request.setEntity(prepareUrlEncodedEntity(sr));
 		    }
 			HttpResponse r = getClient().execute(request);
-			response = new JSONArray(EntityUtils.toString(r.getEntity()));
+			String rs = EntityUtils.toString(r.getEntity());
+			Log.i("Open311", rs);
+			response = new JSONArray(rs);
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -295,9 +294,14 @@ public class Open311 {
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 * UrlEncodedFormEntity
+	 * @throws JSONException 
 	 */
-	private static UrlEncodedFormEntity prepareUrlEncodedEntity(JSONObject data) throws UnsupportedEncodingException {
+	private static UrlEncodedFormEntity prepareUrlEncodedEntity(ServiceRequest sr) throws UnsupportedEncodingException, JSONException {
         List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+        // This could cause a JSONException, but we let this one bubble up the stack
+        // If we don't have a service_code, we don't have a valid POST
+        pairs.add(new BasicNameValuePair(SERVICE_CODE, sr.service.getString(SERVICE_CODE)));
+        
         if (mJurisdiction != null) {
             pairs.add(new BasicNameValuePair(JURISDICTION, mJurisdiction));
         }
@@ -305,6 +309,7 @@ public class Open311 {
             pairs.add(new BasicNameValuePair(API_KEY, mApiKey));
         }
         
+        JSONObject data = sr.post_data;
         Iterator<?>keys = data.keys();
         while (keys.hasNext()) {
             String key = (String)keys.next();
@@ -327,6 +332,9 @@ public class Open311 {
                 }
                 // All other fields can just be plain key-value pairs
                 else {
+                    if (o instanceof Double) {
+                        o = Double.toString(0);
+                    }
                     pairs.add(new BasicNameValuePair(key, (String) o));
                 }
             } catch (JSONException e) {
@@ -345,15 +353,21 @@ public class Open311 {
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 * MultipartEntity
+	 * @throws JSONException 
 	 */
-	private static MultipartEntity prepareMultipartEntity(JSONObject data, Context context) throws UnsupportedEncodingException {
+	private static MultipartEntity prepareMultipartEntity(ServiceRequest sr, Context context) throws UnsupportedEncodingException, JSONException {
 	    MultipartEntity post = new MultipartEntity();
+        // This could cause a JSONException, but we let this one bubble up the stack
+        // If we don't have a service_code, we don't have a valid POST
+	    post.addPart(SERVICE_CODE, new StringBody(sr.service.getString(SERVICE_CODE)));
+	    
         if (mJurisdiction != null) {
             post.addPart(JURISDICTION, new StringBody(mJurisdiction));
         }
         if (mApiKey != null) {
             post.addPart(API_KEY,      new StringBody(mApiKey));
         }
+        JSONObject data = sr.post_data;
         Iterator<?>keys = data.keys();
         while (keys.hasNext()) {
             String key = (String)keys.next();
@@ -385,6 +399,9 @@ public class Open311 {
                 }
                 // All other fields can be attached as plain key-value pairs
                 else {
+                    if (o instanceof Double) {
+                        o = Double.toString(0);
+                    }
                     post.addPart(key, new StringBody((String) o));
                 }
             } catch (JSONException e) {
@@ -464,6 +481,8 @@ public class Open311 {
 	 * Boolean
 	 */
 	public static boolean saveServiceRequest(Context c, ServiceRequest sr) {
+	    sr.endpoint = mEndpoint;
+	    
         try {
             JSONObject report         = new JSONObject(sr.toString());
             JSONArray  saved_requests = loadServiceRequests(c);

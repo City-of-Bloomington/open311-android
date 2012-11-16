@@ -20,10 +20,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ServiceRequest {
+    public static final String ENDPOINT           = "endpoint";
 	public static final String SERVICE            = "service";
 	public static final String SERVICE_DEFINITION = "service_definition";
+	public static final String SERVICE_REQUEST    = "service_request";
 	public static final String POST_DATA          = "post_data";
 	
+	/**
+	 * The JSON definition from raw/available_servers.json
+	 */
+	public JSONObject endpoint;
 	/**
 	 * The JSON for a single service from GET Service List
 	 */
@@ -56,7 +62,7 @@ public class ServiceRequest {
 	 * @param s A single service from GET Service List
 	 */
 	public ServiceRequest(JSONObject s) {
-		service = s;
+		service   = s;
 		post_data = new JSONObject();
 		
 		if (service.optBoolean(Open311.METADATA)) {
@@ -83,10 +89,10 @@ public class ServiceRequest {
 	public ServiceRequest(String json) {
 		try {
 			JSONObject sr = new JSONObject(json);
-			if (sr.has(SERVICE))                 service            = sr.getJSONObject(SERVICE);
-			if (sr.has(SERVICE_DEFINITION))      service_definition = sr.getJSONObject(SERVICE_DEFINITION);
-            if (sr.has(POST_DATA))               post_data          = sr.getJSONObject(POST_DATA);
-			if (sr.has(Open311.SERVICE_REQUEST)) service_request    = sr.getJSONObject(Open311.SERVICE_REQUEST);
+			if (sr.has(SERVICE))            service            = sr.getJSONObject(SERVICE);
+			if (sr.has(SERVICE_DEFINITION)) service_definition = sr.getJSONObject(SERVICE_DEFINITION);
+            if (sr.has(POST_DATA))          post_data          = sr.getJSONObject(POST_DATA);
+			if (sr.has(SERVICE_REQUEST))    service_request    = sr.getJSONObject(SERVICE_REQUEST);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -101,9 +107,9 @@ public class ServiceRequest {
 		JSONObject sr = new JSONObject();
 		try {
 			sr.put(SERVICE, service);
-			if (service_definition != null) sr.put(SERVICE_DEFINITION,      service_definition);
-            if (post_data          != null) sr.put(POST_DATA,               post_data);
-			if (service_request    != null) sr.put(Open311.SERVICE_REQUEST, service_request);
+			if (service_definition != null) sr.put(SERVICE_DEFINITION, service_definition);
+            if (post_data          != null) sr.put(POST_DATA,          post_data);
+			if (service_request    != null) sr.put(SERVICE_REQUEST,    service_request);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

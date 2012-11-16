@@ -91,7 +91,7 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	public static ReportFragment newInstance(ServiceRequest sr) {
 	    ReportFragment fragment = new ReportFragment();
 	    Bundle args = new Bundle();
-	    args.putString(Open311.SERVICE_REQUEST, sr.toString());
+	    args.putString(ServiceRequest.SERVICE_REQUEST, sr.toString());
 	    fragment.setArguments(args);
 	    return fragment;
 	}
@@ -100,7 +100,7 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    
-	    mServiceRequest = new ServiceRequest(getArguments().getString(Open311.SERVICE_REQUEST));
+	    mServiceRequest = new ServiceRequest(getArguments().getString(ServiceRequest.SERVICE_REQUEST));
 	}
 	
 	@Override
@@ -128,7 +128,7 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 	    super.onSaveInstanceState(outState);
-	    outState.putString(Open311.SERVICE_REQUEST, mServiceRequest.toString());
+	    outState.putString(ServiceRequest.SERVICE_REQUEST, mServiceRequest.toString());
 	}
 	
 	/**
