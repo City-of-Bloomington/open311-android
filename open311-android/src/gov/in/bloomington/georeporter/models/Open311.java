@@ -64,6 +64,9 @@ public class Open311 {
 	public static final String LONGITUDE    = "long";
 	public static final String ADDRESS      = "address_string";
 	public static final String DESCRIPTION  = "description";
+	public static final String SERVICE_NOTICE = "service_notice";
+	public static final String GROUP = "group";
+	public static final String REQUESTED_DATETIME = "requested_datetime";
 	// Personal Information fields
 	public static final String EMAIL        = "email";
 	public static final String DEVICE_ID    = "devide_id";
@@ -77,6 +80,7 @@ public class Open311 {
 	public static final String CODE         = "code";
 	public static final String ORDER        = "order";
 	public static final String VALUES       = "values";
+	public static final String VALUE       = "value";
 	public static final String KEY          = "key";
 	public static final String NAME         = "name";
 	public static final String REQUIRED     = "required";
@@ -180,9 +184,8 @@ public class Open311 {
 			Log.i("Open311 getServiceListUrl",getServiceListUrl());
 			//sServiceList = new JSONArray(loadStringFromUrl(getServiceListUrl()));
 			//Log.i("Open 311 bloo",sServiceList.toString());
-			//Open311XmlParser oparser= new Open311XmlParser();
-			Open311Parser oparser= new Open311Parser(mFormat);
-			sServiceList = oparser.parseServices(loadStringFromUrl(getServiceListUrl()));
+			Open311Parser mParser= new Open311Parser(mFormat);
+			sServiceList = mParser.parseServices(loadStringFromUrl(getServiceListUrl()));
 			if (sServiceList == null) return false; 
 			Log.i("Open 311 ned",sServiceList.toString());
 			// Go through all the services and pull out the seperate groups
@@ -216,12 +219,7 @@ public class Open311 {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
-		} catch (XmlPullParserException e) {
-			Log.e("XmlPullParserException",e.getMessage());
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}catch (IOException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
@@ -265,14 +263,13 @@ public class Open311 {
 	 */
 	public static JSONObject getServiceDefinition(String service_code) {
 		try {
-			return new JSONObject(loadStringFromUrl(getServiceDefinitionUrl(service_code)));
+			Open311Parser mParser= new Open311Parser(mFormat);
+			return mParser.parseServiceDefinition(loadStringFromUrl(getServiceDefinitionUrl(service_code)));
+			//return new JSONObject(loadStringFromUrl(getServiceDefinitionUrl(service_code)));
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -340,10 +337,7 @@ public class Open311 {
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (XmlPullParserException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClientProtocolException e) {
+		}  catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -499,28 +493,56 @@ public class Open311 {
 
 	private static String loadXmlServices(){
 	String str = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-+"<services>"
-+"    <service>"
-+"        <service_code>001</service_code>"
-+"        <service_name>Afval</service_name>"
-+"        <description>Afval</description>"
-+"        <metadata>false</metadata>"
-+"        <type>realtime</type>"
-+"        <keywords>Afval</keywords>"
-+"        <group>Afval</group>"
-+"    </service>"
-+"    <service>"
-+"        <service_code>002</service_code>"
-+"        <service_name>Verlichting</service_name>"
-+"        <description>Verlichting</description>"
-+"        <metadata>false</metadata>"
-+"        <type>realtime</type>"
-+"        <keywords>Verlichting</keywords>"
-+"        <group>Verlichting</group>"
-+"    </service>"
-+"</services>";
+			+"<services>"
+			+"    <service>"
+			+"        <service_code>001</service_code>"
+			+"        <service_name>Afval</service_name>"
+			+"        <description>Afval</description>"
+			+"        <metadata>false</metadata>"
+			+"        <type>realtime</type>"
+			+"        <keywords>Afval</keywords>"
+			+"        <group>Afval</group>"
+			+"    </service>"
+			+"    <service>"
+			+"        <service_code>002</service_code>"
+			+"        <service_name>Verlichting</service_name>"
+			+"        <description>Verlichting</description>"
+			+"        <metadata>false</metadata>"
+			+"        <type>realtime</type>"
+			+"        <keywords>Verlichting</keywords>"
+			+"        <group>Verlichting</group>"
+			+"    </service>"
+			+"</services>";
 	return str;
 }
+	private static String loadXmlServiceDefinition(){
+		String str = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"	
+			+"<service_definition>"
+			+"<service_code>DMV66</service_code>"	
+			+"<attributes>"
+			+"<attribute>"
+			+"	<variable>true</variable>"
+			+"	<code>WHISHETN</code>"
+			+"	<datatype>singlevaluelist</datatype>"
+			+"	<required>true</required>"
+			+"	<datatype_description></datatype_description>"		
+			+"	<order>1</order>"	
+			+"	<description>What is the ticket/tag/DL number?</description>"
+			+"	<values>"
+			+"		<value>"
+			+"			<key>123</key>"
+			+"			<name>Ford</name>"
+			+"		</value>"
+			+"		<value>"
+			+"			<key>124</key>"
+			+"			<name>Chrysler</name>"
+			+"		</value>"			
+			+"	</values>"
+			+"</attribute>"	
+			+"</attributes>"
+			+"</service_definition>";
+		return str;
+	}
 	
 	/**
 	 * @return

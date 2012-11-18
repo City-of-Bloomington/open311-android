@@ -1,5 +1,6 @@
 package gov.in.bloomington.georeporter.util;
 
+import gov.in.bloomington.georeporter.models.Open311;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +16,14 @@ import android.util.Log;
 import android.util.Xml;
 
 public class Open311XmlParser {
+	
+	// XML tags
+	private static final String SERVICES 			= "services";
+	private static final String SERVICE  			= "service";
+	private static final String REQUEST				= "request";
+	private static final String SERVICE_REQUESTS 	= "service_requests";
+	private static final String SERVICE_DEFINITION  = "service_definition";
+	
 	private static final String ns = null;
 	private XmlPullParser parser;
 	
@@ -41,6 +50,21 @@ public class Open311XmlParser {
 		return null;
     }
 
+    public JSONObject parseServiceDefinition(String xml) throws XmlPullParserException, IOException {
+    	InputStream is;
+    	try {
+			is = new ByteArrayInputStream(xml.getBytes("UTF-8"));
+            parser.setInput(is, null);
+            parser.nextTag();
+            return parseServiceDefinition(parser);
+    	} catch (Exception e) {
+    		
+    	} finally {
+        	//is.close();
+        }
+		return null;
+    }
+    
     public JSONArray parseRequests(String xml) throws XmlPullParserException, IOException {
     	InputStream is;
     	try {
@@ -56,94 +80,188 @@ public class Open311XmlParser {
 		return null;
     }
     private JSONArray parseServices(XmlPullParser parser) throws XmlPullParserException, IOException {
-        List entries = new ArrayList();
         JSONArray ja = new JSONArray();
-
-        parser.require(XmlPullParser.START_TAG, ns, "services");
+        parser.require(XmlPullParser.START_TAG, ns, SERVICES);
+        
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String name = parser.getName();
             // Starts by looking for the entry tag
-            if (name.equals("service")) {
-            	Entry e = readService(parser);
-            	try {
-            		JSONObject jo = new JSONObject().put("service_code", e.service_code);
-            		
-            		jo.put("service_name", e.service_name);
-            		jo.put("group", e.group);
-            		jo.put("description", e.description);
-            		jo.put("metadata", e.metadata);
-            		ja.put(jo);
-            	} catch (Exception ex) {
-            		
-            	}
-            	entries.add(e);
+            if (name.equals(SERVICE)) {
+            	JSONObject service = readService(parser);
+            	ja.put(service);
             } else {
                 skip(parser);
             }
         }  
         return ja;
     }
-    public static class Entry {
-        public final String service_code;
-        public final String service_name;
-        public final String description;
-        public final String group;
-        public final String metadata;
 
-        private Entry(String service_code, String service_name, String description, String group, String metadata) {
-            this.service_code = service_code;
-            this.service_name = service_name;
-            this.description = description;
-            this.group = group;
-            this.metadata = metadata;
-        }
-    }
-      
-    // Parses the contents of an entry. If it encounters a title, summary, or link tag, hands them off
-    // to their respective "read" methods for processing. Otherwise, skips the tag.
-    private Entry readService(XmlPullParser parser) throws XmlPullParserException, IOException {
-        parser.require(XmlPullParser.START_TAG, ns, "service");
-        String service_code = null;
-        String service_name = null;
-        String description = null;
-        String group = null;
-        String metadata = null;
-        while (parser.next() != XmlPullParser.END_TAG) {
-            if (parser.getEventType() != XmlPullParser.START_TAG) {
-                continue;
-            }
-            String name = parser.getName();
-            if (name.equals("service_code")) {
-            	service_code = readServiceCode(parser);
-            } else if (name.equals("service_name")) {
-            	service_name = readServiceName(parser);
-            } else if (name.equals("description")) {
-                description = readDescription(parser);
-            } else if (name.equals("group")) {
-                group = readGroup(parser);
-		    } else if (name.equals("metadata")) {
-		        metadata = readMetadata(parser);
-		    }else {
-                skip(parser);
-            }
-        }
-        return new Entry(service_code, service_name, description,group, metadata);
-    }
+    private JSONObject parseServiceDefinition(XmlPullParser parser) throws XmlPullParserException, IOException {
+    	JSONObject jo = new JSONObject();
 
-    private JSONArray parseRequests(XmlPullParser parser) throws XmlPullParserException, IOException {
-        JSONArray ja = new JSONArray();
-
-        parser.require(XmlPullParser.START_TAG, ns, "service_requests");
+        parser.require(XmlPullParser.START_TAG, ns, SERVICE_DEFINITION);
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String name = parser.getName();
             // Starts by looking for the entry tag
-            if (name.equals("request")) {
+            if (name.equals(SERVICE)) {
+            	JSONArray service_definition = readServiceDefinition(parser);
+            	try {
+            		jo.put(Open311.ATTRIBUTES,service_definition);
+            	} catch(Exception ex){
+            		
+            	}
+            } else {
+                skip(parser);
+            }
+        }  
+        return jo;
+    }
+    
+    private JSONObject readService(XmlPullParser parser) throws XmlPullParserException, IOException {
+        parser.require(XmlPullParser.START_TAG, ns, SERVICE);
+        String service_code = null;
+        String service_name = null;
+        String description = null;
+        String group = null;
+        String metadata = null;
+        JSONObject jo = new JSONObject();
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                continue;
+            }
+            String name = parser.getName();
+            try {
+            	if (name.equals(Open311.SERVICE_CODE)) {
+	            	service_code = readElement(parser, Open311.SERVICE_CODE);
+	            	jo.put(Open311.SERVICE_CODE, service_code);
+	            } else if (name.equals(Open311.SERVICE_NAME)) {
+	            	service_name = readElement(parser, Open311.SERVICE_NAME);
+	            	jo.put(Open311.SERVICE_NAME, service_name);
+	            } else if (name.equals(Open311.DESCRIPTION)) {
+	                description = readElement(parser, Open311.DESCRIPTION);
+	                jo.put(Open311.DESCRIPTION, description);
+	            } else if (name.equals(Open311.GROUP)) {
+	            	group = readElement(parser, Open311.GROUP);
+	            	jo.put(Open311.GROUP, group);
+			    } else if (name.equals(Open311.METADATA)) {
+			        metadata = readElement(parser, Open311.METADATA);
+			        jo.put(Open311.METADATA, metadata);
+			    }else {
+	                skip(parser);
+	            }
+		    } catch (Exception ex) {
+				
+			}
+        }
+        return jo;
+    }
+
+    private JSONArray readServiceDefinition(XmlPullParser parser) throws XmlPullParserException, IOException {
+        parser.require(XmlPullParser.START_TAG, ns, SERVICE_REQUESTS);
+        String variable = null;
+        String datatype = null;
+        String description = null;
+        JSONArray values = null;
+        String required = null;
+        String order = null;
+        JSONObject jo = new JSONObject();
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                continue;
+            }
+            String name = parser.getName();
+            try {
+            	if (name.equals(Open311.VARIABLE)) {
+            		variable = readElement(parser, Open311.VARIABLE);
+	            	jo.put(Open311.VARIABLE, variable);
+	            } else if (name.equals(Open311.DATATYPE)) {
+	            	datatype = readElement(parser, Open311.DATATYPE);
+	            	jo.put(Open311.DATATYPE, datatype);
+	            } else if (name.equals(Open311.DESCRIPTION)) {
+	                description = readElement(parser, Open311.DESCRIPTION);
+	                jo.put(Open311.DESCRIPTION, description);
+	            } else if (name.equals(Open311.VALUES)) {
+	            	values = readValues(parser);
+	            	jo.put(Open311.VALUES, values);
+			    } else if (name.equals(Open311.METADATA)) {
+			        required = readElement(parser, Open311.REQUIRED);
+			        jo.put(Open311.REQUIRED, required);
+			    } else if (name.equals(Open311.ORDER)) {
+			        order = readElement(parser, Open311.ORDER);
+			        jo.put(Open311.REQUIRED, order);
+			    }else {
+	                skip(parser);
+	            }
+		    } catch (Exception ex) {
+				
+			}
+        }
+        return new JSONArray().put(jo);
+    }
+    
+    private JSONArray readValues(XmlPullParser parser) throws XmlPullParserException, IOException {
+	    JSONArray ja = new JSONArray();
+	    parser.require(XmlPullParser.START_TAG, ns, Open311.VALUES);
+	    
+	    while (parser.next() != XmlPullParser.END_TAG) {
+	        if (parser.getEventType() != XmlPullParser.START_TAG) {
+	            continue;
+	        }
+	        String name = parser.getName();
+	        if (name.equals(Open311.VALUE)) {
+	        	JSONObject value = readValue(parser);
+	        	ja.put(value);
+	        } else {
+	            skip(parser);
+	        }
+	    }  
+	    return ja;
+	}
+ 
+    private JSONObject readValue(XmlPullParser parser) throws XmlPullParserException, IOException {
+        parser.require(XmlPullParser.START_TAG, ns, Open311.VALUE);
+        String key = null;
+        String value = null;
+        JSONObject jo = new JSONObject();
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                continue;
+            }
+            String name = parser.getName();
+            try {
+            	if (name.equals(Open311.NAME)) {
+            		value = readElement(parser, Open311.NAME);
+	            	jo.put(Open311.NAME, value);
+	            } else if (name.equals(Open311.KEY)) {
+	            	key = readElement(parser, Open311.KEY);
+	            	jo.put(Open311.KEY, key);
+	            }else {
+	                skip(parser);
+	            }
+		    } catch (Exception ex) {
+				
+			}
+        }
+        //return new Service(service_code, service_name, description,group, metadata);
+        return jo;
+    }
+
+    private JSONArray parseRequests(XmlPullParser parser) throws XmlPullParserException, IOException {
+        JSONArray ja = new JSONArray();
+
+        parser.require(XmlPullParser.START_TAG, ns, SERVICE_REQUESTS);
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                continue;
+            }
+            String name = parser.getName();
+            if (name.equals(REQUEST)) {
             	JSONObject jo = readRequest(parser);
             	try {
             		ja.put(jo);
@@ -157,125 +275,44 @@ public class Open311XmlParser {
         return ja;
     }
     private JSONObject readRequest(XmlPullParser parser) throws XmlPullParserException, IOException {
-        parser.require(XmlPullParser.START_TAG, ns, "request");
-
-        String service_request_id;
-    	String media;
-    	String media_url;
-    	String latitude;
-    	String longitude;
-    	String address;
-    	String description;
-    	String email;
-    	String devide_id;
-    	String first_name;
-    	String last_name;
-    	String phone;
+        parser.require(XmlPullParser.START_TAG, ns, REQUEST);
     	JSONObject jo = new JSONObject();
     	try {
-    		
-    	
-    		
-
 	        while (parser.next() != XmlPullParser.END_TAG) {
 	            if (parser.getEventType() != XmlPullParser.START_TAG) {
 	                continue;
 	            }
 	            String name = parser.getName();
-	            if (name.equals("service_code")) {
-	            	jo.put("service_code", readServiceCode(parser));
-	            } else if (name.equals("service_request_id")) {
-	            	jo.put("service_request_id", readServiceRequestId(parser));
-	            } else if (name.equals("lat")) {
-	            	jo.put("latitude", readLatitude(parser));
-	            } else if (name.equals("long")) {
-	            	jo.put("longitude", readLongitude(parser));
-	            } else if (name.equals("description")) {
-	            	jo.put("description", readDescription(parser));
-	            } else if (name.equals("service_notice")) {
-	            	jo.put("service_notice", readServiceNotice(parser));
-	            } else if (name.equals("requested_datetime")) {
-	            	jo.put("requested_datetime", readRequestedDatetime(parser));
+	            if (name.equals(Open311.SERVICE_CODE)) {
+	            	jo.put(Open311.SERVICE_CODE, readElement(parser, Open311.SERVICE_CODE));
+	            } else if (name.equals(Open311.SERVICE_REQUEST_ID)) {
+	            	jo.put(Open311.SERVICE_REQUEST_ID, readElement(parser, Open311.SERVICE_REQUEST_ID));
+	            } else if (name.equals(Open311.LATITUDE)) {
+	            	jo.put(Open311.LATITUDE, readElement(parser,Open311.LATITUDE));
+	            } else if (name.equals(Open311.LONGITUDE)) {
+	            	jo.put(Open311.LONGITUDE, readElement(parser, Open311.LONGITUDE));
+	            } else if (name.equals(Open311.DESCRIPTION)) {
+	            	jo.put(Open311.DESCRIPTION, readElement(parser, Open311.DESCRIPTION));
+	            } else if (name.equals(Open311.SERVICE_NOTICE)) {
+	            	jo.put(Open311.SERVICE_NOTICE, readElement(parser, Open311.SERVICE_NOTICE));
+	            } else if (name.equals(Open311.REQUESTED_DATETIME)) {
+	            	jo.put(Open311.REQUESTED_DATETIME, readElement(parser, Open311.REQUESTED_DATETIME));
 			    }else {
 	                skip(parser);
 	            }
 	        }
     	} catch (Exception ex) {
-    		
+    		//TODO
     	}
         return jo;
     }
     
     // Processes title tags in the feed.
-    private String readServiceCode(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, ns, "service_code");
+    private String readElement(XmlPullParser parser, String element) throws IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, ns, element);
         String service_code = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, "service_code");
+        parser.require(XmlPullParser.END_TAG, ns, element);
         return service_code;
-    }
-
-    // Processes title tags in the feed.
-    private String readServiceRequestId(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, ns, "service_request_id");
-        String service_request_id = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, "service_request_id");
-        return service_request_id;
-    }
-    
-    // Processes summary tags in the feed.
-    private String readServiceName(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, ns, "service_name");
-        String service_name = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, "service_name");
-        return service_name;
-    }
-    private String readDescription(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, ns, "description");
-        String description = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, "description");
-        return description;
-    }
-
-    private String readGroup(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, ns, "group");
-        String group = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, "group");
-        return group;
-    }
-
-    private String readMetadata(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, ns, "metadata");
-        String metadata = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, "metadata");
-        return metadata;
-    }
-    // Processes title tags in the feed.
-    private String readLatitude(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, ns, "lat");
-        String latitude = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, "lat");
-        return latitude;
-    }
-    // Processes title tags in the feed.
-    private String readLongitude(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, ns, "long");
-        String longitude = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, "long");
-        return longitude;
-    }       
-    // Processes title tags in the feed.
-    private String readServiceNotice(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, ns, "service_notice");
-        String service_notice = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, "service_notice");
-        return service_notice;
-    }
-    // Processes title tags in the feed.
-    private String readRequestedDatetime(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, ns, "requested_datetime");
-        String requested_datetime = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, "requested_datetime");
-        return requested_datetime;
     }
     
     // For the tags title and summary, extracts their text values.
