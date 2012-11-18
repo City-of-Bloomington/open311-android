@@ -6,8 +6,10 @@
 package gov.in.bloomington.georeporter.models;
 
 import gov.in.bloomington.georeporter.util.Open311Parser;
-import gov.in.bloomington.georeporter.util.Open311XmlParser;
 
+import gov.in.bloomington.georeporter.util.Media;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -32,6 +33,9 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.CoreConnectionPNames;
@@ -40,9 +44,11 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.net.Uri;
 import android.util.Log;
 
 public class Open311 {
@@ -69,7 +75,7 @@ public class Open311 {
 	public static final String REQUESTED_DATETIME = "requested_datetime";
 	// Personal Information fields
 	public static final String EMAIL        = "email";
-	public static final String DEVICE_ID    = "devide_id";
+	public static final String DEVICE_ID    = "device_id";
 	public static final String FIRST_NAME   = "first_name";
 	public static final String LAST_NAME    = "last_name";
 	public static final String PHONE        = "phone";
@@ -96,8 +102,6 @@ public class Open311 {
 	public static final String SUPPORTS_MEDIA = "supports_media";
 	// Key names for the saved reports file
 	private static final String SAVED_REPORTS_FILE = "service_requests";
-	public  static final String SERVER             = "server";
-	public  static final String SERVICE_REQUEST    = "service_request";
 	public  static final String SERVICE_REQUEST_ID = "service_request_id";
 	public  static final String TOKEN              = "token";
 	// Key names for formats
@@ -182,10 +186,11 @@ public class Open311 {
 		}
 		try {
 			Log.i("Open311 getServiceListUrl",getServiceListUrl());
-			//sServiceList = new JSONArray(loadStringFromUrl(getServiceListUrl()));
-			//Log.i("Open 311 bloo",sServiceList.toString());
+			//sServiceList = new JSONArray(loadStringFromUrl(getServiceListUrl());
 			Open311Parser mParser= new Open311Parser(mFormat);
 			sServiceList = mParser.parseServices(loadStringFromUrl(getServiceListUrl()));
+			//For testing
+			//sServiceList = mParser.parseServices(loadXmlServices());
 			if (sServiceList == null) return false; 
 			Log.i("Open 311 ned",sServiceList.toString());
 			// Go through all the services and pull out the seperate groups
@@ -194,7 +199,7 @@ public class Open311 {
 			int len = sServiceList.length();
 			for (int i=0; i<len; i++) {
 				JSONObject s = sServiceList.getJSONObject(i);
-				// Add groups to mGroups
+				// Add groups to sGroups
 				group = s.optString("group");
 				if (group != "" && !sGroups.contains(group)) { sGroups.add(group); }
 				
@@ -207,22 +212,10 @@ public class Open311 {
 					}
 				}
 			}
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
+		}
+		catch (Exception e) {
+		    e.printStackTrace();
+		    return false;
 		}
 		mEndpoint = current_server;
 		sReady    = true;
@@ -265,16 +258,17 @@ public class Open311 {
 		try {
 			Open311Parser mParser= new Open311Parser(mFormat);
 			return mParser.parseServiceDefinition(loadStringFromUrl(getServiceDefinitionUrl(service_code)));
+			//For testing
+			//JSONObject jo = mParser.parseServiceDefinition(loadXmlServiceDefinition());
+			//Log.i("service definition" , jo.toString());
+			//return jo;
+			//return mParser.parseServiceDefinition(loadXmlServiceDefinition());
+			//return mParser.parseServiceDefinition(loadStringFromUrl(getServiceDefinitionUrl(service_code)));
 			//return new JSONObject(loadStringFromUrl(getServiceDefinitionUrl(service_code)));
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}
+		catch (Exception e) {
+            // TODO Auto-generated catch block
+		    e.printStackTrace();
 		}
 		return null;
 	}
@@ -282,62 +276,42 @@ public class Open311 {
 	/**
 	 * POST new service request data to the endpoint
 	 * 
+	 * The JSONObject should come from ServiceRequest.post_data
+	 * 
      * In the JSON data:
-     * Attribute names will be the code from service_definition.
-     * Most attributes will just contain single values entered by the user.
-     * MultiValueList attributes will an array of the chosen values.
+     * All the keys should already be named correctly.  Attribute keys will
+     * already be in the form of "attribute[code]".
+     * Most attributes will just contain single values entered by the user;
+     * however, MultiValueList attributes will be an array of the chosen values
+     * We will need to iterate over MultiValueList values and add a seperate
+     * pair to the POST for each value.
+     * 
      * Media attributes will contain the URI to the image file.
      * 
 	 * @param data JSON representation of user input
 	 * @return
 	 * JSONObject
 	 */
-	public static JSONArray postServiceRequest(JSONObject data) {
-		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-        if (mJurisdiction != null) {
-            pairs.add(new BasicNameValuePair(JURISDICTION, mJurisdiction));
-        }
-        if (mApiKey != null) {
-            pairs.add(new BasicNameValuePair(API_KEY, mApiKey));
-        }
-        
-        Iterator<?>keys = data.keys();
-        while (keys.hasNext()) {
-            String key = (String)keys.next();
-            Object o;
-            try {
-                o = data.get(key);
-                if (key.equals(MEDIA)) {
-                    // TODO create an image bytestream for media
-                }
-                else if (o instanceof JSONArray) {
-                    // MultiValueSelect
-                    // TODO create entries for each of the chosen values 
-                }
-                else {
-                    // TODO just add the value to pairs.
-                }
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-       
-		
+	public static JSONArray postServiceRequest(ServiceRequest sr, Context context) {
 		HttpPost  request  = new HttpPost(mBaseUrl + "/requests." + mFormat);
 		JSONArray response = null;
 		try {
-			request.setEntity(new UrlEncodedFormEntity(pairs));
+		    if (sr.post_data.has(Open311.MEDIA)) {
+		        request.setEntity(prepareMultipartEntity(sr, context));
+		    }
+		    else {
+		        request.setEntity(prepareUrlEncodedEntity(sr));
+		    }
 			HttpResponse r = getClient().execute(request);
-			String str = EntityUtils.toString(r.getEntity());
-			Log.i("Open311 EntityUtils.toString", str);
-			Open311Parser oparser= new Open311Parser(mFormat);
-			response = oparser.parseRequests(str);
-			//response = new JSONArray(EntityUtils.toString(r.getEntity()));
+			String rs = EntityUtils.toString(r.getEntity());
+			Log.i("Open311", rs);
+			Open311Parser mParser= new Open311Parser(mFormat);
+			response = mParser.parseRequests(rs);
+			//response = new JSONArray(rs);
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}  catch (ClientProtocolException e) {
+		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -346,8 +320,137 @@ public class Open311 {
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} 
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return response;
+	}
+	
+	/**
+	 * Prepares a POST that does not contain a media attachment
+	 *  
+	 * @param data
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 * UrlEncodedFormEntity
+	 * @throws JSONException 
+	 */
+	private static UrlEncodedFormEntity prepareUrlEncodedEntity(ServiceRequest sr) throws UnsupportedEncodingException, JSONException {
+        List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+        // This could cause a JSONException, but we let this one bubble up the stack
+        // If we don't have a service_code, we don't have a valid POST
+        pairs.add(new BasicNameValuePair(SERVICE_CODE, sr.service.getString(SERVICE_CODE)));
+        
+        if (mJurisdiction != null) {
+            pairs.add(new BasicNameValuePair(JURISDICTION, mJurisdiction));
+        }
+        if (mApiKey != null) {
+            pairs.add(new BasicNameValuePair(API_KEY, mApiKey));
+        }
+        
+        JSONObject data = sr.post_data;
+        Iterator<?>keys = data.keys();
+        while (keys.hasNext()) {
+            String key = (String)keys.next();
+            Object o;
+            try {
+                o = data.get(key);
+                // Add MULTIVALUELIST values
+                if (o instanceof JSONArray) {
+                    String k = key + "[]"; // Key name to POST multiple values
+                    JSONArray values = (JSONArray) o;
+                    int len = values.length();
+                    for (int i=0; i<len; i++) {
+                        try {
+                            pairs.add(new BasicNameValuePair(k, values.getString(i)));
+                        } catch (JSONException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                // All other fields can just be plain key-value pairs
+                else {
+                    if (o instanceof Double) {
+                        o = Double.toString(0);
+                    }
+                    pairs.add(new BasicNameValuePair(key, (String) o));
+                }
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return new UrlEncodedFormEntity(pairs);
+	}
+	
+	/**
+	 * Prepares a POST that includes a media attachment
+	 * 
+	 * @param data
+	 * @param context
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 * MultipartEntity
+	 * @throws JSONException 
+	 */
+	private static MultipartEntity prepareMultipartEntity(ServiceRequest sr, Context context) throws UnsupportedEncodingException, JSONException {
+	    MultipartEntity post = new MultipartEntity();
+        // This could cause a JSONException, but we let this one bubble up the stack
+        // If we don't have a service_code, we don't have a valid POST
+	    post.addPart(SERVICE_CODE, new StringBody(sr.service.getString(SERVICE_CODE)));
+	    
+        if (mJurisdiction != null) {
+            post.addPart(JURISDICTION, new StringBody(mJurisdiction));
+        }
+        if (mApiKey != null) {
+            post.addPart(API_KEY,      new StringBody(mApiKey));
+        }
+        JSONObject data = sr.post_data;
+        Iterator<?>keys = data.keys();
+        while (keys.hasNext()) {
+            String key = (String)keys.next();
+            Object o;
+            try {
+                o = data.get(key);
+                // Attach media to the post
+                if (key == MEDIA) {
+                    final Uri uri = Uri.parse((String) o);
+                    final Bitmap media = Media.decodeSampledBitmapFromUri(uri, Media.UPLOAD_WIDTH, Media.UPLOAD_HEIGHT, context);
+                    final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    media.compress(CompressFormat.PNG, 100, stream);
+                    final byte[] binaryData = stream.toByteArray();
+                    post.addPart(Open311.MEDIA, new ByteArrayBody(binaryData, Media.UPLOAD_FILENAME));
+                }
+                // Attach MULTIVALUELIST values
+                else if (o instanceof JSONArray) {
+                    String k = key + "[]"; // Key name to POST multiple values
+                    JSONArray values = (JSONArray) o;
+                    int len = values.length();
+                    for (int i=0; i<len; i++) {
+                        try {
+                            post.addPart(k, new StringBody(values.getString(i)));
+                        } catch (JSONException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                // All other fields can be attached as plain key-value pairs
+                else {
+                    if (o instanceof Double) {
+                        o = Double.toString(0);
+                    }
+                    post.addPart(key, new StringBody((String) o));
+                }
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        return post;
 	}
 	
 	/**
@@ -394,23 +497,8 @@ public class Open311 {
 	/**
 	 * Writes the stored reports back out the file
 	 *
-	 * Requests will be saved as JSON in the format of
-	 * [
-	 * 	{ server:          { },
-	 * 	  service_request: { }
-	 * 	},
-	 *  { server:          { },
-	 *    service_request: { }
-	 *  }
-	 * ]
-	 * server: a copy of the endpoint information so we have
-	 * enough information to make requests for up-to-date information
-	 * 
-	 * service_request: a cache of all the information from the report.
-	 * This gets updated as we see new information from the server
-	 * 
 	 * @param c
-	 * @param requests
+	 * @param requests An array of JSON-serialized ServiceRequest objects
 	 * void
 	 */
 	private static boolean saveServiceRequests(Context c, JSONArray requests) {
@@ -440,38 +528,27 @@ public class Open311 {
 	}
 	
 	/**
-	 * Adds a service_request to the collection of saved reports
+	 * Adds a ServiceRequest to the collection of saved reports
 	 * 
 	 * Reports are stored as a file on the device internal storage
-	 * The file is a serialized JSONArray of reports.
+	 * The file is a serialized JSONArray of ServiceRequest objects.
 	 * 
-	 * Reports are in the form of:
-	 *  { server:          { },
-	 *    service_request: { }
-	 *  }
-	 * server: a copy of the endpoint information so we have
-	 * enough information to make requests for up-to-date information
-	 * 
-	 * service_request: the json data returned by the server,
-	 * obtained by calling GET Service Request
-	 *  
 	 * @param report
 	 * @return
 	 * Boolean
 	 */
-	public static boolean saveServiceRequest(Context c, JSONArray request) {
-		JSONObject report = new JSONObject();
-		try {
-			report.put(SERVER, mEndpoint);
-			report.put(SERVICE_REQUEST, request.getJSONObject(0));
-			
-			JSONArray saved_requests = loadServiceRequests(c);
-			saved_requests.put(report);
-			return saveServiceRequests(c, saved_requests);
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public static boolean saveServiceRequest(Context c, ServiceRequest sr) {
+	    sr.endpoint = mEndpoint;
+	    
+        try {
+            JSONObject report         = new JSONObject(sr.toString());
+            JSONArray  saved_requests = loadServiceRequests(c);
+            saved_requests.put(report);
+            return saveServiceRequests(c, saved_requests);
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 		return false;
 	}
 	
@@ -498,7 +575,7 @@ public class Open311 {
 			+"        <service_code>001</service_code>"
 			+"        <service_name>Afval</service_name>"
 			+"        <description>Afval</description>"
-			+"        <metadata>false</metadata>"
+			+"        <metadata>true</metadata>"
 			+"        <type>realtime</type>"
 			+"        <keywords>Afval</keywords>"
 			+"        <group>Afval</group>"
@@ -518,7 +595,7 @@ public class Open311 {
 	private static String loadXmlServiceDefinition(){
 		String str = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"	
 			+"<service_definition>"
-			+"<service_code>DMV66</service_code>"	
+			+"<service_code>001</service_code>"	
 			+"<attributes>"
 			+"<attribute>"
 			+"	<variable>true</variable>"
@@ -528,6 +605,25 @@ public class Open311 {
 			+"	<datatype_description></datatype_description>"		
 			+"	<order>1</order>"	
 			+"	<description>What is the ticket/tag/DL number?</description>"
+			+"	<values>"
+			+"		<value>"
+			+"			<key>123</key>"
+			+"			<name>Ford</name>"
+			+"		</value>"
+			+"		<value>"
+			+"			<key>124</key>"
+			+"			<name>Chrysler</name>"
+			+"		</value>"			
+			+"	</values>"
+			+"</attribute>"	
+			+"<attribute>"
+			+"	<variable>true</variable>"
+			+"	<code>WHISHETN2</code>"
+			+"	<datatype>singlevaluelist</datatype>"
+			+"	<required>true</required>"
+			+"	<datatype_description></datatype_description>"		
+			+"	<order>1</order>"	
+			+"	<description>What is the it?</description>"
 			+"	<values>"
 			+"		<value>"
 			+"			<key>123</key>"

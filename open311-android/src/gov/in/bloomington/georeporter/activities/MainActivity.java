@@ -46,7 +46,7 @@ public class MainActivity extends BaseActivity {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			dialog = ProgressDialog.show(MainActivity.this, getResources().getString(R.string.dialog_loading_services), "", true);
+			dialog = ProgressDialog.show(MainActivity.this, getString(R.string.dialog_loading_services), "", true);
 		}
 		
 		@Override
@@ -58,7 +58,7 @@ public class MainActivity extends BaseActivity {
 		protected void onPostExecute(Boolean result) {
 			dialog.dismiss();
 			if (!result) {
-				Util.displayCrashDialog(MainActivity.this, "Failed to load service information");
+				Util.displayCrashDialog(MainActivity.this, getString(R.string.failure_loading_services));
 			}
 			super.onPostExecute(result);
 			startActivity(new Intent(MainActivity.this, ReportActivity.class));

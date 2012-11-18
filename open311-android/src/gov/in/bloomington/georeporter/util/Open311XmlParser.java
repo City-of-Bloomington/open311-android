@@ -21,6 +21,7 @@ public class Open311XmlParser {
 	private static final String SERVICES 			= "services";
 	private static final String SERVICE  			= "service";
 	private static final String REQUEST				= "request";
+	public  static final String ATTRIBUTE   		= "attribute";
 	private static final String SERVICE_REQUESTS 	= "service_requests";
 	private static final String SERVICE_DEFINITION  = "service_definition";
 	
@@ -101,7 +102,8 @@ public class Open311XmlParser {
 
     private JSONObject parseServiceDefinition(XmlPullParser parser) throws XmlPullParserException, IOException {
     	JSONObject jo = new JSONObject();
-
+    	String service_code = null;
+    	JSONArray service_definition = new JSONArray();
         parser.require(XmlPullParser.START_TAG, ns, SERVICE_DEFINITION);
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -109,17 +111,21 @@ public class Open311XmlParser {
             }
             String name = parser.getName();
             // Starts by looking for the entry tag
-            if (name.equals(SERVICE)) {
-            	JSONArray service_definition = readServiceDefinition(parser);
-            	try {
-            		jo.put(Open311.ATTRIBUTES,service_definition);
-            	} catch(Exception ex){
-            		
-            	}
+            if (name.equals(Open311.ATTRIBUTES)) {
+            	service_definition = parseAttributes(parser);
+            } else if (name.equals(Open311.SERVICE_CODE)) {
+            	service_code = readElement(parser, Open311.SERVICE_CODE);
             } else {
                 skip(parser);
             }
-        }  
+        }
+        
+        try {
+        	jo.put(Open311.SERVICE_CODE, service_code);
+        	jo.put(Open311.ATTRIBUTES,service_definition);
+    	} catch(Exception ex){
+    		
+    	}
         return jo;
     }
     
@@ -161,15 +167,35 @@ public class Open311XmlParser {
         }
         return jo;
     }
-
-    private JSONArray readServiceDefinition(XmlPullParser parser) throws XmlPullParserException, IOException {
-        parser.require(XmlPullParser.START_TAG, ns, SERVICE_REQUESTS);
+    private JSONArray parseAttributes(XmlPullParser parser) throws XmlPullParserException, IOException {
+    	parser.require(XmlPullParser.START_TAG, ns, Open311.ATTRIBUTES);
+        JSONArray ja = new JSONArray();
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                continue;
+            }
+            String name = parser.getName();
+            try {
+            	if (name.equals(ATTRIBUTE)) {
+            		JSONObject attr = parseAttribute(parser);
+            		ja.put(attr);
+            	}
+            } catch(Exception ex){
+            	
+            }
+        }
+        return ja;
+    }
+	            	
+    private JSONObject parseAttribute(XmlPullParser parser) throws XmlPullParserException, IOException {
+    	parser.require(XmlPullParser.START_TAG, ns, ATTRIBUTE);
         String variable = null;
         String datatype = null;
         String description = null;
         JSONArray values = null;
         String required = null;
         String order = null;
+        String code = null;
         JSONObject jo = new JSONObject();
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -189,20 +215,23 @@ public class Open311XmlParser {
 	            } else if (name.equals(Open311.VALUES)) {
 	            	values = readValues(parser);
 	            	jo.put(Open311.VALUES, values);
-			    } else if (name.equals(Open311.METADATA)) {
+			    } else if (name.equals(Open311.REQUIRED)) {
 			        required = readElement(parser, Open311.REQUIRED);
 			        jo.put(Open311.REQUIRED, required);
 			    } else if (name.equals(Open311.ORDER)) {
 			        order = readElement(parser, Open311.ORDER);
-			        jo.put(Open311.REQUIRED, order);
-			    }else {
+			        jo.put(Open311.ORDER, order);
+			    } else if (name.equals(Open311.CODE)) {
+			        code = readElement(parser, Open311.CODE);
+			        jo.put(Open311.CODE, code);
+			    } else {
 	                skip(parser);
 	            }
 		    } catch (Exception ex) {
 				
 			}
         }
-        return new JSONArray().put(jo);
+        return jo;
     }
     
     private JSONArray readValues(XmlPullParser parser) throws XmlPullParserException, IOException {
@@ -320,7 +349,6 @@ public class Open311XmlParser {
         String result = "";
         if (parser.next() == XmlPullParser.TEXT) {
             result = parser.getText();
-            Log.i("Open311XmlParser readText",result);
             parser.nextTag();
         }
         return result;

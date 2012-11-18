@@ -34,6 +34,10 @@ public class Media {
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
     
+    public static final int    UPLOAD_WIDTH  = 640;
+    public static final int    UPLOAD_HEIGHT = 480;
+    public static final String UPLOAD_FILENAME = "media.png"; 
+    
     private static final String APP_NAME = "GeoReporter";
     
     /**

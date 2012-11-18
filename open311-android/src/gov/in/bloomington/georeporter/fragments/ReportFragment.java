@@ -6,6 +6,7 @@
 package gov.in.bloomington.georeporter.fragments;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -19,19 +20,21 @@ import gov.in.bloomington.georeporter.activities.AttributeEntryActivity;
 import gov.in.bloomington.georeporter.activities.ChooseLocationActivity;
 import gov.in.bloomington.georeporter.activities.DataEntryActivity;
 import gov.in.bloomington.georeporter.activities.MainActivity;
+import gov.in.bloomington.georeporter.activities.SavedReportsActivity;
 import gov.in.bloomington.georeporter.adapters.ServiceRequestAdapter;
 import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.models.ServiceRequest;
 import gov.in.bloomington.georeporter.util.Media;
+import gov.in.bloomington.georeporter.util.Util;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.DialogInterface.OnClickListener;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
@@ -46,17 +49,35 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockDialogFragment;
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.google.android.maps.GeoPoint;
 
 public class ReportFragment extends SherlockFragment implements OnItemClickListener{
-    public static final int DATA_ENTRY_REQUEST = 0;
-    public static final int MEDIA_REQUEST      = 1;
-    public static final int LOCATION_REQUEST   = 2;
-    public static final int ATTRIBUTE_REQUEST  = 3;
+    /**
+     * Request for handling Photo attachments to the Service Request
+     */
+    public static final int MEDIA_REQUEST      = 0;
+    /**
+     * Request for handling lat, long, and address
+     */
+    public static final int LOCATION_REQUEST   = 1;
+    /**
+     * Request to handle all the attributes
+     */
+    public static final int ATTRIBUTE_REQUEST  = 2;
+    /**
+     * Request to handle all the rest of the basic parameters.
+     * ie. description, firstname, lastname, email, etc.
+     */
+    public static final int DATA_ENTRY_REQUEST = 3;
+    
+    private static final List<String> DATA_ENTRY_FIELDS = Arrays.asList(
+        Open311.DESCRIPTION, Open311.FIRST_NAME, Open311.LAST_NAME, Open311.EMAIL, Open311.PHONE
+    );
+    
     
 	private ServiceRequest mServiceRequest;
     private ListView       mListView;
@@ -70,7 +91,7 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	public static ReportFragment newInstance(ServiceRequest sr) {
 	    ReportFragment fragment = new ReportFragment();
 	    Bundle args = new Bundle();
-	    args.putString(Open311.SERVICE_REQUEST, sr.toString());
+	    args.putString(ServiceRequest.SERVICE_REQUEST, sr.toString());
 	    fragment.setArguments(args);
 	    return fragment;
 	}
@@ -79,7 +100,7 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    
-	    mServiceRequest = new ServiceRequest(getArguments().getString(Open311.SERVICE_REQUEST));
+	    mServiceRequest = new ServiceRequest(getArguments().getString(ServiceRequest.SERVICE_REQUEST));
 	}
 	
 	@Override
@@ -90,14 +111,11 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
         mListView.setOnItemClickListener(this);
         
         v.findViewById(R.id.submit_button).setOnClickListener(new View.OnClickListener() {
-            @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
-                
+                new PostServiceRequestTask().execute();
             }
         });
         v.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
-            @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -110,7 +128,7 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 	    super.onSaveInstanceState(outState);
-	    outState.putString(Open311.SERVICE_REQUEST, mServiceRequest.toString());
+	    outState.putString(ServiceRequest.SERVICE_REQUEST, mServiceRequest.toString());
 	}
 	
 	/**
@@ -172,8 +190,13 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	            Intent i = new Intent(getActivity(), ChooseLocationActivity.class);
 	            startActivityForResult(i, LOCATION_REQUEST);
 	        }
-	        else if (labelKey.equals(Open311.DESCRIPTION)) {
+	        else if (DATA_ENTRY_FIELDS.contains(labelKey)) {
+	            TextView label = (TextView) v.findViewById(android.R.id.text1);
+	            
 	            Intent i = new Intent(getActivity(), DataEntryActivity.class);
+	            i.putExtra(DataEntryActivity.KEY,    labelKey);
+	            i.putExtra(DataEntryActivity.VALUE,  mServiceRequest.post_data.optString(labelKey));
+                i.putExtra(DataEntryActivity.PROMPT, label.getText().toString());
 	            startActivityForResult(i, DATA_ENTRY_REQUEST);
 	        }
 	        else {
@@ -190,19 +213,14 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
                     }
                     // all other attribute types get a full seperate Activity
                     else {
-                        String c = "gov.in.bloomington.georeporter.activities.AttributeEntryActivity";
-                        Intent i = new Intent(getActivity(), Class.forName(c));
+                        Intent i = new Intent(getActivity(), AttributeEntryActivity.class);
                         i.putExtra(AttributeEntryActivity.ATTRIBUTE, attribute.toString());
                         startActivityForResult(i, ATTRIBUTE_REQUEST);
                     }
                 } catch (JSONException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
                 }
-	            
 	        }
 	    }
 	}
@@ -216,49 +234,48 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	    super.onActivityResult(requestCode, resultCode, data);
 	    
 	    if (resultCode == Activity.RESULT_OK) {
-	        switch (requestCode) {
-                case MEDIA_REQUEST:
-                    // Determine if this is from the camera or gallery
-                    Uri imageUri = (mImageUri != null) ? mImageUri : data.getData();
-                    if (imageUri != null) {
-                        try {
+	        try {
+    	        switch (requestCode) {
+                    case MEDIA_REQUEST:
+                        // Determine if this is from the camera or gallery
+                        Uri imageUri = (mImageUri != null) ? mImageUri : data.getData();
+                        if (imageUri != null) {
                             mServiceRequest.post_data.put(Open311.MEDIA, imageUri.toString());
                             mImageUri = null; // Remember to wipe it out, so we don't confuse camera and gallery
-                        } catch (JSONException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
                         }
-                    }
-                    break;
-                    
-                case LOCATION_REQUEST:
-                    int latitudeE6  = data.getIntExtra(Open311.LATITUDE,  0);
-                    int longitudeE6 = data.getIntExtra(Open311.LONGITUDE, 0);
-                    
-                    try {
+                        break;
+                        
+                    case LOCATION_REQUEST:
+                        int latitudeE6  = data.getIntExtra(Open311.LATITUDE,  0);
+                        int longitudeE6 = data.getIntExtra(Open311.LONGITUDE, 0);
+                        
                         mServiceRequest.post_data.put(Open311.LATITUDE , latitudeE6  / 1e6);
                         mServiceRequest.post_data.put(Open311.LONGITUDE, longitudeE6 / 1e6);
+                        // Display the lat/long as text for now
+                        // It will get replaced with the address when ReverseGeoCodingTask returns
+                        new ReverseGeocodingTask().execute(new GeoPoint(latitudeE6, longitudeE6));
+                        break;
                         
-                    } catch (JSONException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                    // Display the lat/long as text for now
-                    // It will get replaced with the address when ReverseGeoCodingTask returns
-                    new ReverseGeocodingTask().execute(new GeoPoint(latitudeE6, longitudeE6));
-                    break;
-                    
-                case DATA_ENTRY_REQUEST:
-                    break;
-                    
-                case ATTRIBUTE_REQUEST:
-                    String code     = data.getStringExtra(Open311.CODE);
-                    String datatype = data.getStringExtra(Open311.DATATYPE);
-                    String value    = data.getStringExtra(AttributeEntryActivity.VALUE);
-                    
-                    String key = String.format("%s[%s]", AttributeEntryActivity.ATTRIBUTE, code);
-                    
-                    try {
+                    /**
+                     * Case to handle all the text-based parameters
+                     * description, firstname, lastname, etc.
+                     */
+                    case DATA_ENTRY_REQUEST:
+                        String labelKey = data.getStringExtra(DataEntryActivity.KEY);
+                        String val      = data.getStringExtra(DataEntryActivity.VALUE);
+                        mServiceRequest.post_data.put(labelKey, val);
+                        break;
+                        
+                    /**
+                     * Case to handle all possible attributes
+                     */
+                    case ATTRIBUTE_REQUEST:
+                        String code     = data.getStringExtra(Open311.CODE);
+                        String datatype = data.getStringExtra(Open311.DATATYPE);
+                        String value    = data.getStringExtra(AttributeEntryActivity.VALUE);
+                        
+                        String key = String.format("%s[%s]", AttributeEntryActivity.ATTRIBUTE, code);
+                        
                         // Multivaluelist attributes will return a JSON string
                         // containg a JSONArray of values the user chose
                         if (datatype.equals(Open311.MULTIVALUELIST)) {
@@ -268,15 +285,16 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
                         else {
                             mServiceRequest.post_data.put(key, value);
                         }
-                    } catch (JSONException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                    break;
-
-                default:
-                    break;
-            }
+                        break;
+    
+                    default:
+                        break;
+                }
+	        }
+	        catch (JSONException e) {
+                // TODO Auto-generated catch block
+	            e.printStackTrace();
+	        }
 	    }
 	    
 	    refreshAdapter();
@@ -360,7 +378,6 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	            try {
 	                mServiceRequest.post_data.put(Open311.ADDRESS, address);
 	                refreshAdapter();
-	                Log.i("ReverseGeocodingTask", "Updated adapter with address " + address);
 	            } catch (JSONException e) {
 	                // TODO Auto-generated catch block
 	                e.printStackTrace();
@@ -368,6 +385,49 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	        }
 	        super.onPostExecute(address);
 	    }
+	}
+	
+	/**
+	 * AsyncTask for sending the ServiceRequest to the endpoint
+	 * 
+	 * When finished the user will be sent to the Saved Reports screen
+	 */
+	private class PostServiceRequestTask extends AsyncTask<Void, Void, Boolean> {
+	    private ProgressDialog mDialog;
+	    
+	    @Override
+	    protected void onPreExecute() {
+            super.onPreExecute();
+            mDialog = ProgressDialog.show(getActivity(), getString(R.string.dialog_posting_service), "", true);
+	    }
+	    
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            JSONArray response = Open311.postServiceRequest(mServiceRequest, getActivity());
+            if (response.length() > 0) {
+                try {
+                    mServiceRequest.service_request = response.getJSONObject(0);
+                    return Open311.saveServiceRequest(getActivity(), mServiceRequest);
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            return false;
+        }
+	    
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+            mDialog.dismiss();
+            if (!result) {
+                Util.displayCrashDialog(getActivity(), getString(R.string.failure_posting_service));
+            }
+            else {
+                Intent intent = new Intent(getActivity(), SavedReportsActivity.class);
+                startActivity(intent);
+            }
+        }
 	}
 
 }

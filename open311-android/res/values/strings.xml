@@ -13,6 +13,9 @@
     <string name="email">Email</string>
     <string name="phone">Phone</string>
     <string name="dialog_loading_services">Loading service information</string>
+    <string name="dialog_posting_service">Posting service request</string>
+    <string name="failure_loading_services">Failed to load service information</string>
+    <string name="failure_posting_service">Posting report failed</string>
     <string name="choose_media_source">Choose source of picture</string>
     <string name="camera">Camera</string>
     <string name="gallery">Gallery</string>

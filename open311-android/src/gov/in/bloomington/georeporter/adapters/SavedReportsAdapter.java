@@ -6,6 +6,7 @@
 package gov.in.bloomington.georeporter.adapters;
 
 import gov.in.bloomington.georeporter.models.Open311;
+import gov.in.bloomington.georeporter.models.ServiceRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -62,11 +63,12 @@ public class SavedReportsAdapter extends BaseAdapter {
 		}
 		//TODO display some information from the report
 		// For right now, just display some generic stuff
-		JSONObject server;
+		JSONObject endpoint, service;
 		try {
-			server = report.getJSONObject(Open311.SERVER);
-			holder.name       .setText(server.getString(Open311.NAME));
-			holder.description.setText(server.getString(Open311.URL));
+			endpoint = report.getJSONObject(ServiceRequest.ENDPOINT);
+			service  = report.getJSONObject(ServiceRequest.SERVICE);
+			holder.name       .setText(endpoint.getString(Open311.NAME));
+			holder.description.setText(service .getString(Open311.SERVICE_NAME));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
