@@ -109,7 +109,7 @@ public class AttributeEntryActivity extends BaseActivity {
                 for (int i=0; i<len; i++) {
                     JSONObject value = values.optJSONObject(i);
                     RadioButton button = (RadioButton) inflater.inflate(R.layout.radiobutton, null);
-                    button.setText(value.optString(Open311.KEY));
+                    button.setText(value.optString(Open311.NAME));
                     input.addView(button);
                 }
                 return v;
@@ -120,7 +120,7 @@ public class AttributeEntryActivity extends BaseActivity {
                 for (int i=0; i<len; i++) {
                     JSONObject value = values.optJSONObject(i);
                     CheckBox checkbox = (CheckBox) inflater.inflate(R.layout.checkbox, null);
-                    checkbox.setText(value.optString(Open311.KEY));
+                    checkbox.setText(value.optString(Open311.NAME));
                     input.addView(checkbox);
                 }
                 return v;
