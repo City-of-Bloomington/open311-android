@@ -11,16 +11,16 @@ import gov.in.bloomington.georeporter.adapters.ServersAdapter;
 import gov.in.bloomington.georeporter.models.Preferences;
 import gov.in.bloomington.georeporter.util.Util;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.actionbarsherlock.app.SherlockListFragment;
+import gov.in.bloomington.georeporter.util.json.JSONArray;
+import gov.in.bloomington.georeporter.util.json.JSONException;
+import gov.in.bloomington.georeporter.util.json.JSONObject;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
+
+import com.actionbarsherlock.app.SherlockListFragment;
 
 public class ServersFragment extends SherlockListFragment {
 	JSONArray mServers = null;

@@ -5,16 +5,16 @@
  */
 package gov.in.bloomington.georeporter.activities;
 
-import org.json.JSONObject;
-
 import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.fragments.ChooseGroupFragment;
-import gov.in.bloomington.georeporter.fragments.ChooseServiceFragment;
-import gov.in.bloomington.georeporter.fragments.ReportFragment;
 import gov.in.bloomington.georeporter.fragments.ChooseGroupFragment.OnGroupSelectedListener;
+import gov.in.bloomington.georeporter.fragments.ChooseServiceFragment;
 import gov.in.bloomington.georeporter.fragments.ChooseServiceFragment.OnServiceSelectedListener;
+import gov.in.bloomington.georeporter.fragments.ReportFragment;
 import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.models.ServiceRequest;
+
+import gov.in.bloomington.georeporter.util.json.JSONObject;
 
 import android.os.Bundle;
 

@@ -7,17 +7,18 @@
  */
 package gov.in.bloomington.georeporter.adapters;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.activities.AttributeEntryActivity;
 import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.models.ServiceRequest;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import gov.in.bloomington.georeporter.util.json.JSONArray;
+import gov.in.bloomington.georeporter.util.json.JSONException;
+import gov.in.bloomington.georeporter.util.json.JSONObject;
+
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
@@ -87,6 +88,11 @@ public class ServiceRequestAdapter extends BaseAdapter {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param sr
+	 * void
+	 */
 	public void updateServiceRequest(ServiceRequest sr) {
 	    mServiceRequest = sr;
 	    super.notifyDataSetChanged();

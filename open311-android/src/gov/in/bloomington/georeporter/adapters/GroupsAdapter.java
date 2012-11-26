@@ -6,7 +6,6 @@
 package gov.in.bloomington.georeporter.adapters;
 
 import gov.in.bloomington.georeporter.models.Open311;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;

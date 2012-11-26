@@ -15,9 +15,9 @@
  */
 package gov.in.bloomington.georeporter.models;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import gov.in.bloomington.georeporter.util.json.JSONArray;
+import gov.in.bloomington.georeporter.util.json.JSONException;
+import gov.in.bloomington.georeporter.util.json.JSONObject;
 
 public class ServiceRequest {
     public static final String ENDPOINT           = "endpoint";

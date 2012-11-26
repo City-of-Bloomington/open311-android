@@ -9,7 +9,7 @@ import gov.in.bloomington.georeporter.models.Open311;
 
 import java.util.ArrayList;
 
-import org.json.JSONObject;
+import gov.in.bloomington.georeporter.util.json.JSONObject;
 
 import android.content.Context;
 import android.view.LayoutInflater;

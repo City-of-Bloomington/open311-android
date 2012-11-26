@@ -24,5 +24,6 @@
     <string name="report_description">Description of problem</string>
     <string name="submit">Submit</string>
     <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
 
 </resources>

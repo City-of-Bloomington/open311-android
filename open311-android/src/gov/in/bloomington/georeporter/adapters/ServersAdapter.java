@@ -9,8 +9,8 @@ import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.models.Preferences;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import gov.in.bloomington.georeporter.util.json.JSONArray;
+import gov.in.bloomington.georeporter.util.json.JSONObject;
 
 import android.content.Context;
 import android.view.LayoutInflater;
