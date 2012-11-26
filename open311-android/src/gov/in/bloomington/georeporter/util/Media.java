@@ -24,10 +24,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.v4.content.CursorLoader;
 import android.util.Log;
 
 public class Media {
@@ -121,9 +124,8 @@ public class Media {
 	 * @return
 	 * Bitmap
 	 */
-	public static Bitmap decodeSampledBitmapFromUri(Uri uri, int reqWidth, int reqHeight, Context c) {
+	public static Bitmap decodeSampledBitmap(String path, int reqWidth, int reqHeight, Context c) {
 	    final BitmapFactory.Options options = new BitmapFactory.Options();
-	    final String path = uri.toString();
 	    
 	    // First decode with inJustDecodeBounds=true to check dimensions
 	    options.inJustDecodeBounds = true;
@@ -135,5 +137,27 @@ public class Media {
 	    // Decode bitmap with inSampleSize set
 	    options.inJustDecodeBounds = false;
 	    return BitmapFactory.decodeFile(path, options);
+	}
+	
+	/**
+	 * Returns the raw, absolute path for an internal Uri
+	 *
+	 * Thread Warning:
+	 * Converting from Uri to a real path requires a database cursor.
+	 * This function cannot be called from an AsyncTask, as it does its own
+	 * background processing.  It must be called from the main UI thread.
+	 * 
+	 * @param uri
+	 * @param c
+	 * @return
+	 * String
+	 */
+	public static String getRealPathFromUri(Uri uri, Context c) {
+	    String[] proj = { MediaStore.Images.Media.DATA };
+	    CursorLoader loader = new CursorLoader(c, uri, proj, null, null, null);
+	    Cursor cursor = loader.loadInBackground();
+	    int index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+	    cursor.moveToFirst();
+	    return cursor.getString(index);
 	}
 }

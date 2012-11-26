@@ -254,12 +254,12 @@ public class Open311 {
 	 * @return
 	 * JSONObject
 	 */
-	public static JSONArray postServiceRequest(ServiceRequest sr, Context context) {
+	public static JSONArray postServiceRequest(ServiceRequest sr, Context context, String mediaPath) {
 		HttpPost   request  = new HttpPost(mBaseUrl + "/requests.json");
 		JSONArray  response = null;
 		try {
-		    if (sr.post_data.has(Open311.MEDIA)) {
-		        request.setEntity(prepareMultipartEntity(sr, context));
+		    if (mediaPath != null) {
+		        request.setEntity(prepareMultipartEntity(sr, context, mediaPath));
 		    }
 		    else {
 		        request.setEntity(prepareUrlEncodedEntity(sr));
@@ -350,12 +350,13 @@ public class Open311 {
 	 * 
 	 * @param data
 	 * @param context
+	 * @param mediaPath
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 * MultipartEntity
 	 * @throws JSONException 
 	 */
-	private static MultipartEntity prepareMultipartEntity(ServiceRequest sr, Context context) throws UnsupportedEncodingException, JSONException {
+	private static MultipartEntity prepareMultipartEntity(ServiceRequest sr, Context context, String mediaPath) throws UnsupportedEncodingException, JSONException {
 	    MultipartEntity post = new MultipartEntity();
         // This could cause a JSONException, but we let this one bubble up the stack
         // If we don't have a service_code, we don't have a valid POST
@@ -376,8 +377,10 @@ public class Open311 {
                 o = data.get(key);
                 // Attach media to the post
                 if (key == MEDIA) {
+                    Log.i("Open311", "Reading Uri from string: " + (String) o);
                     final Uri uri = Uri.parse((String) o);
-                    final Bitmap media = Media.decodeSampledBitmapFromUri(uri, Media.UPLOAD_WIDTH, Media.UPLOAD_HEIGHT, context);
+                    Log.i("Open311", "Uri is now: " + uri.toString());
+                    final Bitmap media = Media.decodeSampledBitmap(mediaPath, Media.UPLOAD_WIDTH, Media.UPLOAD_HEIGHT, context);
                     final ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     media.compress(CompressFormat.PNG, 100, stream);
                     final byte[] binaryData = stream.toByteArray();

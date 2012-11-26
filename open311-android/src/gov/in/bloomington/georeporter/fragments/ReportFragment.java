@@ -394,16 +394,29 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	 */
 	private class PostServiceRequestTask extends AsyncTask<Void, Void, Boolean> {
 	    private ProgressDialog mDialog;
+	    private String mMediaPath;
 	    
 	    @Override
 	    protected void onPreExecute() {
             super.onPreExecute();
             mDialog = ProgressDialog.show(getActivity(), getString(R.string.dialog_posting_service), "", true);
+            
+            // Converting from a Uri to a real file path requires a database
+            // cursor. Media.getRealPathFromUri must be done on the main UI
+            // thread, since it makes its own loadInBackground call.
+            if (mServiceRequest.post_data.has(Open311.MEDIA)) {
+                try {
+                    mMediaPath = Media.getRealPathFromUri(Uri.parse(mServiceRequest.post_data.getString(Open311.MEDIA)), getActivity());
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
 	    }
 	    
         @Override
         protected Boolean doInBackground(Void... params) {
-            JSONArray response = Open311.postServiceRequest(mServiceRequest, getActivity());
+            JSONArray response = Open311.postServiceRequest(mServiceRequest, getActivity(), mMediaPath);
             if (response.length() > 0) {
                 try {
                     mServiceRequest.service_request = response.getJSONObject(0);
