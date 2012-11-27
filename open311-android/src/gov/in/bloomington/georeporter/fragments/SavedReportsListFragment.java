@@ -21,6 +21,7 @@ import com.actionbarsherlock.app.SherlockListFragment;
 
 public class SavedReportsListFragment extends SherlockListFragment {
     private JSONArray mServiceRequests;
+    private boolean   mDataChanged = false;
     
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -49,12 +50,21 @@ public class SavedReportsListFragment extends SherlockListFragment {
 	    switch (item.getItemId()) {
 	        case R.id.menu_delete:
                 mServiceRequests.remove(info.position);
+                mDataChanged = true;
                 refreshAdapter();
 	            return true;
 	            
 	        default:
 	            return super.onContextItemSelected(item);
 	    }
+	}
+	
+	@Override
+	public void onPause() {
+	    if (mDataChanged) {
+	        Open311.saveServiceRequests(getActivity(), mServiceRequests);
+	    }
+	    super.onPause();
 	}
 	
 	private void refreshAdapter() {

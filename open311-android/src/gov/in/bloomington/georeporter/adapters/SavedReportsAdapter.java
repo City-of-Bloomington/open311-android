@@ -13,6 +13,7 @@ import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,6 +52,7 @@ public class SavedReportsAdapter extends BaseAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder holder;
 		JSONObject report = getItem(position);
+		Log.i("SavedReportsAdapter",report.toString());
 		if (convertView == null) {
 			convertView = mInflater.inflate(android.R.layout.simple_list_item_2, null);
 			holder = new ViewHolder();

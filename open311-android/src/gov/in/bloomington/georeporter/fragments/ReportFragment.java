@@ -419,6 +419,7 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
             JSONArray response = Open311.postServiceRequest(mServiceRequest, getActivity(), mMediaPath);
             if (response.length() > 0) {
                 try {
+                    mServiceRequest.endpoint        = Open311.sEndpoint;
                     mServiceRequest.service_request = response.getJSONObject(0);
                     return Open311.saveServiceRequest(getActivity(), mServiceRequest);
                 } catch (JSONException e) {

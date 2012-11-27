@@ -89,6 +89,7 @@ public class ServiceRequest {
 	public ServiceRequest(String json) {
 		try {
 			JSONObject sr = new JSONObject(json);
+			if (sr.has(ENDPOINT))           endpoint           = sr.getJSONObject(ENDPOINT);
 			if (sr.has(SERVICE))            service            = sr.getJSONObject(SERVICE);
 			if (sr.has(SERVICE_DEFINITION)) service_definition = sr.getJSONObject(SERVICE_DEFINITION);
             if (sr.has(POST_DATA))          post_data          = sr.getJSONObject(POST_DATA);
@@ -107,6 +108,7 @@ public class ServiceRequest {
 		JSONObject sr = new JSONObject();
 		try {
 			sr.put(SERVICE, service);
+			if (endpoint           != null) sr.put(ENDPOINT,           endpoint);
 			if (service_definition != null) sr.put(SERVICE_DEFINITION, service_definition);
             if (post_data          != null) sr.put(POST_DATA,          post_data);
 			if (service_request    != null) sr.put(SERVICE_REQUEST,    service_request);

@@ -93,13 +93,13 @@ public class Open311 {
 	public  static final String SERVICE_REQUEST_ID = "service_request_id";
 	public  static final String TOKEN              = "token";
 	
+    public static JSONObject                  sEndpoint;
 	public static Boolean                     sReady = false;
 	public static JSONArray                   sServiceList = null;
 	public static HashMap<String, JSONObject> sServiceDefinitions;
 	public static ArrayList<String>           sGroups;
 	
 	
-	private static JSONObject mEndpoint;
 	private static String mBaseUrl;
 	private static String mJurisdiction;
 	private static String mApiKey;
@@ -144,7 +144,7 @@ public class Open311 {
 	 * 
 	 * Returns false if there was a problem
 	 * 
-	 * @param current_server
+	 * @param current_server A single entry from /raw/available_servers
 	 * @return
 	 * Boolean
 	 */
@@ -191,7 +191,7 @@ public class Open311 {
 		    e.printStackTrace();
 		    return false;
 		}
-		mEndpoint = current_server;
+		sEndpoint = current_server;
 		sReady    = true;
 		return sReady;
 	}
@@ -332,8 +332,9 @@ public class Open311 {
                 }
                 // All other fields can just be plain key-value pairs
                 else {
+                    // Lat and Long need to be converted to string
                     if (o instanceof Double) {
-                        o = Double.toString(0);
+                        o = Double.toString((Double)o);
                     }
                     pairs.add(new BasicNameValuePair(key, (String) o));
                 }
@@ -429,7 +430,8 @@ public class Open311 {
 		
 		StringBuffer buffer = new StringBuffer("");
 		byte[] bytes = new byte[1024];
-		int length;
+		@SuppressWarnings("unused")
+        int length;
 		try {
 			FileInputStream in = c.openFileInput(SAVED_REPORTS_FILE);
 			while ((length = in.read(bytes)) != -1) {
@@ -455,7 +457,7 @@ public class Open311 {
 	 * @param requests An array of JSON-serialized ServiceRequest objects
 	 * void
 	 */
-	private static boolean saveServiceRequests(Context c, JSONArray requests) {
+	public static boolean saveServiceRequests(Context c, JSONArray requests) {
 		String json = requests.toString();
 		FileOutputStream out;
 		try {
@@ -484,7 +486,7 @@ public class Open311 {
 	 * Boolean
 	 */
 	public static boolean saveServiceRequest(Context c, ServiceRequest sr) {
-	    sr.endpoint = mEndpoint;
+	    sr.endpoint = sEndpoint;
 	    
         try {
             JSONObject report         = new JSONObject(sr.toString());
