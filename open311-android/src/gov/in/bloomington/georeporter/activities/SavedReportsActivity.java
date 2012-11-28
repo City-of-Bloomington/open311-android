@@ -9,6 +9,7 @@ package gov.in.bloomington.georeporter.activities;
 
 import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.fragments.SavedReportViewFragment;
+import gov.in.bloomington.georeporter.fragments.SavedReportsListFragment;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -20,14 +21,19 @@ public class SavedReportsActivity extends BaseFragmentActivity implements OnItem
 		super.onCreate(savedInstanceState);
 		
 		getSupportActionBar().setTitle(R.string.menu_archive);
-		setContentView(R.layout.activity_saved_reports);
+		SavedReportsListFragment listFragment = new SavedReportsListFragment();
+		getSupportFragmentManager() .beginTransaction()
+                        		    .add(android.R.id.content, listFragment)
+                        		    .addToBackStack(null)
+                        		    .commit();
+		    
 	}
 
     @Override
     public void onItemClick(AdapterView<?> l, View v, int position, long id) {
         SavedReportViewFragment fragment = SavedReportViewFragment.newInstance(position);
         getSupportFragmentManager() .beginTransaction()
-                                    .replace(R.id.archive_list, fragment)
+                                    .replace(android.R.id.content, fragment)
                                     .addToBackStack(null)
                                     .commit();
     }
