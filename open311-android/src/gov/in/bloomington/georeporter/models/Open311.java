@@ -404,7 +404,7 @@ public class Open311 {
                 // All other fields can be attached as plain key-value pairs
                 else {
                     if (o instanceof Double) {
-                        o = Double.toString(0);
+                        o = Double.toString((Double)o);
                     }
                     post.addPart(key, new StringBody((String) o));
                 }

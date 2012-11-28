@@ -15,6 +15,9 @@
  */
 package gov.in.bloomington.georeporter.models;
 
+import java.util.Iterator;
+
+import android.content.Context;
 import gov.in.bloomington.georeporter.util.json.JSONArray;
 import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
@@ -25,6 +28,10 @@ public class ServiceRequest {
 	public static final String SERVICE_DEFINITION = "service_definition";
 	public static final String SERVICE_REQUEST    = "service_request";
 	public static final String POST_DATA          = "post_data";
+    // MetaData fields
+    public static final String STATUS             = "status";
+    public static final String REQUESTED_DATETIME = "requested_datetime";
+    public static final String UPDATED_DATETIME   = "updated_datetime";
 	
 	/**
 	 * The JSON definition from raw/available_servers.json
@@ -61,7 +68,7 @@ public class ServiceRequest {
 	 * 
 	 * @param s A single service from GET Service List
 	 */
-	public ServiceRequest(JSONObject s) {
+	public ServiceRequest(JSONObject s, Context c) {
 		service   = s;
 		post_data = new JSONObject();
 		
@@ -73,6 +80,23 @@ public class ServiceRequest {
 				e.printStackTrace();
 			}
 		}
+		
+        // Read in the personal info fields from Preferences
+		JSONObject personalInfo = Preferences.getPersonalInfo(c);
+        Iterator<?>keys = personalInfo.keys();
+        while (keys.hasNext()) {
+            try {
+                String key   = (String)keys.next();
+                String value = personalInfo.getString(key);
+                if (value != "") {
+                    post_data.put(key, value);
+                }
+            }
+            catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
 	}
 	
 	/**

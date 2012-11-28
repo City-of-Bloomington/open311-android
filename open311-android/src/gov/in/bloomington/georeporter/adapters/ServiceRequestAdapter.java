@@ -53,7 +53,16 @@ public class ServiceRequestAdapter extends BaseAdapter {
 	private ArrayList<Integer> headers = new ArrayList<Integer>(Arrays.asList(0));
 	
 	/**
-	 * Prepare display strings from the ServiceRequest
+	 * @param key
+	 * void
+	 */
+	private void addHeader(String key) {
+	    labels.add(key);
+	    headers.add(labels.size() - 1);
+	}
+	
+	/**
+	 * Prepares display strings from the ServiceRequest
 	 *
 	 * Reads all the neccessary information from the ServiceRequest into the
 	 * local variables used for display.  The actual raw data the user enters
@@ -71,12 +80,11 @@ public class ServiceRequestAdapter extends BaseAdapter {
 			try {
 				// Add a section header for the attributes
 				JSONArray attributes = sr.service_definition.getJSONArray(Open311.ATTRIBUTES);
-				labels.add(Open311.ATTRIBUTES);
-				int len = attributes.length();
-				headers.add(labels.size() - 1);
+                addHeader(Open311.ATTRIBUTES);
 				
 				// Loop over all the attributes and add each attribute code
 				// to the labels list
+                int len = attributes.length();
 				for (int i=0; i<len; i++) {
 					JSONObject a = attributes.getJSONObject(i);
 					labels.add(a.getString(Open311.CODE));
@@ -89,6 +97,9 @@ public class ServiceRequestAdapter extends BaseAdapter {
 	}
 	
 	/**
+	 * Updates the display with new data
+	 * 
+	 * Call this function whenever the user changes data in the ServiceRequest
 	 * 
 	 * @param sr
 	 * void
@@ -149,7 +160,7 @@ public class ServiceRequestAdapter extends BaseAdapter {
 				if (convertView == null) {
 					convertView = mLayoutInflater.inflate(R.layout.list_item_header, null);
 					header = new HeaderViewHolder();
-					header.title = (TextView)convertView.findViewById(R.id.title);
+					header.title = (TextView)convertView;
 					convertView.setTag(header);
 				}
 				else {

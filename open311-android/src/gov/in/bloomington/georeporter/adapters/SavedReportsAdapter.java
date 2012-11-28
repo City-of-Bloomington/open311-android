@@ -65,12 +65,16 @@ public class SavedReportsAdapter extends BaseAdapter {
 		}
 		//TODO display some information from the report
 		// For right now, just display some generic stuff
-		JSONObject endpoint, service;
+		JSONObject endpoint, service, post_data;
 		try {
-			endpoint = report.getJSONObject(ServiceRequest.ENDPOINT);
-			service  = report.getJSONObject(ServiceRequest.SERVICE);
+			endpoint  = report.getJSONObject(ServiceRequest.ENDPOINT);
+			service   = report.getJSONObject(ServiceRequest.SERVICE);
+			post_data = report.getJSONObject(ServiceRequest.POST_DATA);
+			
 			holder.name       .setText(endpoint.getString(Open311.NAME));
-			holder.description.setText(service .getString(Open311.SERVICE_NAME));
+			holder.description.setText(String.format("%s %s",
+			                post_data.optString(ServiceRequest.REQUESTED_DATETIME),
+			                service .getString(Open311.SERVICE_NAME)));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

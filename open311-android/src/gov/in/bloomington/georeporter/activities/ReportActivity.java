@@ -56,7 +56,7 @@ public class ReportActivity extends BaseFragmentActivity
 	public void onServiceSelected(JSONObject service) {
 		mActionBar.setTitle(service.optString(Open311.SERVICE_NAME));
 		
-		ServiceRequest sr = new ServiceRequest(service);
+		ServiceRequest sr = new ServiceRequest(service, this);
 		mReportFragment = ReportFragment.newInstance(sr);
 		
 		getSupportFragmentManager() .beginTransaction()

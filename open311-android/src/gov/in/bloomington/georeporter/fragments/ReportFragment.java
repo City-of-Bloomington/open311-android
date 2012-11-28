@@ -20,6 +20,7 @@ import gov.in.bloomington.georeporter.util.Util;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -42,7 +43,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,7 +55,7 @@ import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.google.android.maps.GeoPoint;
 
-public class ReportFragment extends SherlockFragment implements OnItemClickListener{
+public class ReportFragment extends SherlockFragment implements OnItemClickListener {
     /**
      * Request for handling Photo attachments to the Service Request
      */
@@ -333,7 +333,6 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	        try {
 	            String code = String.format("%s[%s]", AttributeEntryActivity.ATTRIBUTE, mAttributeCode);
 	            String date = DateFormat.getDateFormat(getActivity()).format(c.getTime());
-	            Log.i("ReportFragment", String.format("Saving %s, %s", code, date));
                 mServiceRequest.post_data.put(code, date);
                 refreshAdapter();
             } catch (JSONException e) {
@@ -418,9 +417,11 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
         protected Boolean doInBackground(Void... params) {
             JSONArray response = Open311.postServiceRequest(mServiceRequest, getActivity(), mMediaPath);
             if (response.length() > 0) {
+                String requested_datetime = (String) DateFormat.format("yyyy-MM-dd'T'HH:mmZ", new Date());
                 try {
                     mServiceRequest.endpoint        = Open311.sEndpoint;
                     mServiceRequest.service_request = response.getJSONObject(0);
+                    mServiceRequest.post_data.put(ServiceRequest.REQUESTED_DATETIME, requested_datetime);
                     return Open311.saveServiceRequest(getActivity(), mServiceRequest);
                 } catch (JSONException e) {
                     // TODO Auto-generated catch block
