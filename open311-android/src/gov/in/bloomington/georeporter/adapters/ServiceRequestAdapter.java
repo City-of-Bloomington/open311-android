@@ -44,7 +44,7 @@ public class ServiceRequestAdapter extends BaseAdapter {
 	public ArrayList<String> labels = new ArrayList<String>(Arrays.asList(
 		Open311.SERVICE_NAME,
 		Open311.MEDIA,
-		Open311.ADDRESS,
+		Open311.ADDRESS_STRING,
 		Open311.DESCRIPTION
 	));
 	/**
@@ -215,7 +215,7 @@ public class ServiceRequestAdapter extends BaseAdapter {
 				String label        = "";
 				String displayValue = "";
 				
-				if (labelKey.equals(Open311.ADDRESS)) {
+				if (labelKey.equals(Open311.ADDRESS_STRING)) {
 				    // TODO display user input as a string
 				    // I'm still not sure of how best to store post_data
 				    // Need to build some dialogs and try and POST to the endpoint
@@ -227,7 +227,7 @@ public class ServiceRequestAdapter extends BaseAdapter {
 				    // between when we have the lat/long and when we have an
 				    // address.
 				    label = convertView.getResources().getString(R.string.location);
-				    displayValue = mServiceRequest.post_data.optString(Open311.ADDRESS);
+				    displayValue = mServiceRequest.post_data.optString(Open311.ADDRESS_STRING);
 				    if (displayValue.equals("")) {
 				        double latitude  = mServiceRequest.post_data.optDouble(Open311.LATITUDE);
 				        double longitude = mServiceRequest.post_data.optDouble(Open311.LONGITUDE);

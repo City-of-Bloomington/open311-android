@@ -63,7 +63,7 @@ public class ReverseGeocodingTask extends AsyncTask<GeoPoint, Void, String> {
     protected void onPostExecute(String address) {
     	if (address != null) {
     	    try {
-                mServiceRequest.post_data.put(Open311.ADDRESS, address);
+                mServiceRequest.post_data.put(Open311.ADDRESS_STRING, address);
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

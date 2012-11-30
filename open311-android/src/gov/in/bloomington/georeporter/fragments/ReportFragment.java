@@ -186,7 +186,7 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	            AlertDialog alert = builder.create();
 	            alert.show();
 	        }
-	        else if (labelKey.equals(Open311.ADDRESS)) {
+	        else if (labelKey.equals(Open311.ADDRESS_STRING)) {
 	            Intent i = new Intent(getActivity(), ChooseLocationActivity.class);
 	            startActivityForResult(i, LOCATION_REQUEST);
 	        }
@@ -375,7 +375,7 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	    protected void onPostExecute(String address) {
 	        if (address != null) {
 	            try {
-	                mServiceRequest.post_data.put(Open311.ADDRESS, address);
+	                mServiceRequest.post_data.put(Open311.ADDRESS_STRING, address);
 	                refreshAdapter();
 	            } catch (JSONException e) {
 	                // TODO Auto-generated catch block
@@ -417,7 +417,7 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
         protected Boolean doInBackground(Void... params) {
             JSONArray response = Open311.postServiceRequest(mServiceRequest, getActivity(), mMediaPath);
             if (response.length() > 0) {
-                String requested_datetime = (String) DateFormat.format("yyyy-MM-dd'T'HH:mmZ", new Date());
+                String requested_datetime = (String) DateFormat.format(Open311.DATETIME_FORMAT, new Date());
                 try {
                     mServiceRequest.endpoint        = Open311.sEndpoint;
                     mServiceRequest.service_request = response.getJSONObject(0);

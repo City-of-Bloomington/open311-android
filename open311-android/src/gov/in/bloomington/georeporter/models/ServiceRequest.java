@@ -242,8 +242,7 @@ public class ServiceRequest {
 	 * 
 	 * @param code The attribute code
 	 * @param key The value key
-	 * @return
-	 * String
+	 * @return String
 	 */
 	public String getAttributeValueName(String code, String key) {
 	    JSONArray values = getAttributeValues(code);
@@ -261,5 +260,31 @@ public class ServiceRequest {
             e.printStackTrace();
 	    }
 	    return null;
+	}
+	
+	/**
+	 * Returns the URL for getting fresh information from the endpoint
+	 * 
+	 * @param request_id 
+	 * @return String
+	 * @throws JSONException
+	 */
+	public String getServiceRequestUrl(String request_id) throws JSONException {
+	    String baseUrl      = endpoint.getString(Open311.URL);
+	    String jurisdiction = endpoint.optString(Open311.JURISDICTION);
+	    return String.format("%s/requests/%s.json?%s=%s", baseUrl, request_id, Open311.JURISDICTION, jurisdiction);
+	}
+	
+	/**
+	 * Returns the URL for getting a service_request_id from a token
+	 * 
+	 * @param token
+	 * @return String
+	 * @throws JSONException
+	 */
+	public String getServiceRequestIdFromTokenUrl(String token) throws JSONException {
+        String baseUrl      = endpoint.getString(Open311.URL);
+        String jurisdiction = endpoint.optString(Open311.JURISDICTION);
+        return String.format("%s/tokens/%s.json?%s=%s", baseUrl, token, Open311.JURISDICTION, jurisdiction);
 	}
 }

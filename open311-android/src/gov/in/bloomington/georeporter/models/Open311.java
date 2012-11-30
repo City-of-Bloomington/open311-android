@@ -60,7 +60,8 @@ public class Open311 {
 	public static final String MEDIA_URL    = "media_url";
 	public static final String LATITUDE     = "lat";
 	public static final String LONGITUDE    = "long";
-	public static final String ADDRESS      = "address_string";
+	public static final String ADDRESS      = "address";
+	public static final String ADDRESS_STRING = "address_string";
 	public static final String DESCRIPTION  = "description";
 	// Personal Information fields
 	public static final String EMAIL        = "email";
@@ -92,6 +93,8 @@ public class Open311 {
 	private static final String SAVED_REPORTS_FILE = "service_requests";
 	public  static final String SERVICE_REQUEST_ID = "service_request_id";
 	public  static final String TOKEN              = "token";
+	
+	public static final String DATETIME_FORMAT = "yyyy-MM-dd'T'hh:mm:ssz";
 	
     public static JSONObject                  sEndpoint;
 	public static Boolean                     sReady = false;
@@ -508,7 +511,7 @@ public class Open311 {
 	 * @return
 	 * String
 	 */
-	private static String loadStringFromUrl(String url)
+	public static String loadStringFromUrl(String url)
 			throws ClientProtocolException, IOException, IllegalStateException {
 		HttpResponse r = getClient().execute(new HttpGet(url));
 		String response = EntityUtils.toString(r.getEntity());
