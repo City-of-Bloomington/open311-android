@@ -72,8 +72,13 @@ public class Open311 {
 	public static final String ADDRESS_STRING = "address_string";
 	public static final String DESCRIPTION  = "description";
 	public static final String SERVICE_NOTICE = "service_notice";
-	public static final String GROUP = "group";
+	public static final String STATUS 		= "status";
+	public static final String STATUS_NOTES = "status_notes";
+	public static final String AGENCY_RESPONSIBLE = "agency_responsible";
+	public static final String GROUP 		= "group";
 	public static final String REQUESTED_DATETIME = "requested_datetime";
+	public static final String UPDATED_DATETIME = "updated_datetime";
+	public static final String EXPECTED_DATETIME = "expected_datetime";
 	// Personal Information fields
 	public static final String EMAIL        = "email";
 	public static final String DEVICE_ID    = "device_id";
@@ -87,7 +92,7 @@ public class Open311 {
 	public static final String CODE         = "code";
 	public static final String ORDER        = "order";
 	public static final String VALUES       = "values";
-	public static final String VALUE       = "value";
+	public static final String VALUE       	= "value";
 	public static final String KEY          = "key";
 	public static final String NAME         = "name";
 	public static final String REQUIRED     = "required";
@@ -183,15 +188,13 @@ public class Open311 {
 			mJurisdiction = current_server.optString(JURISDICTION);
 			mApiKey       = current_server.optString(API_KEY);
 			mFormat       = current_server.optString(FORMAT);
-			Log.i("setEndpoint", mFormat);
 		} catch (JSONException e) {
 			return false;
 		}
 		try {
 			Log.i("Open311 getServiceListUrl",getServiceListUrl());
-			//sServiceList = new JSONArray(loadStringFromUrl(getServiceListUrl());
 			Open311Parser mParser= new Open311Parser(mFormat);
-			sServiceList = mParser.parseServices(loadStringFromUrl(getServiceListUrl()));
+			//sServiceList = mParser.parseServices(loadStringFromUrl(getServiceListUrl()));
 			//For testing
 			sServiceList = mParser.parseServices(loadXmlServices());
 			if (sServiceList == null) return false; 
@@ -262,12 +265,9 @@ public class Open311 {
 			Open311Parser mParser= new Open311Parser(mFormat);
 			//return mParser.parseServiceDefinition(loadStringFromUrl(getServiceDefinitionUrl(service_code)));
 			//For testing
-			JSONObject jo = mParser.parseServiceDefinition(loadXmlServiceDefinition());
-			Log.i("service definition" , jo.toString());
-			return jo;
-			//return mParser.parseServiceDefinition(loadXmlServiceDefinition());
-			//return mParser.parseServiceDefinition(loadStringFromUrl(getServiceDefinitionUrl(service_code)));
-			//return new JSONObject(loadStringFromUrl(getServiceDefinitionUrl(service_code)));
+			JSONObject response = mParser.parseServiceDefinition(loadXmlServiceDefinition());
+			Log.i("service definition" , response.toString());
+			return response;
 		}
 		catch (Exception e) {
             // TODO Auto-generated catch block

@@ -14,7 +14,7 @@ public class Open311Parser {
 		mFormat = format;
 	}
 	public JSONArray parseServices(String xml) throws IOException {
-		Log.i("Open311Parser c",xml);
+		Log.i("Open311Parser",xml);
 		try {
 			if (mFormat.equals(Open311.JSON)){
 	    		return new JSONArray(xml);
@@ -29,7 +29,7 @@ public class Open311Parser {
 	}
 
 	public JSONObject parseServiceDefinition(String xml) throws IOException {
-		Log.i("Open311Parser c",xml);
+		Log.i("Open311Parser",xml);
 		try {
 			if (mFormat.equals(Open311.JSON)){
 	    		return new JSONObject(xml);
