@@ -1,0 +1,31 @@
+<resources>
+
+    <string name="app_name">GeoReporter</string>
+    <string name="menu_settings">Asetukset</string>
+    <string name="menu_report">Palaute</string>
+    <string name="menu_archive">Omat Palautteet</string>
+    <string name="title_activity_main">GeoReporter</string>
+    <string name="tab_personal_info">Omat tiedot</string>
+    <string name="tab_servers">Palvelimet</string>
+    <string name="button_accept_error">Oho, joku meni pieleen</string>
+    <string name="first_name">Etunimi</string>
+    <string name="last_name">Sukunimi</string>
+    <string name="email">Sähköposti</string>
+    <string name="phone">Puhelin</string>
+    <string name="dialog_loading_services">Haetaan palvelun tietoja</string>
+    <string name="dialog_posting_service">Lähetetään palautetta</string>
+    <string name="failure_loading_services">Palvelun tietojen hakemisessa tapahtui virhe</string>
+    <string name="failure_posting_service">Palautteen lähetys ei onnistunut</string>
+    <string name="choose_media_source">Valitse kuva</string>
+    <string name="camera">Kamera</string>
+    <string name="gallery">Galleria</string>
+    <string name="location">Sijainti</string>
+    <string name="report_status">Tila</string>
+    <string name="report_attributes">Lisätiedot</string>
+    <string name="report_description">Palautteen kuvaus</string>
+    <string name="report_date">Lähetys päivä</string>
+    <string name="submit">Lähetä</string>
+    <string name="cancel">Peru</string>
+    <string name="delete">Poista</string>
+
+</resources>
