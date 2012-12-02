@@ -7,17 +7,18 @@
  */
 package gov.in.bloomington.georeporter.adapters;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.activities.AttributeEntryActivity;
 import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.models.ServiceRequest;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import gov.in.bloomington.georeporter.util.json.JSONArray;
+import gov.in.bloomington.georeporter.util.json.JSONException;
+import gov.in.bloomington.georeporter.util.json.JSONObject;
+
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
@@ -43,7 +44,7 @@ public class ServiceRequestAdapter extends BaseAdapter {
 	public ArrayList<String> labels = new ArrayList<String>(Arrays.asList(
 		Open311.SERVICE_NAME,
 		Open311.MEDIA,
-		Open311.ADDRESS,
+		Open311.ADDRESS_STRING,
 		Open311.DESCRIPTION
 	));
 	/**
@@ -52,7 +53,16 @@ public class ServiceRequestAdapter extends BaseAdapter {
 	private ArrayList<Integer> headers = new ArrayList<Integer>(Arrays.asList(0));
 	
 	/**
-	 * Prepare display strings from the ServiceRequest
+	 * @param key
+	 * void
+	 */
+	private void addHeader(String key) {
+	    labels.add(key);
+	    headers.add(labels.size() - 1);
+	}
+	
+	/**
+	 * Prepares display strings from the ServiceRequest
 	 *
 	 * Reads all the neccessary information from the ServiceRequest into the
 	 * local variables used for display.  The actual raw data the user enters
@@ -70,12 +80,11 @@ public class ServiceRequestAdapter extends BaseAdapter {
 			try {
 				// Add a section header for the attributes
 				JSONArray attributes = sr.service_definition.getJSONArray(Open311.ATTRIBUTES);
-				labels.add(Open311.ATTRIBUTES);
-				int len = attributes.length();
-				headers.add(labels.size() - 1);
+                addHeader(Open311.ATTRIBUTES);
 				
 				// Loop over all the attributes and add each attribute code
 				// to the labels list
+                int len = attributes.length();
 				for (int i=0; i<len; i++) {
 					JSONObject a = attributes.getJSONObject(i);
 					labels.add(a.getString(Open311.CODE));
@@ -87,6 +96,14 @@ public class ServiceRequestAdapter extends BaseAdapter {
 		}
 	}
 	
+	/**
+	 * Updates the display with new data
+	 * 
+	 * Call this function whenever the user changes data in the ServiceRequest
+	 * 
+	 * @param sr
+	 * void
+	 */
 	public void updateServiceRequest(ServiceRequest sr) {
 	    mServiceRequest = sr;
 	    super.notifyDataSetChanged();
@@ -143,7 +160,7 @@ public class ServiceRequestAdapter extends BaseAdapter {
 				if (convertView == null) {
 					convertView = mLayoutInflater.inflate(R.layout.list_item_header, null);
 					header = new HeaderViewHolder();
-					header.title = (TextView)convertView.findViewById(R.id.title);
+					header.title = (TextView)convertView;
 					convertView.setTag(header);
 				}
 				else {
@@ -198,7 +215,7 @@ public class ServiceRequestAdapter extends BaseAdapter {
 				String label        = "";
 				String displayValue = "";
 				
-				if (labelKey.equals(Open311.ADDRESS)) {
+				if (labelKey.equals(Open311.ADDRESS_STRING)) {
 				    // TODO display user input as a string
 				    // I'm still not sure of how best to store post_data
 				    // Need to build some dialogs and try and POST to the endpoint
@@ -210,7 +227,7 @@ public class ServiceRequestAdapter extends BaseAdapter {
 				    // between when we have the lat/long and when we have an
 				    // address.
 				    label = convertView.getResources().getString(R.string.location);
-				    displayValue = mServiceRequest.post_data.optString(Open311.ADDRESS);
+				    displayValue = mServiceRequest.post_data.optString(Open311.ADDRESS_STRING);
 				    if (displayValue.equals("")) {
 				        double latitude  = mServiceRequest.post_data.optDouble(Open311.LATITUDE);
 				        double longitude = mServiceRequest.post_data.optDouble(Open311.LONGITUDE);

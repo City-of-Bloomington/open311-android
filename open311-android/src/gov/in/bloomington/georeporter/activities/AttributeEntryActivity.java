@@ -10,12 +10,13 @@
  */
 package gov.in.bloomington.georeporter.activities;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.models.Open311;
+
+import gov.in.bloomington.georeporter.util.json.JSONArray;
+import gov.in.bloomington.georeporter.util.json.JSONException;
+import gov.in.bloomington.georeporter.util.json.JSONObject;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;

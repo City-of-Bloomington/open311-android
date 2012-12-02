@@ -5,18 +5,18 @@
  */
 package gov.in.bloomington.georeporter.activities;
 
-import org.json.JSONObject;
+import gov.in.bloomington.georeporter.R;
+import gov.in.bloomington.georeporter.models.Open311;
+import gov.in.bloomington.georeporter.models.Preferences;
+import gov.in.bloomington.georeporter.util.Util;
+
+import gov.in.bloomington.georeporter.util.json.JSONObject;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-
-import gov.in.bloomington.georeporter.R;
-import gov.in.bloomington.georeporter.models.Open311;
-import gov.in.bloomington.georeporter.models.Preferences;
-import gov.in.bloomington.georeporter.util.Util;
 
 public class MainActivity extends BaseActivity {
 	@Override

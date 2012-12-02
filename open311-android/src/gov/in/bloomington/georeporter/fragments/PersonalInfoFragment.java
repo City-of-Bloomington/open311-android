@@ -8,8 +8,8 @@ package gov.in.bloomington.georeporter.fragments;
 import gov.in.bloomington.georeporter.adapters.PersonalInfoAdapter;
 import gov.in.bloomington.georeporter.models.Preferences;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import gov.in.bloomington.georeporter.util.json.JSONException;
+import gov.in.bloomington.georeporter.util.json.JSONObject;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;

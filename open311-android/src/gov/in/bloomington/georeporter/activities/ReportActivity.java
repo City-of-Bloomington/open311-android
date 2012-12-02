@@ -5,16 +5,16 @@
  */
 package gov.in.bloomington.georeporter.activities;
 
-import org.json.JSONObject;
-
 import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.fragments.ChooseGroupFragment;
-import gov.in.bloomington.georeporter.fragments.ChooseServiceFragment;
-import gov.in.bloomington.georeporter.fragments.ReportFragment;
 import gov.in.bloomington.georeporter.fragments.ChooseGroupFragment.OnGroupSelectedListener;
+import gov.in.bloomington.georeporter.fragments.ChooseServiceFragment;
 import gov.in.bloomington.georeporter.fragments.ChooseServiceFragment.OnServiceSelectedListener;
+import gov.in.bloomington.georeporter.fragments.ReportFragment;
 import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.models.ServiceRequest;
+
+import gov.in.bloomington.georeporter.util.json.JSONObject;
 
 import android.os.Bundle;
 
@@ -56,7 +56,7 @@ public class ReportActivity extends BaseFragmentActivity
 	public void onServiceSelected(JSONObject service) {
 		mActionBar.setTitle(service.optString(Open311.SERVICE_NAME));
 		
-		ServiceRequest sr = new ServiceRequest(service);
+		ServiceRequest sr = new ServiceRequest(service, this);
 		mReportFragment = ReportFragment.newInstance(sr);
 		
 		getSupportFragmentManager() .beginTransaction()

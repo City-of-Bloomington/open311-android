@@ -1,21 +1,10 @@
 package gov.in.bloomington.georeporter.util;
 
-import gov.in.bloomington.georeporter.R;
-import gov.in.bloomington.georeporter.activities.MainActivity;
-import gov.in.bloomington.georeporter.activities.ReportActivity;
-import gov.in.bloomington.georeporter.activities.SavedReportsActivity;
-import gov.in.bloomington.georeporter.activities.SettingsActivity;
 import gov.in.bloomington.georeporter.models.Open311;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.xmlpull.v1.XmlPullParserException;
-
-import android.content.Intent;
+import gov.in.bloomington.georeporter.util.json.JSONArray;
+import gov.in.bloomington.georeporter.util.json.JSONObject;
 import android.util.Log;
 
 public class Open311Parser {

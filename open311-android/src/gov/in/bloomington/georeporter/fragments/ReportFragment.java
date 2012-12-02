@@ -5,16 +5,6 @@
  */
 package gov.in.bloomington.georeporter.fragments;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.activities.AttributeEntryActivity;
 import gov.in.bloomington.georeporter.activities.ChooseLocationActivity;
@@ -27,12 +17,23 @@ import gov.in.bloomington.georeporter.models.ServiceRequest;
 import gov.in.bloomington.georeporter.util.Media;
 import gov.in.bloomington.georeporter.util.Util;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import gov.in.bloomington.georeporter.util.json.JSONArray;
+import gov.in.bloomington.georeporter.util.json.JSONException;
+import gov.in.bloomington.georeporter.util.json.JSONObject;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.app.DatePickerDialog.OnDateSetListener;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
@@ -42,20 +43,19 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.google.android.maps.GeoPoint;
 
-public class ReportFragment extends SherlockFragment implements OnItemClickListener{
+public class ReportFragment extends SherlockFragment implements OnItemClickListener {
     /**
      * Request for handling Photo attachments to the Service Request
      */
@@ -186,7 +186,7 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	            AlertDialog alert = builder.create();
 	            alert.show();
 	        }
-	        else if (labelKey.equals(Open311.ADDRESS)) {
+	        else if (labelKey.equals(Open311.ADDRESS_STRING)) {
 	            Intent i = new Intent(getActivity(), ChooseLocationActivity.class);
 	            startActivityForResult(i, LOCATION_REQUEST);
 	        }
@@ -333,7 +333,6 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	        try {
 	            String code = String.format("%s[%s]", AttributeEntryActivity.ATTRIBUTE, mAttributeCode);
 	            String date = DateFormat.getDateFormat(getActivity()).format(c.getTime());
-	            Log.i("ReportFragment", String.format("Saving %s, %s", code, date));
                 mServiceRequest.post_data.put(code, date);
                 refreshAdapter();
             } catch (JSONException e) {
@@ -376,7 +375,7 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	    protected void onPostExecute(String address) {
 	        if (address != null) {
 	            try {
-	                mServiceRequest.post_data.put(Open311.ADDRESS, address);
+	                mServiceRequest.post_data.put(Open311.ADDRESS_STRING, address);
 	                refreshAdapter();
 	            } catch (JSONException e) {
 	                // TODO Auto-generated catch block
@@ -394,19 +393,35 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	 */
 	private class PostServiceRequestTask extends AsyncTask<Void, Void, Boolean> {
 	    private ProgressDialog mDialog;
+	    private String mMediaPath;
 	    
 	    @Override
 	    protected void onPreExecute() {
             super.onPreExecute();
             mDialog = ProgressDialog.show(getActivity(), getString(R.string.dialog_posting_service), "", true);
+            
+            // Converting from a Uri to a real file path requires a database
+            // cursor. Media.getRealPathFromUri must be done on the main UI
+            // thread, since it makes its own loadInBackground call.
+            if (mServiceRequest.post_data.has(Open311.MEDIA)) {
+                try {
+                    mMediaPath = Media.getRealPathFromUri(Uri.parse(mServiceRequest.post_data.getString(Open311.MEDIA)), getActivity());
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
 	    }
 	    
         @Override
         protected Boolean doInBackground(Void... params) {
-            JSONArray response = Open311.postServiceRequest(mServiceRequest, getActivity());
+            JSONArray response = Open311.postServiceRequest(mServiceRequest, getActivity(), mMediaPath);
             if (response.length() > 0) {
+                String requested_datetime = (String) DateFormat.format(Open311.DATETIME_FORMAT, new Date());
                 try {
+                    mServiceRequest.endpoint        = Open311.sEndpoint;
                     mServiceRequest.service_request = response.getJSONObject(0);
+                    mServiceRequest.post_data.put(ServiceRequest.REQUESTED_DATETIME, requested_datetime);
                     return Open311.saveServiceRequest(getActivity(), mServiceRequest);
                 } catch (JSONException e) {
                     // TODO Auto-generated catch block

@@ -9,8 +9,8 @@
  */
 package gov.in.bloomington.georeporter.models;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import gov.in.bloomington.georeporter.util.json.JSONException;
+import gov.in.bloomington.georeporter.util.json.JSONObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;

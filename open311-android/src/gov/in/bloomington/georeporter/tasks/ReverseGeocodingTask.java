@@ -12,14 +12,14 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
-import org.json.JSONException;
-
-import com.google.android.maps.GeoPoint;
+import gov.in.bloomington.georeporter.util.json.JSONException;
 
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
+
+import com.google.android.maps.GeoPoint;
 
 public class ReverseGeocodingTask extends AsyncTask<GeoPoint, Void, String> {
     Context mContext;
@@ -63,7 +63,7 @@ public class ReverseGeocodingTask extends AsyncTask<GeoPoint, Void, String> {
     protected void onPostExecute(String address) {
     	if (address != null) {
     	    try {
-                mServiceRequest.post_data.put(Open311.ADDRESS, address);
+                mServiceRequest.post_data.put(Open311.ADDRESS_STRING, address);
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

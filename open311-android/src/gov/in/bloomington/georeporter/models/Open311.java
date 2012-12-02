@@ -41,9 +41,9 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import gov.in.bloomington.georeporter.util.json.JSONArray;
+import gov.in.bloomington.georeporter.util.json.JSONException;
+import gov.in.bloomington.georeporter.util.json.JSONObject;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -68,7 +68,8 @@ public class Open311 {
 	public static final String MEDIA_URL    = "media_url";
 	public static final String LATITUDE     = "lat";
 	public static final String LONGITUDE    = "long";
-	public static final String ADDRESS      = "address_string";
+	public static final String ADDRESS      = "address";
+	public static final String ADDRESS_STRING = "address_string";
 	public static final String DESCRIPTION  = "description";
 	public static final String SERVICE_NOTICE = "service_notice";
 	public static final String GROUP = "group";
@@ -110,12 +111,14 @@ public class Open311 {
 
 	
 	
+	public static final String DATETIME_FORMAT = "yyyy-MM-dd'T'hh:mm:ssz";
+	
+    public static JSONObject                  sEndpoint;
 	public static Boolean                     sReady = false;
 	public static JSONArray                   sServiceList = null;
 	public static HashMap<String, JSONObject> sServiceDefinitions;
 	public static ArrayList<String>           sGroups;
-	
-	private static JSONObject mEndpoint;
+
 	private static String mBaseUrl;
 	private static String mJurisdiction;
 	private static String mApiKey;
@@ -161,7 +164,7 @@ public class Open311 {
 	 * 
 	 * Returns false if there was a problem
 	 * 
-	 * @param current_server
+	 * @param current_server A single entry from /raw/available_servers
 	 * @return
 	 * Boolean
 	 */
@@ -217,7 +220,7 @@ public class Open311 {
 		    e.printStackTrace();
 		    return false;
 		}
-		mEndpoint = current_server;
+		sEndpoint = current_server;
 		sReady    = true;
 		return sReady;
 	}
@@ -292,12 +295,12 @@ public class Open311 {
 	 * @return
 	 * JSONObject
 	 */
-	public static JSONArray postServiceRequest(ServiceRequest sr, Context context) {
+	public static JSONArray postServiceRequest(ServiceRequest sr, Context context, String mediaPath) {
 		HttpPost  request  = new HttpPost(mBaseUrl + "/requests." + mFormat);
 		JSONArray response = null;
 		try {
-		    if (sr.post_data.has(Open311.MEDIA)) {
-		        request.setEntity(prepareMultipartEntity(sr, context));
+		    if (mediaPath != null) {
+		        request.setEntity(prepareMultipartEntity(sr, context, mediaPath));
 		    }
 		    else {
 		        request.setEntity(prepareUrlEncodedEntity(sr));
@@ -372,8 +375,9 @@ public class Open311 {
                 }
                 // All other fields can just be plain key-value pairs
                 else {
+                    // Lat and Long need to be converted to string
                     if (o instanceof Double) {
-                        o = Double.toString(0);
+                        o = Double.toString((Double)o);
                     }
                     pairs.add(new BasicNameValuePair(key, (String) o));
                 }
@@ -390,12 +394,13 @@ public class Open311 {
 	 * 
 	 * @param data
 	 * @param context
+	 * @param mediaPath
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 * MultipartEntity
 	 * @throws JSONException 
 	 */
-	private static MultipartEntity prepareMultipartEntity(ServiceRequest sr, Context context) throws UnsupportedEncodingException, JSONException {
+	private static MultipartEntity prepareMultipartEntity(ServiceRequest sr, Context context, String mediaPath) throws UnsupportedEncodingException, JSONException {
 	    MultipartEntity post = new MultipartEntity();
         // This could cause a JSONException, but we let this one bubble up the stack
         // If we don't have a service_code, we don't have a valid POST
@@ -416,8 +421,10 @@ public class Open311 {
                 o = data.get(key);
                 // Attach media to the post
                 if (key == MEDIA) {
+                    Log.i("Open311", "Reading Uri from string: " + (String) o);
                     final Uri uri = Uri.parse((String) o);
-                    final Bitmap media = Media.decodeSampledBitmapFromUri(uri, Media.UPLOAD_WIDTH, Media.UPLOAD_HEIGHT, context);
+                    Log.i("Open311", "Uri is now: " + uri.toString());
+                    final Bitmap media = Media.decodeSampledBitmap(mediaPath, Media.UPLOAD_WIDTH, Media.UPLOAD_HEIGHT, context);
                     final ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     media.compress(CompressFormat.PNG, 100, stream);
                     final byte[] binaryData = stream.toByteArray();
@@ -440,7 +447,7 @@ public class Open311 {
                 // All other fields can be attached as plain key-value pairs
                 else {
                     if (o instanceof Double) {
-                        o = Double.toString(0);
+                        o = Double.toString((Double)o);
                     }
                     post.addPart(key, new StringBody((String) o));
                 }
@@ -467,7 +474,8 @@ public class Open311 {
 		
 		StringBuffer buffer = new StringBuffer("");
 		byte[] bytes = new byte[1024];
-		int length;
+		@SuppressWarnings("unused")
+        int length;
 		try {
 			File file = new File (c.getFilesDir(), SAVED_REPORTS_FILE);
 			FileInputStream in = new FileInputStream(file); // Here
@@ -501,7 +509,7 @@ public class Open311 {
 	 * @param requests An array of JSON-serialized ServiceRequest objects
 	 * void
 	 */
-	private static boolean saveServiceRequests(Context c, JSONArray requests) {
+	public static boolean saveServiceRequests(Context c, JSONArray requests) {
 		String json = requests.toString();
 		//FileOutputStream out;
 		try {
@@ -538,7 +546,7 @@ public class Open311 {
 	 * Boolean
 	 */
 	public static boolean saveServiceRequest(Context c, ServiceRequest sr) {
-	    sr.endpoint = mEndpoint;
+	    sr.endpoint = sEndpoint;
 	    
         try {
             JSONObject report         = new JSONObject(sr.toString());
@@ -560,7 +568,7 @@ public class Open311 {
 	 * @return
 	 * String
 	 */
-	private static String loadStringFromUrl(String url)
+	public static String loadStringFromUrl(String url)
 			throws ClientProtocolException, IOException, IllegalStateException {
 		HttpResponse r = getClient().execute(new HttpGet(url));
 		String response = EntityUtils.toString(r.getEntity());

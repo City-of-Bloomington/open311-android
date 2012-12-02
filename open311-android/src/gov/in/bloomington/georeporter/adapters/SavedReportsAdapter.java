@@ -8,11 +8,12 @@ package gov.in.bloomington.georeporter.adapters;
 import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.models.ServiceRequest;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import gov.in.bloomington.georeporter.util.json.JSONArray;
+import gov.in.bloomington.georeporter.util.json.JSONException;
+import gov.in.bloomington.georeporter.util.json.JSONObject;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,6 +52,7 @@ public class SavedReportsAdapter extends BaseAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder holder;
 		JSONObject report = getItem(position);
+		Log.i("SavedReportsAdapter",report.toString());
 		if (convertView == null) {
 			convertView = mInflater.inflate(android.R.layout.simple_list_item_2, null);
 			holder = new ViewHolder();
@@ -63,17 +65,31 @@ public class SavedReportsAdapter extends BaseAdapter {
 		}
 		//TODO display some information from the report
 		// For right now, just display some generic stuff
-		JSONObject endpoint, service;
+		JSONObject endpoint, service, post_data;
 		try {
-			endpoint = report.getJSONObject(ServiceRequest.ENDPOINT);
-			service  = report.getJSONObject(ServiceRequest.SERVICE);
+			endpoint  = report.getJSONObject(ServiceRequest.ENDPOINT);
+			service   = report.getJSONObject(ServiceRequest.SERVICE);
+			post_data = report.getJSONObject(ServiceRequest.POST_DATA);
+			
 			holder.name       .setText(endpoint.getString(Open311.NAME));
-			holder.description.setText(service .getString(Open311.SERVICE_NAME));
+			holder.description.setText(String.format("%s %s",
+			                post_data.optString(ServiceRequest.REQUESTED_DATETIME),
+			                service .getString(Open311.SERVICE_NAME)));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 		return convertView;
+	}
+	
+	/**
+	 * 
+	 * @param serviceRequests
+	 * void
+	 */
+	public void updateSavedReports(JSONArray serviceRequests) {
+	    mServiceRequests = serviceRequests;
+	    super.notifyDataSetChanged();
 	}
 }
