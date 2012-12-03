@@ -380,10 +380,11 @@ public class Open311 {
             try {
                 o = data.get(key);
                 // Attach media to the post
+                // Do not read from the data object.
+                // Instead, use the mediaPath that is passed in.
+                // This relies on the fact that there can only be one media
+                // attachment per ServiceRequest.
                 if (key == MEDIA) {
-                    Log.i("Open311", "Reading Uri from string: " + (String) o);
-                    final Uri uri = Uri.parse((String) o);
-                    Log.i("Open311", "Uri is now: " + uri.toString());
                     final Bitmap media = Media.decodeSampledBitmap(mediaPath, Media.UPLOAD_WIDTH, Media.UPLOAD_HEIGHT, context);
                     final ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     media.compress(CompressFormat.PNG, 100, stream);

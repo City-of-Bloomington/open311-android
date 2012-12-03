@@ -15,6 +15,7 @@ import gov.in.bloomington.georeporter.models.ServiceRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import gov.in.bloomington.georeporter.util.Media;
 import gov.in.bloomington.georeporter.util.json.JSONArray;
 import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
@@ -192,7 +193,11 @@ public class ServiceRequestAdapter extends BaseAdapter {
                 if (!m.equals("")) {
                     Uri imageUri = Uri.parse(m);
                     if (imageUri != null) {
-                        media.image.setImageURI(imageUri);
+                        // It seems we cannot use the URI directly, without 
+                        // running out of memory.  We need to generate a small
+                        // bitmap and attach that to the ImageView
+                        String path = Media.getRealPathFromUri(imageUri, mLayoutInflater.getContext());
+                        media.image.setImageBitmap(Media.decodeSampledBitmap(path, 80, 80, mLayoutInflater.getContext()));
                     }
                 }
                 
