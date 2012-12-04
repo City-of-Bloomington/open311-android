@@ -78,13 +78,7 @@ public class SavedReportViewFragment extends SherlockFragment {
         textView.setText(mServiceRequest.service.optString(Open311.SERVICE_NAME));
         
         ImageView media = (ImageView) v.findViewById(R.id.media);
-        String m = mServiceRequest.post_data.optString(Open311.MEDIA);
-        if (!m.equals("")) {
-            Uri imageUri = Uri.parse(m);
-            if (imageUri != null) {
-                media.setImageURI(imageUri);
-            }
-        }
+        media.setImageBitmap(mServiceRequest.getMediaBitmap(100, 100, getActivity()));
         
         textView = (TextView) v.findViewById(R.id.address);
         if (mServiceRequest.service_request.has(Open311.ADDRESS)) {

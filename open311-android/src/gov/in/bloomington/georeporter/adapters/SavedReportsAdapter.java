@@ -5,6 +5,11 @@
  */
 package gov.in.bloomington.georeporter.adapters;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.models.ServiceRequest;
 
@@ -18,15 +23,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class SavedReportsAdapter extends BaseAdapter {
 	private JSONArray mServiceRequests;
 	private static LayoutInflater mInflater;
 	
+	private DateFormat       mDateFormat;
+	private SimpleDateFormat mISODate;
+	
 	public SavedReportsAdapter(JSONArray serviceRequests, Context c) {
 		mServiceRequests = serviceRequests;
 		mInflater = LayoutInflater.from(c);
+		mDateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+		mISODate = new SimpleDateFormat(Open311.DATETIME_FORMAT);
 	}
 
 	@Override
@@ -35,8 +46,9 @@ public class SavedReportsAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public JSONObject getItem(int position) {
-		return mServiceRequests.optJSONObject(position);
+	public ServiceRequest getItem(int position) {
+		JSONObject o = mServiceRequests.optJSONObject(position);
+		return new ServiceRequest(o.toString());
 	}
 
 	@Override
@@ -45,40 +57,41 @@ public class SavedReportsAdapter extends BaseAdapter {
 	}
 	
 	private static class ViewHolder {
-		TextView name, description;
+		TextView serviceName, endpoint, date, address;
+		ImageView media;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder holder;
-		JSONObject report = getItem(position);
-		Log.i("SavedReportsAdapter",report.toString());
 		if (convertView == null) {
-			convertView = mInflater.inflate(android.R.layout.simple_list_item_2, null);
+			convertView = mInflater.inflate(R.layout.list_item_saved_reports, null);
 			holder = new ViewHolder();
-			holder.name        = (TextView)convertView.findViewById(android.R.id.text1);
-			holder.description = (TextView)convertView.findViewById(android.R.id.text2);
+			holder.serviceName = (TextView) convertView.findViewById(R.id.service_name);
+			holder.endpoint    = (TextView) convertView.findViewById(R.id.endpoint);
+			holder.date        = (TextView) convertView.findViewById(R.id.date);
+			holder.address     = (TextView) convertView.findViewById(R.id.address);
+			holder.media       = (ImageView)convertView.findViewById(R.id.media);
 			convertView.setTag(holder);
 		}
 		else {
 			holder = (ViewHolder) convertView.getTag();
 		}
-		//TODO display some information from the report
-		// For right now, just display some generic stuff
-		JSONObject endpoint, service, post_data;
+		
+        ServiceRequest sr = getItem(position);
 		try {
-			endpoint  = report.getJSONObject(ServiceRequest.ENDPOINT);
-			service   = report.getJSONObject(ServiceRequest.SERVICE);
-			post_data = report.getJSONObject(ServiceRequest.POST_DATA);
-			
-			holder.name       .setText(endpoint.getString(Open311.NAME));
-			holder.description.setText(String.format("%s %s",
-			                post_data.optString(ServiceRequest.REQUESTED_DATETIME),
-			                service .getString(Open311.SERVICE_NAME)));
+			holder.serviceName.setText(sr.service  .getString(Open311.SERVICE_NAME));
+			holder.endpoint   .setText(sr.endpoint .getString(Open311.NAME));
+			holder.address    .setText(sr.post_data.optString(Open311.ADDRESS_STRING));
+            holder.date       .setText(mDateFormat.format(mISODate.parse(sr.post_data.optString(ServiceRequest.REQUESTED_DATETIME))));
+            holder.media.setImageBitmap(sr.getMediaBitmap(80, 80, mInflater.getContext()));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		} catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 		
 		return convertView;
 	}

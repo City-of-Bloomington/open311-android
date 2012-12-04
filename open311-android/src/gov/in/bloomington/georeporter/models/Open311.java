@@ -41,7 +41,6 @@ import gov.in.bloomington.georeporter.util.json.JSONObject;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
-import android.net.Uri;
 import android.util.Log;
 
 public class Open311 {

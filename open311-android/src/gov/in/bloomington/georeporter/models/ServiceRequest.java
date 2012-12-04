@@ -18,6 +18,9 @@ package gov.in.bloomington.georeporter.models;
 import java.util.Iterator;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import gov.in.bloomington.georeporter.util.Media;
 import gov.in.bloomington.georeporter.util.json.JSONArray;
 import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
@@ -286,5 +289,28 @@ public class ServiceRequest {
         String baseUrl      = endpoint.getString(Open311.URL);
         String jurisdiction = endpoint.optString(Open311.JURISDICTION);
         return String.format("%s/tokens/%s.json?%s=%s", baseUrl, token, Open311.JURISDICTION, jurisdiction);
+	}
+	
+	/**
+	 * Returns a bitmap of the user's attached media
+	 * 
+	 * It seems we cannot use Uri's directly, without running out of memory.
+	 * This will safely generate a small bitmap ready to attach to an ImageView
+	 * 
+	 * @param width
+	 * @param height
+	 * @param context
+	 * @return Bitmap
+	 */
+	public Bitmap getMediaBitmap(int width, int height, Context context) {
+        String m = post_data.optString(Open311.MEDIA);
+        if (!m.equals("")) {
+            Uri imageUri = Uri.parse(m);
+            if (imageUri != null) {
+                String path = Media.getRealPathFromUri(imageUri, context);
+                return Media.decodeSampledBitmap(path, width, height, context);
+            }
+        }
+	    return null;
 	}
 }
