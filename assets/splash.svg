@@ -14,7 +14,7 @@
    width="720"
    height="960"
    id="svg3052"
-   inkscape:version="0.48.2 r9819"
+   inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="splash.svg">
   <sodipodi:namedview
      pagecolor="#ffffff"
@@ -29,9 +29,9 @@
      inkscape:window-height="480"
      id="namedview93"
      showgrid="false"
-     inkscape:zoom="0.80472005"
+     inkscape:zoom="0.5"
      inkscape:cx="360"
-     inkscape:cy="480"
+     inkscape:cy="597.01078"
      inkscape:current-layer="svg3052" />
   <defs
      id="defs3054">
@@ -154,7 +154,7 @@
     </rdf:RDF>
   </metadata>
   <rect
-     style="fill:#708f9d;fill-opacity:1"
+     style="fill:#ffffff;fill-opacity:1"
      id="rect3257"
      y="0.89993846"
      x="0"
