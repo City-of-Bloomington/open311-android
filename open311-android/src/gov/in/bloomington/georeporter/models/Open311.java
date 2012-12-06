@@ -72,6 +72,7 @@ public class Open311 {
 	public static final String ADDRESS_STRING = "address_string";
 	public static final String DESCRIPTION  = "description";
 	public static final String SERVICE_NOTICE = "service_notice";
+	public static final String ACCOUNT_ID 		= "account_id";
 	public static final String STATUS 		= "status";
 	public static final String STATUS_NOTES = "status_notes";
 	public static final String AGENCY_RESPONSIBLE = "agency_responsible";
@@ -127,7 +128,7 @@ public class Open311 {
 	private static String mBaseUrl;
 	private static String mJurisdiction;
 	private static String mApiKey;
-	public static String mFormat = "json";
+	private static String mFormat = "json";
 
 	private static DefaultHttpClient mClient = null;
 	private static final int TIMEOUT = 3000;
@@ -192,13 +193,9 @@ public class Open311 {
 			return false;
 		}
 		try {
-			Log.i("Open311 getServiceListUrl",getServiceListUrl());
 			Open311Parser mParser= new Open311Parser(mFormat);
-			//sServiceList = mParser.parseServices(loadStringFromUrl(getServiceListUrl()));
-			//For testing
-			sServiceList = mParser.parseServices(loadXmlServices());
+			sServiceList = mParser.parseServices(loadStringFromUrl(getServiceListUrl()));
 			if (sServiceList == null) return false; 
-			Log.i("Open 311 ned",sServiceList.toString());
 			// Go through all the services and pull out the seperate groups
 			// Also, while we're running through, load any service_definitions
 			String group = "";
@@ -239,19 +236,15 @@ public class Open311 {
 	public static ArrayList<JSONObject> getServices(String group) {
 		ArrayList<JSONObject> services = new ArrayList<JSONObject>();
 		int len = sServiceList.length();
-		Log.i("Open 311 len",sServiceList.toString());
-		Log.i("Open 311 len","len");
 		for (int i=0; i<len; i++) {
 			try {
 				JSONObject s = sServiceList.getJSONObject(i);
-				Log.i("Open 311 getServices",group);
 				if (s.optString("group").equals(group)) { services.add(s); }
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		Log.i("services" , services.toString());
 		return services;
 	}
 	
@@ -263,11 +256,7 @@ public class Open311 {
 	public static JSONObject getServiceDefinition(String service_code) {
 		try {
 			Open311Parser mParser= new Open311Parser(mFormat);
-			//return mParser.parseServiceDefinition(loadStringFromUrl(getServiceDefinitionUrl(service_code)));
-			//For testing
-			JSONObject response = mParser.parseServiceDefinition(loadXmlServiceDefinition());
-			Log.i("service definition" , response.toString());
-			return response;
+			return mParser.parseServiceDefinition(loadStringFromUrl(getServiceDefinitionUrl(service_code)));
 		}
 		catch (Exception e) {
             // TODO Auto-generated catch block
@@ -307,10 +296,8 @@ public class Open311 {
 		    }
 			HttpResponse r = getClient().execute(request);
 			String rs = EntityUtils.toString(r.getEntity());
-			Log.i("Open311", rs);
 			Open311Parser mParser= new Open311Parser(mFormat);
 			response = mParser.parseRequests(rs);
-			//response = new JSONArray(rs);
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -576,136 +563,6 @@ public class Open311 {
 		return response;
 	}
 
-	private static String loadXmlServices(){
-	String str = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-			+"<services>"
-			+"<service>"
-			+"<service_code>001</service_code>"
-			+"<service_name>Street lights</service_name>"
-			+"<description> Report if street lights are out of order.</description>"
-			+"<metadata>false</metadata>"
-			+"<type>realtime</type>"
-			+"<keywords>streetlight</keywords>"
-			+"<group>Streets and Sanitation</group>"
-			+"</service>"
-			+"<service>"
-			+"<service_code>002</service_code>"
-			+"<service_name>Potholes in street</service_name>"
-			+"<description> Report Potholes in public streets</description>"
-			+"<metadata>true</metadata>"
-			+"<type>realtime</type>"
-			+"<keywords>pothole</keywords>"
-			+"<group>Transportation</group>"
-			+"</service>"
-			+"<service>"
-			+"<service_code>003</service_code>"
-			+"<service_name>General feedback</service_name>"
-			+"<description>Give general feedback</description>"
-			+"<metadata>true</metadata>"
-			+"<type>realtime</type>"
-			+"<keywords>general, feedback</keywords>"
-			+"<group>General</group>"
-			+"</service>"
-			+"</services>";
-	return str;
-}
-	private static String loadXmlServiceDefinition(){
-		String str = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"	
-		/*
-		+"<service_definition>"
-		+"<service_code>002</service_code>"	
-		+"<attributes>"
-		+"	<attribute>"
-		+"		<variable>true</variable>"
-		+"		<code>service_request_type</code>"
-		+"		<datatype>singlevaluelist</datatype>"
-		+"		<required>true</required>"
-		+"		<datatype_description></datatype_description>"		
-		+"		<order>1</order>"
-		+"		<description>Feedback type</description>"
-		+"		<values>"
-		+"			<value>"
-		+"				<key>IDEA</key>"
-		+"				<name>Idea</name>"
-		+"			</value>"
-		+"			<value>"
-		+"				<key>THANK</key>"
-		+"				<name>Positive feedback</name>"
-		+"			</value>"			
-		+"			<value>"
-		+"				<key>BLAME</key>"
-		+"				<name>Negative feedback</name>"
-		+"			</value>"	
-		+"			<value>"
-		+"				<key>QUESTION</key>"
-		+"				<name>Question</name>"
-		+"			</value>"
-		+"			<value>"
-		+"				<key>OTHER</key>"
-		+"				<name>Other</name>"
-		+"			</value>"	
-		+"		</values>"
-		+"	</attribute>"
-		+"	<attribute>"
-		+"		<variable>true</variable>"
-		+"		<code>title</code>"
-		+"		<datatype>string</datatype>"
-		+"		<required>false</required>"
-		+"		<datatype_description></datatype_description>"		
-		+"		<order>2</order>"	
-		+"		<description>Feedback title</description>"
-		+"	</attribute>"
-		+"</attributes>"
-		*/
-		+"<service_definition>"
-		+"<service_code>003</service_code>"	
-		+"<attributes>"
-		+"	<attribute>"
-		+"		<variable>true</variable>"
-		+"		<code>service_request_type</code>"
-		+"		<datatype>singlevaluelist</datatype>"
-		+"		<required>true</required>"
-		+"		<datatype_description></datatype_description>"		
-		+"		<order>1</order>"	
-		+"		<description>Palautteen tyyppi</description>"
-		+"		<values>"
-		+"			<value>"
-		+"				<key>IDEA</key>"
-		+"				<name>Idea</name>"
-		+"			</value>"
-		+"			<value>"
-		+"				<key>THANK</key>"
-		+"				<name>Kiitos</name>"
-		+"			</value>"			
-		+"			<value>"
-		+"				<key>BLAME</key>"
-		+"				<name>Moite</name>"
-		+"			</value>"	
-		+"			<value>"
-		+"				<key>QUESTION</key>"
-		+"				<name>Kysymys</name>"
-		+"			</value>"
-		+"			<value>"
-		+"				<key>OTHER</key>"
-		+"				<name>Other</name>"
-		+"			</value>"	
-		+"		</values>"
-		+"	</attribute>"
-		+"	<attribute>"
-		+"		<variable>true</variable>"
-		+"		<code>title</code>"
-		+"		<datatype>string</datatype>"
-		+"		<required>false</required>"
-		+"		<datatype_description></datatype_description>"		
-		+"		<order>2</order>"	
-		+"		<description>Palautteen otsikko</description>"
-		+"	</attribute>"
-		+"</attributes>"
-		+"</service_definition>";
-
-		return str;
-	}
-	
 	/**
 	 * @return
 	 * String

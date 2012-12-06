@@ -10,11 +10,20 @@ import android.util.Log;
 public class Open311Parser {
 	String mFormat= Open311.JSON;
 
+	public Open311Parser(){
+		//TODO
+	}
+	
 	public Open311Parser(String format){
 		mFormat = format;
 	}
-	public JSONArray parseServices(String xml) throws IOException {
-		Log.i("Open311Parser",xml);
+
+	/**
+	 * 
+	 * @param xml
+	 * @return
+	 */
+	public JSONArray parseServices(String xml) {
 		try {
 			if (mFormat.equals(Open311.JSON)){
 	    		return new JSONArray(xml);
@@ -28,8 +37,12 @@ public class Open311Parser {
 		}
 	}
 
-	public JSONObject parseServiceDefinition(String xml) throws IOException {
-		Log.i("Open311Parser",xml);
+	/**
+	 * 
+	 * @param xml
+	 * @return
+	 */
+	public JSONObject parseServiceDefinition(String xml) {
 		try {
 			if (mFormat.equals(Open311.JSON)){
 	    		return new JSONObject(xml);
@@ -43,7 +56,12 @@ public class Open311Parser {
 		}
 	}
 	
-	public JSONArray parseRequests(String xml) throws IOException {
+	/**
+	 * 
+	 * @param xml
+	 * @return
+	 */
+	public JSONArray parseRequests(String xml) {
 		try {
 			if (mFormat.equals(Open311.JSON)){
 	    		return new JSONArray(xml);
