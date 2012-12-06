@@ -17,6 +17,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+
 
 public class MainActivity extends BaseActivity {
 	@Override
@@ -38,6 +40,17 @@ public class MainActivity extends BaseActivity {
 		else {
 			new EndpointLoader().execute(current_server);
 		}
+	}
+	
+	/**
+	 * OnClick handler for activity_main layout
+	 * 
+	 * @param v
+	 * void
+	 */
+	public void onTouchImage(View v) {
+        Intent intent = new Intent(this, ReportActivity.class);
+        startActivity(intent);
 	}
 	
 	private class EndpointLoader extends AsyncTask<JSONObject, Void, Boolean> {

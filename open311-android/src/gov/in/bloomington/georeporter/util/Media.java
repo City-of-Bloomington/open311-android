@@ -142,6 +142,12 @@ public class Media {
 	/**
 	 * Returns the raw, absolute path for an internal Uri
 	 *
+	 * For images chosen from the gallery, the Uri must be looked up in the
+	 * media database in order to get the actual file path.
+	 * Taking a fresh image using the camera, the app must have created it's
+	 * own, new file path for the image.  Fresh camera images will not be in 
+	 * the media database.
+	 * 
 	 * Thread Warning:
 	 * Converting from Uri to a real path requires a database cursor.
 	 * This function cannot be called from an AsyncTask, as it does its own
@@ -153,11 +159,19 @@ public class Media {
 	 * String
 	 */
 	public static String getRealPathFromUri(Uri uri, Context c) {
-	    String[] proj = { MediaStore.Images.Media.DATA };
-	    CursorLoader loader = new CursorLoader(c, uri, proj, null, null, null);
-	    Cursor cursor = loader.loadInBackground();
-	    int index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-	    cursor.moveToFirst();
-	    return cursor.getString(index);
+	    // Check in the media database
+	    try {
+    	    String[] proj = { MediaStore.Images.Media.DATA };
+    	    CursorLoader loader = new CursorLoader(c, uri, proj, null, null, null);
+    	    Cursor cursor = loader.loadInBackground();
+    	    int index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+    	    cursor.moveToFirst();
+    	    return cursor.getString(index);
+	    }
+	    // Otherwise it must be a fresh camera image
+	    // Just use the raw path from the Uri
+	    catch (Exception e) {
+	        return uri.getPath();
+	    }
 	}
 }

@@ -15,11 +15,13 @@ import gov.in.bloomington.georeporter.models.ServiceRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import gov.in.bloomington.georeporter.util.Media;
 import gov.in.bloomington.georeporter.util.json.JSONArray;
 import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -188,12 +190,9 @@ public class ServiceRequestAdapter extends BaseAdapter {
                     media = (MediaViewHolder)convertView.getTag();
                 }
                 
-                String m = mServiceRequest.post_data.optString(Open311.MEDIA);
-                if (!m.equals("")) {
-                    Uri imageUri = Uri.parse(m);
-                    if (imageUri != null) {
-                        media.image.setImageURI(imageUri);
-                    }
+                Bitmap bmp = mServiceRequest.getMediaBitmap(80, 80, mLayoutInflater.getContext());
+                if (bmp != null) {
+                    media.image.setImageBitmap(bmp);
                 }
                 
                 break;
