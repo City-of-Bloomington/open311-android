@@ -2,6 +2,7 @@
 		"url":"https://bloomington.in.gov/test/open311/v2",
 		"supports_media": TRUE,
 		"jurisdiction_id":"bloomington.in.gov",
-		"api_key":"4f675c8fb1fe2c202a000000"
+		"api_key":"4f675c8fb1fe2c202a000000",
+		"splash_image":"bloomington"
 	}
 ]
