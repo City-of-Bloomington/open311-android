@@ -15,4 +15,4 @@
 # Local configuration file (sdk path, etc)
 local.properties
 .metadata/
-open311-android/raw/available_servers.json
+available_servers.json
