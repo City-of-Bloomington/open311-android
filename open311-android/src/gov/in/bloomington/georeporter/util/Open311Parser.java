@@ -47,7 +47,7 @@ public class Open311Parser {
 			if (mFormat.equals(Open311.JSON)){
 	    		return new JSONObject(xml);
 			} else {
-	    		Open311XmlParser mParser= new Open311XmlParser();
+				Open311XmlParser mParser= new Open311XmlParser();
 	    		return mParser.parseServiceDefinition(xml);	
 	     	}
 		} catch (Exception ex) {

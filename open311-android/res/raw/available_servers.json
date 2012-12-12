@@ -4,5 +4,12 @@
 		"jurisdiction_id":"bloomington.in.gov",
 		"api_key":"4f675c8fb1fe2c202a000000",
 		"format":"json"
+	},
+	{	"name":"Bloomington, IN (XML)",
+		"url":"https://bloomington.in.gov/test/open311/v2",
+		"supports_media": TRUE,
+		"jurisdiction_id":"bloomington.in.gov",
+		"api_key":"50c741e37f5e1",
+		"format":"xml"
 	}
 ]
