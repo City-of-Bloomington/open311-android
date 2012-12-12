@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content"
+    android:padding="4dip">
 
     <TextView
         android:id="@+id/service_name"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
+        android:layout_marginBottom="4dip"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <ImageView
@@ -16,6 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/service_name"
         android:layout_centerHorizontal="true"
+        android:layout_marginBottom="4dip"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
         android:maxHeight="100dip"
@@ -25,35 +28,21 @@
         android:id="@+id/address"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dip"
         android:layout_below="@+id/media" />
     
     <TextView
         android:id="@+id/description"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dip"
         android:layout_below="@+id/address" />
     
-    <TwoLineListItem
-        android:id="@+id/status_list"
+    <TextView android:id="@+id/status"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/description">
-        
-        <TextView android:id="@+id/status_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="12dip"
-            android:layout_marginTop="8dip"
-            android:text="@string/report_status"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-    
-        <TextView android:id="@+id/status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/status_label"
-            android:layout_alignLeft="@+id/status_label"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-        
-    </TwoLineListItem>
+        android:layout_below="@+id/description"
+        android:layout_marginBottom="4dip"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
     
 </RelativeLayout>

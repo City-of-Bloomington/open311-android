@@ -57,7 +57,7 @@ public class SavedReportsAdapter extends BaseAdapter {
 	}
 	
 	private static class ViewHolder {
-		TextView serviceName, endpoint, date, address;
+		TextView serviceName, status, date, address, endpoint;
 		ImageView media;
 	}
 
@@ -68,9 +68,10 @@ public class SavedReportsAdapter extends BaseAdapter {
 			convertView = mInflater.inflate(R.layout.list_item_saved_reports, null);
 			holder = new ViewHolder();
 			holder.serviceName = (TextView) convertView.findViewById(R.id.service_name);
-			holder.endpoint    = (TextView) convertView.findViewById(R.id.endpoint);
+			holder.status      = (TextView) convertView.findViewById(R.id.status);
 			holder.date        = (TextView) convertView.findViewById(R.id.date);
 			holder.address     = (TextView) convertView.findViewById(R.id.address);
+            holder.endpoint    = (TextView) convertView.findViewById(R.id.endpoint);
 			holder.media       = (ImageView)convertView.findViewById(R.id.media);
 			convertView.setTag(holder);
 		}
@@ -80,9 +81,10 @@ public class SavedReportsAdapter extends BaseAdapter {
 		
         ServiceRequest sr = getItem(position);
 		try {
-			holder.serviceName.setText(sr.service  .getString(Open311.SERVICE_NAME));
-			holder.endpoint   .setText(sr.endpoint .getString(Open311.NAME));
-			holder.address    .setText(sr.post_data.optString(Open311.ADDRESS_STRING));
+			holder.serviceName.setText(sr.service        .getString(Open311.SERVICE_NAME));
+			holder.endpoint   .setText(sr.endpoint       .getString(Open311.NAME));
+			holder.address    .setText(sr.post_data      .optString(Open311.ADDRESS_STRING));
+			holder.status     .setText(sr.service_request.optString(ServiceRequest.STATUS));
             holder.date       .setText(mDateFormat.format(mISODate.parse(sr.post_data.optString(ServiceRequest.REQUESTED_DATETIME))));
             holder.media.setImageBitmap(sr.getMediaBitmap(80, 80, mInflater.getContext()));
 		} catch (JSONException e) {

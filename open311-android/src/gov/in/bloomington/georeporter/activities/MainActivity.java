@@ -18,10 +18,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 
 
 public class MainActivity extends BaseActivity {
-	@Override
+    private static String SPLASH_IMAGE = "splash_image";
+
+    @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
@@ -39,6 +42,13 @@ public class MainActivity extends BaseActivity {
 		}
 		else {
 			new EndpointLoader().execute(current_server);
+			
+            String imageName = current_server.optString(SPLASH_IMAGE);
+            Log.i("MainActivity", imageName);
+            if (imageName != "") {
+                ImageView splash = (ImageView) findViewById(R.id.splash);
+                splash.setImageResource(getResources().getIdentifier(imageName, "drawable", getPackageName()));
+            }
 		}
 	}
 	
@@ -54,7 +64,7 @@ public class MainActivity extends BaseActivity {
 	}
 	
 	private class EndpointLoader extends AsyncTask<JSONObject, Void, Boolean> {
-		ProgressDialog dialog;
+		private ProgressDialog dialog;
 		
 		@Override
 		protected void onPreExecute() {

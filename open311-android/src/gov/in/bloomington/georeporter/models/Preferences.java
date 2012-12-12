@@ -9,6 +9,9 @@
  */
 package gov.in.bloomington.georeporter.models;
 
+import gov.in.bloomington.georeporter.R;
+import gov.in.bloomington.georeporter.util.Util;
+import gov.in.bloomington.georeporter.util.json.JSONArray;
 import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
 
@@ -57,36 +60,58 @@ public class Preferences {
 		}
 	}
 	
+    /**
+     * Writes the personal info fields to disk
+     * 
+     * @param personal_info
+     * @param c
+     * void
+     */
+	public static void setPersonalInfo(JSONObject personal_info, Context c) {
+        Preferences.loadSettings(c);
+        
+        SharedPreferences.Editor editor = mSettings.edit();
+        editor.putString(PERSONAL_INFO, personal_info.toString());
+        editor.commit();
+    }
+    
 	/**
 	 * Returns the current_server stored in app_state
 	 * 
 	 * This may return null, meaning there is no current_server chosen.
 	 * 
-	 * @param c
-	 * @return
-	 * JSONObject
+	 * @param context
+	 * @return JSONObject
 	 */
-	public static JSONObject getCurrentServer(Context c) {
-		Preferences.loadState(c);
+	public static JSONObject getCurrentServer(Context context) {
+		Preferences.loadState(context);
 		try {
-			return new JSONObject(mState.getString(CURRENT_SERVER, ""));
-		} catch (JSONException e) {
-			return null;
+		    String serverName = mState.getString(CURRENT_SERVER, "");
+		    if (serverName != null) {
+		        JSONArray available_servers = new JSONArray(Util.file_get_contents(context, R.raw.available_servers));
+		        int len = available_servers.length();
+		        for (int i=0; i<len; i++) {
+		            JSONObject s = available_servers.getJSONObject(i);
+		            if (s.getString(Open311.NAME).equals(serverName)) {
+		                return s;
+		            }
+		        }
+		    }
 		}
-	}
-	
-	public static void setPersonalInfo(JSONObject personal_info, Context c) {
-		Preferences.loadSettings(c);
-		
-		SharedPreferences.Editor editor = mSettings.edit();
-		editor.putString(PERSONAL_INFO, personal_info.toString());
-		editor.commit();
+		catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	/**
-	 * Saves current_server back into Preferences.app_state
+	 * Saves the name of the current server back into Preferences.app_state
 	 * 
 	 * Passing null for the server will unset the current_server
+	 * 
+	 * We save only the name, because we want to reload the full JSON from
+	 * available_servers each time.  The endpoint definition may change over
+	 * time, and we always want to use the most up to date version.
 	 * 
 	 * @param server
 	 * @param c
@@ -97,7 +122,12 @@ public class Preferences {
 		
 		SharedPreferences.Editor editor = mState.edit();
 		if (server != null) {
-			editor.putString(CURRENT_SERVER, server.toString());
+			try {
+                editor.putString(CURRENT_SERVER, server.getString(Open311.NAME));
+            } catch (JSONException e) {
+                editor.remove(CURRENT_SERVER);
+                e.printStackTrace();
+            }
 		}
 		else {
 			editor.remove(CURRENT_SERVER);

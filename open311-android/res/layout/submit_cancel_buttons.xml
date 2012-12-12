@@ -3,7 +3,8 @@
     android:id="@+id/submit_cancel_buttons"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal" >
+    android:orientation="horizontal"
+    android:background="#000000" >
     
     <Button
         android:id="@+id/submit_button"
