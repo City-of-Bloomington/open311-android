@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="failure_loading_services">Failed to load service information</string>
+    <string name="failure_posting_service">Posting report failed</string>
+    <string name="error_403">This app does not have permission</string>
+</resources>

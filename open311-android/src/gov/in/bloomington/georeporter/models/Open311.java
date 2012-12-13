@@ -5,6 +5,7 @@
  */
 package gov.in.bloomington.georeporter.models;
 
+import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.util.Media;
 
 import java.io.ByteArrayOutputStream;
@@ -19,16 +20,19 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.CoreConnectionPNames;
@@ -253,40 +257,49 @@ public class Open311 {
      * Media attributes will contain the URI to the image file.
      * 
 	 * @param data JSON representation of user input
-	 * @return
-	 * JSONObject
+	 * @return JSONObject
+	 * @throws JSONException 
+	 * @throws IOException 
+	 * @throws ClientProtocolException 
+	 * @throws Open311Exception 
 	 */
-	public static JSONArray postServiceRequest(ServiceRequest sr, Context context, String mediaPath) {
+	public static JSONArray postServiceRequest(ServiceRequest sr, Context context, String mediaPath)
+	        throws JSONException, ClientProtocolException, IOException, Open311Exception {
 		HttpPost   request  = new HttpPost(mBaseUrl + "/requests.json");
-		JSONArray  response = null;
-		try {
-		    if (mediaPath != null) {
-		        request.setEntity(prepareMultipartEntity(sr, context, mediaPath));
-		    }
-		    else {
-		        request.setEntity(prepareUrlEncodedEntity(sr));
-		    }
-			HttpResponse r = getClient().execute(request);
-			String rs = EntityUtils.toString(r.getEntity());
-			Log.i("Open311", rs);
-			response = new JSONArray(rs);
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return response;
+		JSONArray  serviceRequests = null;
+	    if (mediaPath != null) {
+	        request.setEntity(prepareMultipartEntity(sr, context, mediaPath));
+	    }
+	    else {
+	        request.setEntity(prepareUrlEncodedEntity(sr));
+	    }
+	    HttpResponse r = getClient().execute(request);
+        String responseString = EntityUtils.toString(r.getEntity());
+        
+	    int status = r.getStatusLine().getStatusCode();
+	    if (status == HttpStatus.SC_OK) {
+	        serviceRequests = new JSONArray(responseString);		        
+	    }
+	    else {
+	        // The server indicated some error.  See if they returned the
+	        // error description as JSON
+	        String dialogMessage;
+	        try {
+	            JSONArray errors = new JSONArray(responseString);
+	            dialogMessage = errors.getJSONObject(0).getString(Open311.DESCRIPTION);
+	        }
+	        catch (JSONException e) {
+	            switch (status) {
+	                case 403:
+	                    dialogMessage = context.getResources().getString(R.string.error_403);
+	                    break;
+	                default:
+	                    dialogMessage = context.getResources().getString(R.string.failure_posting_service);
+	            }
+	        }
+	        throw new Open311Exception(dialogMessage);
+	    }
+		return serviceRequests;
 	}
 	
 	/**
@@ -294,8 +307,7 @@ public class Open311 {
 	 *  
 	 * @param data
 	 * @return
-	 * @throws UnsupportedEncodingException
-	 * UrlEncodedFormEntity
+	 * @throws UnsupportedEncodingException UrlEncodedFormEntity
 	 * @throws JSONException 
 	 */
 	private static UrlEncodedFormEntity prepareUrlEncodedEntity(ServiceRequest sr) throws UnsupportedEncodingException, JSONException {

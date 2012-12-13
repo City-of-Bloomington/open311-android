@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="failure_loading_services">Palvelun tietojen hakemisessa tapahtui virhe</string>
+    <string name="failure_posting_service">Palautteen lähetys ei onnistunut</string>
+    <string name="error_403">This app does not have permission</string>
+</resources>

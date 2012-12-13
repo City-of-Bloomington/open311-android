@@ -14,8 +14,6 @@
     <string name="phone">Puhelin</string>
     <string name="dialog_loading_services">Haetaan palvelun tietoja</string>
     <string name="dialog_posting_service">Lähetetään palautetta</string>
-    <string name="failure_loading_services">Palvelun tietojen hakemisessa tapahtui virhe</string>
-    <string name="failure_posting_service">Palautteen lähetys ei onnistunut</string>
     <string name="choose_media_source">Valitse kuva</string>
     <string name="camera">Kamera</string>
     <string name="gallery">Galleria</string>
