@@ -256,6 +256,16 @@ public class Open311 {
 	 * @return
 	 * JSONObject
 	 */
+	public static JSONObject getServiceDefinitionFromList(String service_code) {
+		JSONObject serviceDefinition = sServiceDefinitions.get(service_code);
+		return serviceDefinition;
+	}
+	
+	/**
+	 * @param service_code
+	 * @return
+	 * JSONObject
+	 */
 	public static JSONObject getServiceDefinition(String service_code) {
 		try {
 			Open311Parser mParser= new Open311Parser(mFormat);
@@ -293,7 +303,7 @@ public class Open311 {
 
 	public static JSONArray postServiceRequest(ServiceRequest sr, Context context, String mediaPath)
 	        throws JSONException, ClientProtocolException, IOException, Open311Exception {
-		HttpPost   request  = new HttpPost(mBaseUrl + "/requests.json");
+		HttpPost   request  = new HttpPost(mBaseUrl + "/requests." + mFormat);
 		JSONArray  serviceRequests = null;
 	    if (mediaPath != null) {
 	        request.setEntity(prepareMultipartEntity(sr, context, mediaPath));
@@ -315,7 +325,7 @@ public class Open311 {
 	        String dialogMessage;
 	        try {
 	            Open311Parser mParser= new Open311Parser(mFormat);
-	            JSONArray errors = mParser.parseRequests(responseString);
+	            JSONArray errors = mParser.parseErrors(responseString);
 	            dialogMessage = errors.getJSONObject(0).getString(Open311.DESCRIPTION);
 	        }
 	        catch (JSONException e) {
@@ -484,14 +494,7 @@ public class Open311 {
 			while ((length = in.read(bytes)) != -1) {
 				buffer.append(new String(bytes));
 			}
-			//out = c
-			//FileInputStream in = c.openFileInput(SAVED_REPORTS_FILE);
-			//while ((length = in.read(bytes)) != -1) {
-			//	buffer.append(new String(bytes));
-			//}
-			String str = new String(buffer);
-			Log.i("Open 311 loadServiceRequests",str);
-			service_requests = new JSONArray(str);
+			service_requests = new JSONArray(new String(buffer));
 		} catch (FileNotFoundException e) {
 			Log.w("Open311.loadServiceRequests", "Saved Reports File does not exist");
 		} catch (IOException e) {
@@ -513,19 +516,11 @@ public class Open311 {
 	 */
 	public static boolean saveServiceRequests(Context c, JSONArray requests) {
 		String json = requests.toString();
-		//FileOutputStream out;
+		FileOutputStream out;
 		try {
-			File file = new File (c.getFilesDir(), SAVED_REPORTS_FILE);
-			Writer out = new OutputStreamWriter(new FileOutputStream(file)); // Here
-		    try
-		    {
-		        out.write(json);
-		    } finally {
-		        out.close();
-		    }
-			//out = c.openFileOutput(SAVED_REPORTS_FILE, Context.MODE_PRIVATE);
-			//out.write(json.getBytes());
-			//out.close();
+			out = c.openFileOutput(SAVED_REPORTS_FILE, Context.MODE_PRIVATE);
+			out.write(json.getBytes());
+			out.close();
 			return true;
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block

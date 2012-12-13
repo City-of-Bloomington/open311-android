@@ -17,6 +17,7 @@ import gov.in.bloomington.georeporter.models.ServiceRequest;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import com.actionbarsherlock.app.ActionBar;
 

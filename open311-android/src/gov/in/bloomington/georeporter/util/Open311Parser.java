@@ -45,10 +45,10 @@ public class Open311Parser {
 	public JSONObject parseServiceDefinition(String xml) {
 		try {
 			if (mFormat.equals(Open311.JSON)){
-	    		return new JSONObject(xml);
+				return new JSONObject(xml);
 			} else {
 				Open311XmlParser mParser= new Open311XmlParser();
-	    		return mParser.parseServiceDefinition(xml);	
+				return mParser.parseServiceDefinition(xml);	
 	     	}
 		} catch (Exception ex) {
 			Log.i("Open311Parser",ex.getMessage());
@@ -68,6 +68,19 @@ public class Open311Parser {
 			} else {
 	    		Open311XmlParser mParser= new Open311XmlParser();
 	    		return mParser.parseRequests(xml);	
+	     	}
+		} catch (Exception ex) {
+			return null;
+		}
+	}
+
+	public JSONArray parseErrors(String xml) {
+		try {
+			if (mFormat.equals(Open311.JSON)){
+	    		return new JSONArray(xml);
+			} else {
+	    		Open311XmlParser mParser= new Open311XmlParser();
+	    		return mParser.parseErrors(xml);	
 	     	}
 		} catch (Exception ex) {
 			return null;

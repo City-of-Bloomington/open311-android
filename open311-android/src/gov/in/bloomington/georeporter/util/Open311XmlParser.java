@@ -22,6 +22,8 @@ public class Open311XmlParser {
 	public  static final String ATTRIBUTE   		= "attribute";
 	private static final String SERVICE_REQUESTS 	= "service_requests";
 	private static final String SERVICE_DEFINITION  = "service_definition";
+	private static final String ERRORS  			= "errors";
+	private static final String ERROR  				= "error";
 	
 	private static final String ns = null;
 	private XmlPullParser parser;
@@ -87,6 +89,21 @@ public class Open311XmlParser {
             parser.setInput(is, null);
             parser.nextTag();
             return parseRequests(parser);
+    	} catch (Exception e) {
+    		
+    	} finally {
+        	//is.close();
+        }
+		return null;
+    }
+    
+    public JSONArray parseErrors(String xml) {
+    	InputStream is;
+    	try {
+			is = new ByteArrayInputStream(xml.getBytes("UTF-8"));
+            parser.setInput(is, null);
+            parser.nextTag();
+            return parseErrors(parser);
     	} catch (Exception e) {
     		
     	} finally {
@@ -181,7 +198,7 @@ public class Open311XmlParser {
 	            } else if (name.equals(Open311.GROUP)) {
 	            	jo.put(Open311.GROUP, readElement(parser, Open311.GROUP));
 			    } else if (name.equals(Open311.METADATA)) {
-			        jo.put(Open311.METADATA, readElement(parser, Open311.METADATA));
+			        jo.put(Open311.METADATA, Boolean.parseBoolean(readElement(parser, Open311.METADATA)));
 			    }else {
 	                skip(parser);
 	            }
@@ -236,7 +253,7 @@ public class Open311XmlParser {
             String name = parser.getName();
             try {
             	if (name.equals(Open311.VARIABLE)) {
-	            	jo.put(Open311.VARIABLE, readElement(parser, Open311.VARIABLE));
+	            	jo.put(Open311.VARIABLE, Boolean.parseBoolean(readElement(parser, Open311.VARIABLE)));
 	            } else if (name.equals(Open311.DATATYPE)) {
 	            	jo.put(Open311.DATATYPE, readElement(parser, Open311.DATATYPE));
 	            } else if (name.equals(Open311.DESCRIPTION)) {
@@ -244,9 +261,9 @@ public class Open311XmlParser {
 	            } else if (name.equals(Open311.VALUES)) {
 	            	jo.put(Open311.VALUES, parseValues(parser));
 			    } else if (name.equals(Open311.REQUIRED)) {
-			        jo.put(Open311.REQUIRED, readElement(parser, Open311.REQUIRED));
+			        jo.put(Open311.REQUIRED, Boolean.parseBoolean(readElement(parser, Open311.REQUIRED)));
 			    } else if (name.equals(Open311.ORDER)) {
-			        jo.put(Open311.ORDER, readElement(parser, Open311.ORDER));
+			        jo.put(Open311.ORDER, Integer.parseInt(readElement(parser, Open311.ORDER)));
 			    } else if (name.equals(Open311.CODE)) {
 			        jo.put(Open311.CODE, readElement(parser, Open311.CODE));
 			    } else {
@@ -323,7 +340,6 @@ public class Open311XmlParser {
      */
     private JSONArray parseRequests(XmlPullParser parser) throws XmlPullParserException, IOException {
         JSONArray ja = new JSONArray();
-
         parser.require(XmlPullParser.START_TAG, ns, SERVICE_REQUESTS);
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -335,7 +351,6 @@ public class Open311XmlParser {
             	try {
             		ja.put(jo);
             	} catch (Exception ex) {
-            		
             	}
             } else {
                 skip(parser);
@@ -388,6 +403,57 @@ public class Open311XmlParser {
 	            	jo.put(Open311.EXPECTED_DATETIME, readElement(parser, Open311.EXPECTED_DATETIME));
 	            } else if (name.equals(Open311.AGENCY_RESPONSIBLE)) {
 		        	jo.put(Open311.AGENCY_RESPONSIBLE, readElement(parser, Open311.AGENCY_RESPONSIBLE));
+			    } else {
+	                skip(parser);
+	            }
+	        }
+    	} catch (Exception ex) {
+    		//TODO
+    	}
+        return jo;
+    }
+
+    private JSONArray parseErrors(XmlPullParser parser) throws XmlPullParserException, IOException {
+        JSONArray ja = new JSONArray();
+        parser.require(XmlPullParser.START_TAG, ns, ERRORS);
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                continue;
+            }
+            String name = parser.getName();
+            if (name.equals(ERROR)) {
+            	JSONObject jo = parseError(parser);
+            	try {
+            		ja.put(jo);
+            	} catch (Exception ex) {
+            	}
+            } else {
+                skip(parser);
+            }
+        }  
+        return ja;
+    }
+    
+    /**
+     * 
+     * @param parser
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
+    private JSONObject parseError(XmlPullParser parser) throws XmlPullParserException, IOException {
+        parser.require(XmlPullParser.START_TAG, ns, ERROR);
+    	JSONObject jo = new JSONObject();
+    	try {
+	        while (parser.next() != XmlPullParser.END_TAG) {
+	            if (parser.getEventType() != XmlPullParser.START_TAG) {
+	                continue;
+	            }
+	            String name = parser.getName();
+	            if (name.equals(Open311.CODE)) {
+	            	jo.put(Open311.CODE, readElement(parser, Open311.CODE));
+	            } else if (name.equals(Open311.DESCRIPTION)) {
+	            	jo.put(Open311.DESCRIPTION, readElement(parser, Open311.DESCRIPTION));
 			    } else {
 	                skip(parser);
 	            }
