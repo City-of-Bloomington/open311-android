@@ -10,13 +10,13 @@ import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.models.Preferences;
 import gov.in.bloomington.georeporter.util.Util;
 
+import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -28,6 +28,7 @@ public class MainActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 	}
 	
 	@Override
@@ -43,8 +44,15 @@ public class MainActivity extends BaseActivity {
 		else {
 			new EndpointLoader().execute(current_server);
 			
+			try {
+                getSupportActionBar().setTitle(current_server.getString(Open311.NAME));
+            }
+            catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+			
             String imageName = current_server.optString(SPLASH_IMAGE);
-            Log.i("MainActivity", imageName);
             if (imageName != "") {
                 ImageView splash = (ImageView) findViewById(R.id.splash);
                 splash.setImageResource(getResources().getIdentifier(imageName, "drawable", getPackageName()));

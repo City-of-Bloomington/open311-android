@@ -13,6 +13,7 @@ import gov.in.bloomington.georeporter.activities.MainActivity;
 import gov.in.bloomington.georeporter.activities.SavedReportsActivity;
 import gov.in.bloomington.georeporter.adapters.ServiceRequestAdapter;
 import gov.in.bloomington.georeporter.models.Open311;
+import gov.in.bloomington.georeporter.models.Open311Exception;
 import gov.in.bloomington.georeporter.models.ServiceRequest;
 import gov.in.bloomington.georeporter.util.Media;
 import gov.in.bloomington.georeporter.util.Util;
@@ -23,6 +24,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import org.apache.http.client.ClientProtocolException;
 
 import gov.in.bloomington.georeporter.util.json.JSONArray;
 import gov.in.bloomington.georeporter.util.json.JSONException;
@@ -394,6 +397,7 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	private class PostServiceRequestTask extends AsyncTask<Void, Void, Boolean> {
 	    private ProgressDialog mDialog;
 	    private String mMediaPath;
+	    private String errorMessage;
 	    
 	    @Override
 	    protected void onPreExecute() {
@@ -415,18 +419,33 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	    
         @Override
         protected Boolean doInBackground(Void... params) {
-            JSONArray response = Open311.postServiceRequest(mServiceRequest, getActivity(), mMediaPath);
-            if (response.length() > 0) {
-                String requested_datetime = (String) DateFormat.format(Open311.DATETIME_FORMAT, new Date());
-                try {
-                    mServiceRequest.endpoint        = Open311.sEndpoint;
-                    mServiceRequest.service_request = response.getJSONObject(0);
-                    mServiceRequest.post_data.put(ServiceRequest.REQUESTED_DATETIME, requested_datetime);
-                    return Open311.saveServiceRequest(getActivity(), mServiceRequest);
-                } catch (JSONException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+            JSONArray response;
+            try {
+                response = Open311.postServiceRequest(mServiceRequest, getActivity(), mMediaPath);
+                if (response.length() > 0) {
+                    String requested_datetime = (String) DateFormat.format(Open311.DATETIME_FORMAT, new Date());
+                    try {
+                        mServiceRequest.endpoint        = Open311.sEndpoint;
+                        mServiceRequest.service_request = response.getJSONObject(0);
+                        mServiceRequest.post_data.put(ServiceRequest.REQUESTED_DATETIME, requested_datetime);
+                        return Open311.saveServiceRequest(getActivity(), mServiceRequest);
+                    } catch (JSONException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                 }
+            }
+            catch (ClientProtocolException e1) {
+                errorMessage = getResources().getString(R.string.failure_posting_service);
+            }
+            catch (JSONException e1) {
+                errorMessage = getResources().getString(R.string.failure_posting_service);
+            }
+            catch (IOException e1) {
+                errorMessage = getResources().getString(R.string.failure_posting_service);
+            }
+            catch (Open311Exception e1) {
+                errorMessage = e1.getDialogMessage();
             }
             return false;
         }
@@ -436,7 +455,10 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
             super.onPostExecute(result);
             mDialog.dismiss();
             if (!result) {
-                Util.displayCrashDialog(getActivity(), getString(R.string.failure_posting_service));
+                if (errorMessage == null) {
+                    errorMessage = getString(R.string.failure_posting_service);
+                }
+                Util.displayCrashDialog(getActivity(), errorMessage);
             }
             else {
                 Intent intent = new Intent(getActivity(), SavedReportsActivity.class);
