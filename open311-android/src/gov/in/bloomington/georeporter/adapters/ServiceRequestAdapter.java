@@ -15,14 +15,13 @@ import gov.in.bloomington.georeporter.models.ServiceRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import gov.in.bloomington.georeporter.util.Media;
 import gov.in.bloomington.georeporter.util.json.JSONArray;
 import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -151,7 +150,8 @@ public class ServiceRequestAdapter extends BaseAdapter {
         TextView label, displayValue;
     }
 	
-	@Override
+	@SuppressLint("DefaultLocale")
+    @Override
 	public View getView(int position, View convertView, ViewGroup parent) {
         String labelKey = labels.get(position);
         
