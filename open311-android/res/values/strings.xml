@@ -25,5 +25,6 @@
     <string name="submit">Submit</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
+    <string name="save">Save</string>
 
 </resources>
