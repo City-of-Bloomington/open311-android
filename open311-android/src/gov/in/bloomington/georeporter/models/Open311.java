@@ -278,7 +278,12 @@ public class Open311 {
         String responseString = EntityUtils.toString(r.getEntity());
         
 	    int status = r.getStatusLine().getStatusCode();
-	    if (status == HttpStatus.SC_OK) {
+	    // The spec does not declare what exact status codes to use
+	    // Bloomington uses 200 Okay
+	    // Chicago uses 201 Created
+	    if (   status == HttpStatus.SC_OK
+	        || status == HttpStatus.SC_CREATED
+	        || status == HttpStatus.SC_ACCEPTED) {
 	        serviceRequests = new JSONArray(responseString);		        
 	    }
 	    else {
