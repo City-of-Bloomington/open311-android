@@ -224,17 +224,21 @@ public class Open311 {
 	
 	/**
 	 * @param service_code
-	 * @return
-	 * JSONObject
+	 * @return JSONObject
 	 */
 	public static JSONObject getServiceDefinition(String service_code) {
-		try {
-			return new JSONObject(loadStringFromUrl(getServiceDefinitionUrl(service_code)));
-		}
-		catch (Exception e) {
-            // TODO Auto-generated catch block
-		    e.printStackTrace();
-		}
+	    if (sServiceDefinitions.containsKey(service_code)) {
+	        return sServiceDefinitions.get(service_code);
+	    }
+	    else {
+    		try {
+    			return new JSONObject(loadStringFromUrl(getServiceDefinitionUrl(service_code)));
+    		}
+    		catch (Exception e) {
+                // TODO Auto-generated catch block
+    		    e.printStackTrace();
+    		}
+	    }
 		return null;
 	}
 	
