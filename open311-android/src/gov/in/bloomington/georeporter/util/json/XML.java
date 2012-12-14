@@ -37,31 +37,31 @@ import java.util.Iterator;
 public class XML {
 
     /** The Character '&amp;'. */
-    public static final Character AMP   = new Character('&');
+    public static final Character AMP   = Character.valueOf('&');
 
     /** The Character '''. */
-    public static final Character APOS  = new Character('\'');
+    public static final Character APOS  = Character.valueOf('\'');
 
     /** The Character '!'. */
-    public static final Character BANG  = new Character('!');
+    public static final Character BANG  = Character.valueOf('!');
 
     /** The Character '='. */
-    public static final Character EQ    = new Character('=');
+    public static final Character EQ    = Character.valueOf('=');
 
     /** The Character '>'. */
-    public static final Character GT    = new Character('>');
+    public static final Character GT    = Character.valueOf('>');
 
     /** The Character '&lt;'. */
-    public static final Character LT    = new Character('<');
+    public static final Character LT    = Character.valueOf('<');
 
     /** The Character '?'. */
-    public static final Character QUEST = new Character('?');
+    public static final Character QUEST = Character.valueOf('?');
 
     /** The Character '"'. */
-    public static final Character QUOT  = new Character('"');
+    public static final Character QUOT  = Character.valueOf('"');
 
     /** The Character '/'. */
-    public static final Character SLASH = new Character('/');
+    public static final Character SLASH = Character.valueOf('/');
 
     /**
      * Replace special characters with XML escapes:
@@ -315,7 +315,7 @@ public class XML {
             return JSONObject.NULL;
         }
         if ("0".equals(string)) {
-            return new Integer(0);
+            return Integer.valueOf(0);
         }
 
 // If it might be a number, try converting it. If that doesn't work,
@@ -335,9 +335,9 @@ public class XML {
                 if (string.indexOf('.') >= 0) {
                     return Double.valueOf(string);
                 } else if (string.indexOf('e') < 0 && string.indexOf('E') < 0) {
-                    Long myLong = new Long(string);
+                    Long myLong = Long.valueOf(string);
                     if (myLong.longValue() == myLong.intValue()) {
-                        return new Integer(myLong.intValue());
+                        return Integer.valueOf(myLong.intValue());
                     } else {
                         return myLong;
                     }
