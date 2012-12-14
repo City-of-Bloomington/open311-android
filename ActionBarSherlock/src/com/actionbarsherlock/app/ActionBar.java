@@ -588,7 +588,6 @@ public abstract class ActionBar {
      * Returns the tab at the specified index.
      *
      * @param index Index value in the range 0-get
-     * @return
      */
     public abstract Tab getTabAt(int index);
 

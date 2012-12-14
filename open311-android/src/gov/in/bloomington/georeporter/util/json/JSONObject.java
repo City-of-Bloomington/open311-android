@@ -24,6 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+import android.annotation.SuppressLint;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -93,6 +94,8 @@ import java.util.Set;
  * @author JSON.org
  * @version 2012-10-27
  */
+@SuppressLint("DefaultLocale")
+@SuppressWarnings({"rawtypes","unchecked"})
 public class JSONObject {
 
     /**
