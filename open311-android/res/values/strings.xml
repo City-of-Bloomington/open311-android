@@ -7,7 +7,7 @@
     <string name="title_activity_main">GeoReporter</string>
     <string name="tab_personal_info">Personal Info</string>
     <string name="tab_servers">Servers</string>
-    <string name="button_accept_error">Oh Well</string>
+    <string name="button_accept_error">Dismiss</string>
     <string name="first_name">First name</string>
     <string name="last_name">Last name</string>
     <string name="email">Email</string>
