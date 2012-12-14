@@ -7,10 +7,12 @@
     
     <include layout="@layout/submit_cancel_buttons"/>
 
-    <RelativeLayout 
-        android:layout_below="@+id/submit_cancel_buttons"
+    <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:layout_below="@+id/submit_cancel_buttons"
+        tools:ignore="UnknownIdInLayout" >
+
 	    <com.google.android.maps.MapView
 	        xmlns:android="http://schemas.android.com/apk/res/android"
 	        android:id="@+id/mapview"
@@ -19,12 +21,14 @@
 	        android:clickable="true"
 	        android:apiKey="0fu6gIlxRyq1LGdKnq5d-To1DSL7EuowD4kmvXA"
 	    />
+
 	    <ImageView
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_centerInParent="true"
 	        android:src="@drawable/crosshairs"
-	    />
+	        tools:ignore="ContentDescription" />
+
     </RelativeLayout>
     
     

@@ -1,13 +1,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_settings"
-        android:title="@string/menu_settings"
-        android:orderInCategory="100"
-        android:showAsAction="always"
-        android:icon="@drawable/action_settings"/>
     <item android:id="@+id/menu_report"
         android:title="@string/menu_report"
-        android:orderInCategory="101"
+        android:orderInCategory="100"
         android:showAsAction="always"
         android:icon="@drawable/ic_menu_start_conversation" />
-    <item android:id="@+id/menu_archive" android:orderInCategory="102" android:title="@string/menu_archive" android:icon="@drawable/ic_menu_archive" android:showAsAction="always"></item>
+    <item android:id="@+id/menu_settings"
+        android:title="@string/menu_settings"
+        android:orderInCategory="101"
+        android:showAsAction="ifRoom"
+        android:icon="@drawable/action_settings"/>
+    <item android:id="@+id/menu_archive"
+        android:orderInCategory="102"
+        android:title="@string/menu_archive"
+        android:icon="@drawable/ic_menu_archive"
+        android:showAsAction="ifRoom" />
 </menu>

@@ -17,6 +17,7 @@ import gov.in.bloomington.georeporter.util.json.JSONArray;
 import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +33,8 @@ public class SavedReportsAdapter extends BaseAdapter {
 	private DateFormat       mDateFormat;
 	private SimpleDateFormat mISODate;
 	
-	public SavedReportsAdapter(JSONArray serviceRequests, Context c) {
+	@SuppressLint("SimpleDateFormat")
+    public SavedReportsAdapter(JSONArray serviceRequests, Context c) {
 		mServiceRequests = serviceRequests;
 		mInflater = LayoutInflater.from(c);
 		mDateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);

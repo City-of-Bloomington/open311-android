@@ -54,6 +54,13 @@ public class MainActivity extends BaseActivity {
             if (imageName != "") {
                 ImageView splash = (ImageView) findViewById(R.id.splash);
                 splash.setImageResource(getResources().getIdentifier(imageName, "drawable", getPackageName()));
+                try {
+                    splash.setContentDescription(current_server.getString(Open311.NAME));
+                }
+                catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
 		}
 	}
