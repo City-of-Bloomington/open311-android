@@ -14,4 +14,9 @@
         android:title="@string/menu_archive"
         android:icon="@drawable/ic_menu_archive"
         android:showAsAction="ifRoom" />
+    <item android:id="@+id/menu_about"
+        android:orderInCategory="103"
+        android:title="@string/menu_about"
+        android:icon="@android:drawable/ic_dialog_info"
+        android:showAsAction="never" />
 </menu>
