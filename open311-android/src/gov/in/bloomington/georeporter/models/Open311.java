@@ -512,8 +512,16 @@ public class Open311 {
         try {
             JSONObject report         = new JSONObject(sr.toString());
             JSONArray  saved_requests = loadServiceRequests(c);
-            saved_requests.put(report);
-            return saveServiceRequests(c, saved_requests);
+            JSONArray  newSave        = new JSONArray();
+            
+            // Push the new report onto the start of the array
+            newSave.put(report);
+            int len = saved_requests.length();
+            for (int i=0; i<len; i++) {
+                newSave.put(saved_requests.getJSONObject(i));
+            }
+            
+            return saveServiceRequests(c, newSave);
         } catch (JSONException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
