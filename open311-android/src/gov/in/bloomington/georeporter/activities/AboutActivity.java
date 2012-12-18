@@ -25,6 +25,7 @@ public class AboutActivity extends BaseActivity {
     }
     
     private class WebAppInterface {
+        @SuppressWarnings("unused")
         public String getVersion() {
             try {
                 return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
