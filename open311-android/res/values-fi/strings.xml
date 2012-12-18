@@ -26,5 +26,6 @@
     <string name="cancel">Peru</string>
     <string name="delete">Poista</string>
     <string name="save">Tallentaa</string>
+    <string name="pending">Odotettaessa</string>
 
 </resources>

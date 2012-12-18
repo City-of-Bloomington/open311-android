@@ -31,6 +31,7 @@ import gov.in.bloomington.georeporter.util.json.JSONArray;
 import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -313,7 +314,8 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	 * 
 	 * Pass in the attribute code that you want the user to enter a date for
 	 */
-	private class DatePickerDialogFragment extends SherlockDialogFragment implements OnDateSetListener {
+	@SuppressLint("ValidFragment")
+    private class DatePickerDialogFragment extends SherlockDialogFragment implements OnDateSetListener {
 	    private String mAttributeCode;
 	    
 	    /**

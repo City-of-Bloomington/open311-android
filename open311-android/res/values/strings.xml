@@ -27,5 +27,6 @@
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
     <string name="save">Save</string>
+    <string name="pending">Pending</string>
 
 </resources>

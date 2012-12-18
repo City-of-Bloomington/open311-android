@@ -126,7 +126,7 @@ public class Open311 {
 	 * @return
 	 * DefaultHttpClient
 	 */
-	private static DefaultHttpClient getClient() {
+	public static DefaultHttpClient getClient() {
 		if (mClient == null) {
 			mClient = new DefaultHttpClient();
 			mClient.getParams().setParameter(CoreProtocolPNames  .HTTP_CONTENT_CHARSET, "UTF-8");
@@ -284,7 +284,7 @@ public class Open311 {
 	    if (   status == HttpStatus.SC_OK
 	        || status == HttpStatus.SC_CREATED
 	        || status == HttpStatus.SC_ACCEPTED) {
-	        serviceRequests = new JSONArray(responseString);		        
+	        serviceRequests = new JSONArray(responseString);
 	    }
 	    else {
 	        // The server indicated some error.  See if they returned the
@@ -306,6 +306,10 @@ public class Open311 {
 	        throw new Open311Exception(dialogMessage);
 	    }
 		return serviceRequests;
+	}
+	
+	public static String getServiceRequestId(String token) {
+	    return "";
 	}
 	
 	/**
