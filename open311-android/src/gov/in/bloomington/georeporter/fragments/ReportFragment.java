@@ -57,7 +57,7 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.actionbarsherlock.app.SherlockFragment;
-import com.google.android.maps.GeoPoint;
+import com.google.android.gms.maps.model.LatLng;
 
 public class ReportFragment extends SherlockFragment implements OnItemClickListener {
     /**
@@ -250,14 +250,16 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
                         break;
                         
                     case LOCATION_REQUEST:
-                        int latitudeE6  = data.getIntExtra(Open311.LATITUDE,  0);
-                        int longitudeE6 = data.getIntExtra(Open311.LONGITUDE, 0);
+                        // The ChooseLocationActivity should put LATITUDE and LONGITUDE
+                        // into the Intent data as type double
+                        double latitude  = data.getDoubleExtra(Open311.LATITUDE, 0);
+                        double longitude = data.getDoubleExtra(Open311.LONGITUDE, 0);
                         
-                        mServiceRequest.post_data.put(Open311.LATITUDE , latitudeE6  / 1e6);
-                        mServiceRequest.post_data.put(Open311.LONGITUDE, longitudeE6 / 1e6);
+                        mServiceRequest.post_data.put(Open311.LATITUDE , latitude);
+                        mServiceRequest.post_data.put(Open311.LONGITUDE, longitude);
                         // Display the lat/long as text for now
                         // It will get replaced with the address when ReverseGeoCodingTask returns
-                        new ReverseGeocodingTask().execute(new GeoPoint(latitudeE6, longitudeE6));
+                        new ReverseGeocodingTask().execute(new LatLng(latitude, longitude));
                         break;
                         
                     /**
@@ -353,13 +355,13 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	 * Queries Google's geocode, updates the address in ServiceRequest,
 	 * then refreshes the view so the user can see the change
 	 */
-	private class ReverseGeocodingTask extends AsyncTask<GeoPoint, Void, String> {
+	private class ReverseGeocodingTask extends AsyncTask<LatLng, Void, String> {
 	    @Override
-	    protected String doInBackground(GeoPoint... params) {
+	    protected String doInBackground(LatLng... params) {
 	        Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
-	        GeoPoint point = params[0];
-	        double latitude  = point.getLatitudeE6()  / 1e6;
-	        double longitude = point.getLongitudeE6() / 1e6;
+	        LatLng point = params[0];
+	        double latitude  = point.latitude;
+	        double longitude = point.longitude;
 
 	        List<Address> addresses = null;
 	        try {
