@@ -5,7 +5,7 @@
  */
 package gov.in.bloomington.georeporter.fragments;
 
-import gov.in.bloomington.georeporter.R;
+import gov.in.bloomington.cityreporter.R;
 import gov.in.bloomington.georeporter.adapters.SavedReportsAdapter;
 import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.util.json.JSONArray;

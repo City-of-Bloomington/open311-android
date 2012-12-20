@@ -9,7 +9,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import gov.in.bloomington.georeporter.R;
+import gov.in.bloomington.cityreporter.R;
 import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.models.ServiceRequest;
 

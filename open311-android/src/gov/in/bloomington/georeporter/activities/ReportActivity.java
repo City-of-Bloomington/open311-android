@@ -5,7 +5,7 @@
  */
 package gov.in.bloomington.georeporter.activities;
 
-import gov.in.bloomington.georeporter.R;
+import gov.in.bloomington.cityreporter.R;
 import gov.in.bloomington.georeporter.fragments.ChooseGroupFragment;
 import gov.in.bloomington.georeporter.fragments.ChooseGroupFragment.OnGroupSelectedListener;
 import gov.in.bloomington.georeporter.fragments.ChooseServiceFragment;

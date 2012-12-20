@@ -5,6 +5,7 @@
  */
 package gov.in.bloomington.georeporter.activities;
 
+import gov.in.bloomington.cityreporter.R;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
@@ -24,8 +25,12 @@ public class AboutActivity extends BaseActivity {
         setContentView(webview);
     }
     
+    @SuppressWarnings("unused")
     private class WebAppInterface {
-        @SuppressWarnings("unused")
+        public String getAppName() {
+            return getString(R.string.app_name);
+        }
+        
         public String getVersion() {
             try {
                 return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;

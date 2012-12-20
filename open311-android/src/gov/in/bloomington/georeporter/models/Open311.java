@@ -5,7 +5,7 @@
  */
 package gov.in.bloomington.georeporter.models;
 
-import gov.in.bloomington.georeporter.R;
+import gov.in.bloomington.cityreporter.R;
 import gov.in.bloomington.georeporter.util.Media;
 
 import java.io.ByteArrayOutputStream;

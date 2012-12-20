@@ -5,9 +5,8 @@
  */
 package gov.in.bloomington.georeporter.activities;
 
-import gov.in.bloomington.georeporter.R;
+import gov.in.bloomington.cityreporter.R;
 import gov.in.bloomington.georeporter.fragments.PersonalInfoFragment;
-import gov.in.bloomington.georeporter.fragments.ServersFragment;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 
@@ -25,11 +24,6 @@ public class SettingsActivity extends BaseFragmentActivity {
 		actionBar.setTitle(R.string.menu_settings);
 		
 		Tab tab;
-		tab = actionBar.newTab()
-				.setText(R.string.tab_servers)
-				.setTabListener(new TabListener<ServersFragment>(this, "servers", ServersFragment.class));
-		actionBar.addTab(tab);
-		
 		tab = actionBar.newTab()
 				.setText(R.string.tab_personal_info)
 				.setTabListener(new TabListener<PersonalInfoFragment>(this, "personalInfo", PersonalInfoFragment.class));

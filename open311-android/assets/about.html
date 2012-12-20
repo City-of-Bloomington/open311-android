@@ -9,7 +9,7 @@
     </style>
 </head>
 <body>
-    <h1>GeoReporter <span id="version"></span></h1>
+    <h1><span id="version"></span></h1>
     <p>GeoReporter for Android is a native Open311 GeoReport v2 reference client.
         If any city wishes to be included in the default list of available Open311 GeoReport v2
         endpoints, please let us know though the 
@@ -35,7 +35,7 @@
         <a href="http:github.com/City-of-Bloomington/open311-android">http:github.com/City-of-Bloomington/open311-android</a>.
     </p>
     <script type="text/javascript">
-        document.getElementById('version').innerHTML = Android.getVersion();
+        document.getElementById('version').innerHTML = Android.getAppName() + ' ' + Android.getVersion();
     </script>
 </body>
 </html>

@@ -1,10 +1,10 @@
 <resources>
 
-    <string name="app_name">GeoReporter</string>
+    <string name="app_name">Bloomington</string>
     <string name="menu_settings">Asetukset</string>
     <string name="menu_report">Palaute</string>
     <string name="menu_archive">Omat Palautteet</string>
-    <string name="title_activity_main">GeoReporter</string>
+    <string name="title_activity_main">Bloomington</string>
     <string name="tab_personal_info">Omat tiedot</string>
     <string name="tab_servers">Palvelimet</string>
     <string name="button_accept_error">Sivuuttaa</string>

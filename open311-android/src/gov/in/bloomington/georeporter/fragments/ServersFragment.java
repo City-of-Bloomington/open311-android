@@ -5,7 +5,7 @@
  */
 package gov.in.bloomington.georeporter.fragments;
 
-import gov.in.bloomington.georeporter.R;
+import gov.in.bloomington.cityreporter.R;
 import gov.in.bloomington.georeporter.activities.MainActivity;
 import gov.in.bloomington.georeporter.adapters.ServersAdapter;
 import gov.in.bloomington.georeporter.models.Preferences;
@@ -29,7 +29,7 @@ public class ServersFragment extends SherlockListFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		try {
-			mServers = new JSONArray(Util.file_get_contents(getActivity(), R.raw.available_servers));
+			mServers = new JSONArray(Util.file_get_contents(getActivity(), R.raw.available_servers_example));
 		} catch (JSONException e) {
 			Util.displayCrashDialog(getActivity(), "Could not load endpoints from json");
 		}

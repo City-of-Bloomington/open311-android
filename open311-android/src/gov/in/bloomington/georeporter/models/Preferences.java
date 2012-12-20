@@ -9,7 +9,7 @@
  */
 package gov.in.bloomington.georeporter.models;
 
-import gov.in.bloomington.georeporter.R;
+import gov.in.bloomington.cityreporter.R;
 import gov.in.bloomington.georeporter.util.Util;
 import gov.in.bloomington.georeporter.util.json.JSONArray;
 import gov.in.bloomington.georeporter.util.json.JSONException;
@@ -22,21 +22,11 @@ public class Preferences {
 	private static final String SETTINGS       = "settings";
 	private static final String PERSONAL_INFO  = "personal_info";
 	
-	private static final String APP_STATE      = "app_state";
-	private static final String CURRENT_SERVER = "current_server";
-	
 	private static SharedPreferences mSettings = null;
-	private static SharedPreferences mState    = null;
 	
 	private static void loadSettings(Context c) {
 		if (mSettings == null) {
 			mSettings = c.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE);
-		}
-	}
-	
-	private static void loadState(Context c) {
-		if (mState == null) {
-			mState = c.getSharedPreferences(APP_STATE, Context.MODE_PRIVATE);
 		}
 	}
 	
@@ -75,63 +65,44 @@ public class Preferences {
         editor.commit();
     }
     
-	/**
-	 * Returns the current_server stored in app_state
-	 * 
-	 * This may return null, meaning there is no current_server chosen.
-	 * 
-	 * @param context
-	 * @return JSONObject
-	 */
-	public static JSONObject getCurrentServer(Context context) {
-		Preferences.loadState(context);
-		try {
-		    String serverName = mState.getString(CURRENT_SERVER, "");
-		    if (serverName != null) {
-		        JSONArray available_servers = new JSONArray(Util.file_get_contents(context, R.raw.available_servers));
-		        int len = available_servers.length();
-		        for (int i=0; i<len; i++) {
-		            JSONObject s = available_servers.getJSONObject(i);
-		            if (s.getString(Open311.NAME).equals(serverName)) {
-		                return s;
-		            }
-		        }
-		    }
-		}
-		catch (JSONException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+    /**
+     * Returns the current_server stored in app_state
+     *
+     * Upstream Compatibility Notice:
+     * This version is forked from GeoReporter, which is a multi server app.
+     * In order to maintain compatibility with upstream changes.
+     *
+     * This method must remain to minimize changes from upstream.
+     * It is modified here to always return the first entry in available_servers
+     *
+     * @param context
+     * @return JSONObject
+     */
+    public static JSONObject getCurrentServer(Context context) {
+        try {
+            JSONArray available_servers = new JSONArray(Util.file_get_contents(context, R.raw.available_servers));
+            return available_servers.getJSONObject(0);
+        }
+        catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 	
-	/**
-	 * Saves the name of the current server back into Preferences.app_state
-	 * 
-	 * Passing null for the server will unset the current_server
-	 * 
-	 * We save only the name, because we want to reload the full JSON from
-	 * available_servers each time.  The endpoint definition may change over
-	 * time, and we always want to use the most up to date version.
-	 * 
-	 * @param server
-	 * @param c
-	 * void
-	 */
-	public static void setCurrentServer(JSONObject server, Context c) {
-		Preferences.loadState(c);
-		
-		SharedPreferences.Editor editor = mState.edit();
-		if (server != null) {
-			try {
-                editor.putString(CURRENT_SERVER, server.getString(Open311.NAME));
-            } catch (JSONException e) {
-                editor.remove(CURRENT_SERVER);
-                e.printStackTrace();
-            }
-		}
-		else {
-			editor.remove(CURRENT_SERVER);
-		}
-		editor.commit();
-	}
+    /**
+     * Saves the name of the current server back into Preferences.app_state
+     *
+     * Upstream Compatibility Notice:
+     * This version is forked from GeoReporter, which is a multi server app.
+     * In order to maintain compatibility with upstream changes.
+     *
+     * This method must remain to minimize changes from upstream.
+     * 
+     * @param server
+     * @param c
+     * void
+     */
+    public static void setCurrentServer(JSONObject server, Context c) {
+        // NOOP
+    }
 }

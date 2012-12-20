@@ -5,7 +5,7 @@
  */
 package gov.in.bloomington.georeporter.fragments;
 
-import gov.in.bloomington.georeporter.R;
+import gov.in.bloomington.cityreporter.R;
 import gov.in.bloomington.georeporter.activities.AttributeEntryActivity;
 import gov.in.bloomington.georeporter.activities.ChooseLocationActivity;
 import gov.in.bloomington.georeporter.activities.DataEntryActivity;

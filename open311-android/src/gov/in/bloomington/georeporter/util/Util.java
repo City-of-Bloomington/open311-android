@@ -5,7 +5,7 @@
  */
 package gov.in.bloomington.georeporter.util;
 
-import gov.in.bloomington.georeporter.R;
+import gov.in.bloomington.cityreporter.R;
 
 import java.io.BufferedReader;
 import java.io.IOException;
