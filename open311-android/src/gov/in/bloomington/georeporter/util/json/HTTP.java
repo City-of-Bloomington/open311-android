@@ -26,11 +26,15 @@ SOFTWARE.
 
 import java.util.Iterator;
 
+import android.annotation.SuppressLint;
+
 /**
  * Convert an HTTP header to a JSONObject and back.
  * @author JSON.org
  * @version 2010-12-24
  */
+@SuppressLint("DefaultLocale")
+@SuppressWarnings("rawtypes")
 public class HTTP {
 
     /** Carriage return/line feed. */

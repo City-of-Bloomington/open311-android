@@ -199,6 +199,7 @@ public class IcsLinearLayout extends NineLinearLayout {
             if (child == null) {
                 bottom = getHeight() - getPaddingBottom() - mDividerHeight;
             } else {
+                @SuppressWarnings("unused")
                 final LayoutParams lp = (LayoutParams) child.getLayoutParams();
                 bottom = child.getBottom()/* + lp.bottomMargin*/;
             }
@@ -226,6 +227,7 @@ public class IcsLinearLayout extends NineLinearLayout {
             if (child == null) {
                 right = getWidth() - getPaddingRight() - mDividerWidth;
             } else {
+                @SuppressWarnings("unused")
                 final LayoutParams lp = (LayoutParams) child.getLayoutParams();
                 right = child.getRight()/* + lp.rightMargin*/;
             }

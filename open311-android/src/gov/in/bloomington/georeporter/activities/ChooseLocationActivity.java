@@ -5,6 +5,12 @@
  */
 package gov.in.bloomington.georeporter.activities;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+
 import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.models.Open311;
 import android.content.Intent;
@@ -16,24 +22,65 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapView;
-
-public class ChooseLocationActivity extends MapActivity {
-	private MapView mMap;
+public class ChooseLocationActivity extends SherlockFragmentActivity {
+	private GoogleMap mMap;
 	private LocationManager mLocationManager;
+	public static final int UPDATE_GOOGLE_MAPS_REQUEST = 0;
 	
 	public static final int DEFAULT_ZOOM = 17;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_map_chooser);
-		mMap = (MapView)findViewById(R.id.mapview);
-		mMap.getController().setZoom(DEFAULT_ZOOM);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_map_chooser);
+        setUpMapIfNeeded();
 	}
 	
+	@Override
+	protected void onResume() {
+	    super.onResume();
+	    setUpMapIfNeeded();
+	}
+	
+    /**
+     * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
+     * installed) and the map has not already been instantiated.. This will ensure that we only ever
+     * call {@link #setUpMap()} once when {@link #mMap} is not null.
+     * <p>
+     * If it isn't installed {@link SupportMapFragment} (and
+     * {@link com.google.android.gms.maps.MapView
+     * MapView}) will show a prompt for the user to install/update the Google Play services APK on
+     * their device.
+     * <p>
+     * A user can return to this Activity after following the prompt and correctly
+     * installing/updating/enabling the Google Play services. Since the Activity may not have been
+     * completely destroyed during this process (it is likely that it would only be stopped or
+     * paused), {@link #onCreate(Bundle)} may not be called again so we should call this method in
+     * {@link #onResume()} to guarantee that it will be called.
+     */
+    private void setUpMapIfNeeded() {
+        // Do a null check to confirm that we have not already instantiated the map.
+        if (mMap == null) {
+            // Try to obtain the map from the SupportMapFragment.
+            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
+            // Check if we were successful in obtaining the map.
+            if (mMap != null) {
+                setUpMap();
+            }
+        }
+    }
+
+    /**
+     * This is where we can add markers or lines, add listeners or move the camera.
+     * <p>
+     * This should only be called once and when we are sure that {@link #mMap} is not null.
+     */
+    private void setUpMap() {
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mMap.setMyLocationEnabled(false);
+        mMap.moveCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM));
+    }
+
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -49,11 +96,6 @@ public class ChooseLocationActivity extends MapActivity {
 		mLocationManager.requestLocationUpdates(provider, 0, 0, new MapListener());
 	}
 
-	@Override
-	protected boolean isRouteDisplayed() {
-		return false;
-	}
-	
 	private class MapListener implements LocationListener {
         private static final int TWO_MINUTES = 1000 * 60 * 2;
 	    private Location mCurrentBestLocation;
@@ -64,12 +106,9 @@ public class ChooseLocationActivity extends MapActivity {
 		    if (isBetterLocation(location, mCurrentBestLocation)) {
 		        mLocationManager.removeUpdates(this);
 		    }
-			
-			GeoPoint p = new GeoPoint(
-				(int)(location.getLatitude()  * 1e6),
-				(int)(location.getLongitude() * 1e6)
-			);
-			mMap.getController().animateTo(p);
+		    
+		    LatLng p = new LatLng(location.getLatitude(), location.getLongitude());
+		    mMap.moveCamera(CameraUpdateFactory.newLatLng(p));
 		}
 
 		@Override
@@ -151,14 +190,14 @@ public class ChooseLocationActivity extends MapActivity {
 	 * Reads the lat/long at the center of the map and returns
 	 * them to the activity that opened the map
 	 * 
-	 * void
+	 * lat/long will be of type double
 	 */
 	public void submit(View v) {
-		GeoPoint center = mMap.getMapCenter();
+	    LatLng center = mMap.getCameraPosition().target;
 		
 		Intent result = new Intent();
-		result.putExtra(Open311.LATITUDE,  center.getLatitudeE6());
-		result.putExtra(Open311.LONGITUDE, center.getLongitudeE6());
+		result.putExtra(Open311.LATITUDE,  center.latitude);
+		result.putExtra(Open311.LONGITUDE, center.longitude);
 		setResult(RESULT_OK, result);
 		finish();
 	}

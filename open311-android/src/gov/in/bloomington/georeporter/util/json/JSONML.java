@@ -35,6 +35,7 @@ import java.util.Iterator;
  * @author JSON.org
  * @version 2012-03-28
  */
+@SuppressWarnings("rawtypes")
 public class JSONML {
 
     /**

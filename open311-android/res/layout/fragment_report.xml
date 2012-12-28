@@ -3,9 +3,26 @@
     android:layout_width="match_parent"
     android:layout_height="fill_parent" >
 
-    <include
+    <LinearLayout
         android:id="@+id/button_bar"
-        layout="@layout/submit_cancel_buttons" />
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/cancel_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/cancel" />
+        
+        <Button
+            android:id="@+id/submit_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/submit" />
+
+    </LinearLayout>
 
     <ListView
         android:id="@+id/reportListView"

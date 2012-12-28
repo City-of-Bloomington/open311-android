@@ -78,7 +78,7 @@ public class ServiceRequest {
 		if (service.optBoolean(Open311.METADATA)) {
 			try {
 				//service_definition = Open311.getServiceDefinition(service.getString(Open311.SERVICE_CODE));
-				service_definition = Open311.getServiceDefinitionFromList(service.getString(Open311.SERVICE_CODE));
+				service_definition = Open311.getServiceDefinition(service.getString(Open311.SERVICE_CODE));
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

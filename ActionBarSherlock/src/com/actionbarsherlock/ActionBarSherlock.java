@@ -391,7 +391,7 @@ public abstract class ActionBarSherlock {
      * @param savedInstanceState If the activity is being re-initialized after
      *                           previously being shut down then this Bundle
      *                           contains the data it most recently supplied in
-     *                           {@link Activity#}onSaveInstanceState(Bundle)}.
+     *                           {@link Activity}onSaveInstanceState(Bundle)}.
      *                           <strong>Note: Otherwise it is null.</strong>
      */
     public void dispatchPostCreate(Bundle savedInstanceState) {}

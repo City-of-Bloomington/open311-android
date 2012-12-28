@@ -30,16 +30,13 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.NameValuePair;
-import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.CoreConnectionPNames;
@@ -152,7 +149,7 @@ public class Open311 {
 	 * @return
 	 * DefaultHttpClient
 	 */
-	private static DefaultHttpClient getClient() {
+	public static DefaultHttpClient getClient() {
 		if (mClient == null) {
 			mClient = new DefaultHttpClient();
 			mClient.getParams().setParameter(CoreProtocolPNames  .HTTP_CONTENT_CHARSET, "UTF-8");
@@ -256,25 +253,21 @@ public class Open311 {
 	 * @return
 	 * JSONObject
 	 */
-	public static JSONObject getServiceDefinitionFromList(String service_code) {
-		JSONObject serviceDefinition = sServiceDefinitions.get(service_code);
-		return serviceDefinition;
-	}
-	
-	/**
-	 * @param service_code
-	 * @return
-	 * JSONObject
-	 */
 	public static JSONObject getServiceDefinition(String service_code) {
-		try {
-			Open311Parser mParser= new Open311Parser(mFormat);
-			return mParser.parseServiceDefinition(loadStringFromUrl(getServiceDefinitionUrl(service_code)));
-		}
-		catch (Exception e) {
-            // TODO Auto-generated catch block
-		    e.printStackTrace();
-		}
+
+	    if (sServiceDefinitions.containsKey(service_code)) {
+	        return sServiceDefinitions.get(service_code);
+	    }
+	    else {
+    		try {
+    			Open311Parser mParser= new Open311Parser(mFormat);
+    			return mParser.parseServiceDefinition(loadStringFromUrl(getServiceDefinitionUrl(service_code)));
+    		}
+    		catch (Exception e) {
+                // TODO Auto-generated catch block
+    		    e.printStackTrace();
+    		}
+	    }
 		return null;
 	}
 	
@@ -315,9 +308,14 @@ public class Open311 {
         String responseString = EntityUtils.toString(r.getEntity());
         
 	    int status = r.getStatusLine().getStatusCode();
-	    if (status == HttpStatus.SC_OK) {
+	    // The spec does not declare what exact status codes to use
+	    // Bloomington uses 200 Okay
+	    // Chicago uses 201 Created
+	    if (   status == HttpStatus.SC_OK
+	        || status == HttpStatus.SC_CREATED
+	        || status == HttpStatus.SC_ACCEPTED) {
 	    	Open311Parser mParser= new Open311Parser(mFormat);
-			serviceRequests = mParser.parseRequests(responseString);	
+			serviceRequests = mParser.parseRequests(responseString);
 	    }
 	    else {
 	        // The server indicated some error.  See if they returned the
@@ -340,6 +338,10 @@ public class Open311 {
 	        throw new Open311Exception(dialogMessage);
 	    }
 		return serviceRequests;
+	}
+	
+	public static String getServiceRequestId(String token) {
+	    return "";
 	}
 	
 	/**
@@ -548,8 +550,16 @@ public class Open311 {
         try {
             JSONObject report         = new JSONObject(sr.toString());
             JSONArray  saved_requests = loadServiceRequests(c);
-            saved_requests.put(report);
-            return saveServiceRequests(c, saved_requests);
+            JSONArray  newSave        = new JSONArray();
+            
+            // Push the new report onto the start of the array
+            newSave.put(report);
+            int len = saved_requests.length();
+            for (int i=0; i<len; i++) {
+                newSave.put(saved_requests.getJSONObject(i));
+            }
+            
+            return saveServiceRequests(c, newSave);
         } catch (JSONException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

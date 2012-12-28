@@ -1,8 +1,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" 
-    android:background="#ffffff">
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    tools:ignore="Overdraw" >
 
     <ImageView
         android:id="@+id/splash"
@@ -12,6 +13,7 @@
         android:layout_centerVertical="true"
         android:scaleType="centerInside"
         android:onClick="onTouchImage"
-        android:src="@drawable/open311" />
+        android:src="@drawable/open311"
+        android:contentDescription="@string/app_name"/>
 
 </RelativeLayout>

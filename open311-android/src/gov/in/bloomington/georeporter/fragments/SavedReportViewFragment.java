@@ -7,7 +7,11 @@ package gov.in.bloomington.georeporter.fragments;
 
 import java.io.IOException;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.util.EntityUtils;
 
 import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.models.Open311;
@@ -15,10 +19,8 @@ import gov.in.bloomington.georeporter.models.ServiceRequest;
 import gov.in.bloomington.georeporter.util.json.JSONArray;
 import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +30,6 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragment;
 
 public class SavedReportViewFragment extends SherlockFragment {
-    private static final String mTag = "SavedReportViewFragment";
     private static final String POSITION = "position";
     private JSONArray      mServiceRequests;
     private ServiceRequest mServiceRequest;
@@ -50,7 +51,6 @@ public class SavedReportViewFragment extends SherlockFragment {
         mServiceRequests = Open311.loadServiceRequests(getActivity());
         try {
             String json = mServiceRequests.getJSONObject(mPosition).toString();
-            Log.i("SavedReportViewFragment", json);
             mServiceRequest = new ServiceRequest(json);
         } catch (JSONException e) {
             // TODO Auto-generated catch block
@@ -100,7 +100,6 @@ public class SavedReportViewFragment extends SherlockFragment {
         if (mServiceRequest.service_request.has(ServiceRequest.STATUS)) {
             textView.setText(mServiceRequest.service_request.optString(ServiceRequest.STATUS));
         }
-        Log.i(mTag, "Refreshed View");
     }
     
     private class RefreshFromServerTask extends AsyncTask<Void, Void, Boolean> {
@@ -108,12 +107,31 @@ public class SavedReportViewFragment extends SherlockFragment {
         protected Boolean doInBackground(Void... params) {
             Boolean tokenUpdated          = false;
             Boolean serviceRequestUpdated = false;
+            JSONObject sr = mServiceRequest.service_request;
             
-            if (!mServiceRequest.service_request.has(Open311.SERVICE_REQUEST_ID)) {
-                tokenUpdated = fetchServiceRequestId();
+            if (!sr.has(Open311.SERVICE_REQUEST_ID)) {
+                String id;
+                try {
+                    id = getServiceRequestId(sr.getString(Open311.TOKEN));
+                    if (id != null) {
+                        sr.put(Open311.SERVICE_REQUEST_ID, id);
+                        tokenUpdated = true;
+                    }
+                    else {
+                        String pending = getResources().getString(R.string.pending);
+                        if (!sr.optString(ServiceRequest.STATUS).equals(pending)) {
+                            sr.put(ServiceRequest.STATUS, pending);
+                            serviceRequestUpdated = true;
+                        }
+                    }
+                }
+                catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
             
-            if (mServiceRequest.service_request.has(Open311.SERVICE_REQUEST_ID)) {
+            if (sr.has(Open311.SERVICE_REQUEST_ID)) {
                 serviceRequestUpdated  = fetchServiceRequest();
             }
             return tokenUpdated || serviceRequestUpdated;
@@ -139,16 +157,27 @@ public class SavedReportViewFragment extends SherlockFragment {
             return false;
         }
         
-        private Boolean fetchServiceRequestId() {
+        private String getServiceRequestId(String token) {
+            HttpGet request;
             try {
-                String token = mServiceRequest.service_request.getString(Open311.TOKEN);
-                return updateServiceRequest(Open311.loadStringFromUrl(mServiceRequest.getServiceRequestIdFromTokenUrl(token)));
+                request = new HttpGet(mServiceRequest.getServiceRequestIdFromTokenUrl(token));
+                HttpResponse r = Open311.getClient().execute(request);
+                String responseString = EntityUtils.toString(r.getEntity());
+                
+                int status = r.getStatusLine().getStatusCode();
+                if (status == HttpStatus.SC_OK) {
+                    JSONArray result = new JSONArray(responseString);
+                    JSONObject o = result.getJSONObject(0);
+                    if (o.has(Open311.SERVICE_REQUEST_ID)) {
+                        return o.getString(Open311.SERVICE_REQUEST_ID);
+                    }
+                }
             }
-            catch (ClientProtocolException e) {
+            catch (JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            catch (IllegalStateException e) {
+            catch (ClientProtocolException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
@@ -156,11 +185,7 @@ public class SavedReportViewFragment extends SherlockFragment {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            return false;
+            return null;
         }
         
         private Boolean updateServiceRequest(String result) {
@@ -182,7 +207,6 @@ public class SavedReportViewFragment extends SherlockFragment {
         protected void onPostExecute(Boolean dataUpdated) {
             super.onPostExecute(dataUpdated);
             if (dataUpdated) {
-                Log.i(mTag, "Data was updated from server");
                 try {
                     mServiceRequests.put(mPosition, new JSONObject(mServiceRequest.toString()));
                     Open311.saveServiceRequests(getActivity(), mServiceRequests);
