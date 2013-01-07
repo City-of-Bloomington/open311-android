@@ -34,7 +34,9 @@
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="" />
         
-        <activity android:name=".activities.MainActivity"          android:screenOrientation="portrait" android:label="@string/title_activity_main">
+        <activity android:name=".activities.MainActivity"
+            android:screenOrientation="portrait"
+            android:label="@string/title_activity_main">
             <intent-filter>
                 <action   android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

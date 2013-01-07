@@ -5,22 +5,18 @@
  */
 package gov.in.bloomington.georeporter.models;
 
-
 import gov.in.bloomington.georeporter.util.Open311Parser;
 import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.util.Media;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -60,26 +56,26 @@ public class Open311 {
 	// Global required fields
 	public static final String JURISDICTION = "jurisdiction_id";
 	public static final String API_KEY      = "api_key";
-	public static final String FORMAT      = "format";
+	public static final String FORMAT       = "format";
 	public static final String SERVICE_CODE = "service_code";
 	public static final String SERVICE_NAME = "service_name";
+	public static final String GROUP        = "group";
 	// Global basic fields
-	public static final String MEDIA        = "media";
-	public static final String MEDIA_URL    = "media_url";
-	public static final String LATITUDE     = "lat";
-	public static final String LONGITUDE    = "long";
-	public static final String ADDRESS      = "address";
-	public static final String ADDRESS_STRING = "address_string";
-	public static final String DESCRIPTION  = "description";
-	public static final String SERVICE_NOTICE = "service_notice";
-	public static final String ACCOUNT_ID 		= "account_id";
-	public static final String STATUS 		= "status";
-	public static final String STATUS_NOTES = "status_notes";
+	public static final String MEDIA              = "media";
+	public static final String MEDIA_URL          = "media_url";
+	public static final String LATITUDE           = "lat";
+	public static final String LONGITUDE          = "long";
+	public static final String ADDRESS            = "address";
+	public static final String ADDRESS_STRING     = "address_string";
+	public static final String DESCRIPTION        = "description";
+	public static final String SERVICE_NOTICE     = "service_notice";
+	public static final String ACCOUNT_ID 	      = "account_id";
+	public static final String STATUS 		      = "status";
+	public static final String STATUS_NOTES       = "status_notes";
 	public static final String AGENCY_RESPONSIBLE = "agency_responsible";
-	public static final String GROUP 		= "group";
 	public static final String REQUESTED_DATETIME = "requested_datetime";
-	public static final String UPDATED_DATETIME = "updated_datetime";
-	public static final String EXPECTED_DATETIME = "expected_datetime";
+	public static final String UPDATED_DATETIME   = "updated_datetime";
+	public static final String EXPECTED_DATETIME  = "expected_datetime";
 	// Personal Information fields
 	public static final String EMAIL        = "email";
 	public static final String DEVICE_ID    = "device_id";
@@ -113,7 +109,7 @@ public class Open311 {
 	public  static final String TOKEN              = "token";
 	// Key names for formats
 	public 	static final String JSON = "json";
-	public  static final String XML = "xml";
+	public  static final String XML  = "xml";
 
 	
 	
@@ -175,7 +171,7 @@ public class Open311 {
 	 * Boolean
 	 */
 	public static Boolean setEndpoint(JSONObject current_server) {
-		sReady         = false;
+		sReady        = false;
 		mBaseUrl      = null;
 		mJurisdiction = null;
 		mApiKey       = null;
@@ -193,7 +189,7 @@ public class Open311 {
 			return false;
 		}
 		try {
-			Open311Parser mParser= new Open311Parser(mFormat);
+			Open311Parser mParser = new Open311Parser(mFormat);
 			sServiceList = mParser.parseServices(loadStringFromUrl(getServiceListUrl()));
 			if (sServiceList == null) return false; 
 			// Go through all the services and pull out the seperate groups
@@ -203,11 +199,11 @@ public class Open311 {
 			for (int i=0; i<len; i++) {
 				JSONObject s = sServiceList.getJSONObject(i);
 				// Add groups to sGroups
-				group = s.optString("group");
+				group = s.optString(GROUP);
 				if (group != "" && !sGroups.contains(group)) { sGroups.add(group); }
 				
 				// Add Service Definitions to mServiceDefinitions
-				if (s.optString("metadata") == "true") {
+				if (s.optString(METADATA) == "true") {
 					String code = s.optString(SERVICE_CODE);
 					JSONObject definition = getServiceDefinition(code);
 					if (definition != null) {
@@ -250,8 +246,7 @@ public class Open311 {
 	
 	/**
 	 * @param service_code
-	 * @return
-	 * JSONObject
+	 * @return JSONObject
 	 */
 	public static JSONObject getServiceDefinition(String service_code) {
 
@@ -260,7 +255,7 @@ public class Open311 {
 	    }
 	    else {
     		try {
-    			Open311Parser mParser= new Open311Parser(mFormat);
+    			Open311Parser mParser = new Open311Parser(mFormat);
     			return mParser.parseServiceDefinition(loadStringFromUrl(getServiceDefinitionUrl(service_code)));
     		}
     		catch (Exception e) {
@@ -314,7 +309,7 @@ public class Open311 {
 	    if (   status == HttpStatus.SC_OK
 	        || status == HttpStatus.SC_CREATED
 	        || status == HttpStatus.SC_ACCEPTED) {
-	    	Open311Parser mParser= new Open311Parser(mFormat);
+	    	Open311Parser mParser = new Open311Parser(mFormat);
 			serviceRequests = mParser.parseRequests(responseString);
 	    }
 	    else {
@@ -486,13 +481,14 @@ public class Open311 {
 	public static JSONArray loadServiceRequests(Context c) {
 		JSONArray service_requests = new JSONArray();
 		
+		FileInputStream in = null;
 		StringBuffer buffer = new StringBuffer("");
 		byte[] bytes = new byte[1024];
 		@SuppressWarnings("unused")
         int length;
 		try {
 			File file = new File (c.getFilesDir(), SAVED_REPORTS_FILE);
-			FileInputStream in = new FileInputStream(file); // Here
+			in = new FileInputStream(file);
 			while ((length = in.read(bytes)) != -1) {
 				buffer.append(new String(bytes));
 			}
@@ -506,7 +502,20 @@ public class Open311 {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		finally {
+		    closeQuietly(in);
+		}
 		return service_requests;
+	}
+	private static void closeQuietly(Closeable c) {
+	    if (c == null) return;
+	    try {
+            c.close();
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 	}
 	
 	/**

@@ -1,65 +1,86 @@
 package gov.in.bloomington.georeporter.util;
 
+import java.io.IOException;
+
+import org.xmlpull.v1.XmlPullParserException;
+
 import gov.in.bloomington.georeporter.models.Open311;
 
-import java.io.IOException;
 import gov.in.bloomington.georeporter.util.json.JSONArray;
+import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
-import android.util.Log;
 
 public class Open311Parser {
-	String mFormat= Open311.JSON;
-
-	public Open311Parser(){
-		//TODO
-	}
+	String mFormat = Open311.JSON;
 	
-	public Open311Parser(String format){
+	public Open311Parser(String format) {
 		mFormat = format;
 	}
 
 	/**
+	 * Parses a GET Services response into JSON
 	 * 
-	 * @param xml
-	 * @return
+	 * @param response
+	 * @return JSONArray
 	 */
-	public JSONArray parseServices(String xml) {
-		try {
-			if (mFormat.equals(Open311.JSON)){
-	    		return new JSONArray(xml);
-			} else {
-	    		Open311XmlParser mParser= new Open311XmlParser();
-	    		return mParser.parseServices(xml);	
-	     	}
-		} catch (Exception ex) {
-			Log.i("Open311Parser",ex.getMessage());
-			return null;
-		}
+	public JSONArray parseServices(String response) {
+        try {
+    		if (mFormat.equals(Open311.JSON)) {
+    		    return new JSONArray(response);
+    		}
+    		else {
+        		Open311XmlParser mParser = new Open311XmlParser();
+        		return mParser.parseServices(response);	
+         	}
+        }
+        catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (XmlPullParserException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
 	}
 
 	/**
 	 * 
 	 * @param xml
-	 * @return
+	 * @return JSONObject
 	 */
 	public JSONObject parseServiceDefinition(String xml) {
-		try {
-			if (mFormat.equals(Open311.JSON)){
-				return new JSONObject(xml);
-			} else {
-				Open311XmlParser mParser= new Open311XmlParser();
-				return mParser.parseServiceDefinition(xml);	
-	     	}
-		} catch (Exception ex) {
-			Log.i("Open311Parser",ex.getMessage());
-			return null;
-		}
+	    try {
+    		if (mFormat.equals(Open311.JSON)){
+    		    return new JSONObject(xml);
+    		} else {
+    			Open311XmlParser mParser= new Open311XmlParser();
+    			return mParser.parseServiceDefinition(xml);	
+         	}
+	    }
+        catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (XmlPullParserException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+	    return null;
 	}
 	
 	/**
 	 * 
 	 * @param xml
-	 * @return
+	 * @return JSONArray
 	 */
 	public JSONArray parseRequests(String xml) {
 		try {
@@ -69,11 +90,27 @@ public class Open311Parser {
 	    		Open311XmlParser mParser= new Open311XmlParser();
 	    		return mParser.parseRequests(xml);	
 	     	}
-		} catch (Exception ex) {
-			return null;
 		}
+        catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (XmlPullParserException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+		return null;
 	}
 
+	/**
+	 * 
+	 * @param xml
+	 * @return JSONArray
+	 */
 	public JSONArray parseErrors(String xml) {
 		try {
 			if (mFormat.equals(Open311.JSON)){
@@ -82,8 +119,19 @@ public class Open311Parser {
 	    		Open311XmlParser mParser= new Open311XmlParser();
 	    		return mParser.parseErrors(xml);	
 	     	}
-		} catch (Exception ex) {
-			return null;
 		}
+        catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (XmlPullParserException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+		return null;
 	}
 }
