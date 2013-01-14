@@ -1,3 +1,8 @@
+/**
+ * @copyright 2012 City of Bloomington, Indiana
+ * @license http://www.gnu.org/licenses/gpl.txt GNU/GPL, see LICENSE.txt
+ * @author Jaakko Rajaniemi <jaakko.rajaniemi@hel.fi>
+ */
 package gov.in.bloomington.georeporter.util;
 
 import gov.in.bloomington.georeporter.models.Open311;
