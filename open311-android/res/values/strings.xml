@@ -8,11 +8,18 @@
     <string name="title_activity_main">GeoReporter</string>
     <string name="tab_personal_info">Personal Info</string>
     <string name="tab_servers">Servers</string>
+    <string name="button_add_server">Add Server</string>
     <string name="button_accept_error">Dismiss</string>
     <string name="first_name">First name</string>
     <string name="last_name">Last name</string>
     <string name="email">Email</string>
     <string name="phone">Phone</string>
+    <string name="name">Name</string>
+    <string name="url">Url</string>
+    <string name="jurisdiction_id">Jurisdiction ID</string>
+    <string name="api_key">Api Key</string>
+    <string name="format">Format</string>
+    <string name="supports_media">Supports Media</string>
     <string name="dialog_loading_services">Loading service information</string>
     <string name="dialog_posting_service">Posting service request</string>
     <string name="choose_media_source">Choose source of picture</string>
@@ -28,5 +35,7 @@
     <string name="delete">Delete</string>
     <string name="save">Save</string>
     <string name="pending">Pending</string>
-
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    
 </resources>
