@@ -7,11 +7,11 @@ package gov.in.bloomington.georeporter.fragments;
 
 import java.io.IOException;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.util.EntityUtils;
+import ch.boye.httpclientandroidlib.HttpResponse;
+import ch.boye.httpclientandroidlib.HttpStatus;
+import ch.boye.httpclientandroidlib.client.ClientProtocolException;
+import ch.boye.httpclientandroidlib.client.methods.HttpGet;
+import ch.boye.httpclientandroidlib.util.EntityUtils;
 
 import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.models.Open311;
