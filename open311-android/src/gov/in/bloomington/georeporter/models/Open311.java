@@ -101,6 +101,7 @@ public class Open311 {
 	public static final String NUMBER       = "number";
 	public static final String DATETIME     = "datetime";
 	public static final String TEXT         = "text";
+	public static final String TRUE         = "true";
 	public static final String SINGLEVALUELIST = "singlevaluelist";
 	public static final String MULTIVALUELIST  = "multivaluelist";
 	// Key names from /res/raw/available_servers.json
@@ -218,7 +219,7 @@ public class Open311 {
 				if (!sGroups.contains(group)) { sGroups.add(group); }
 				
 				// Add Service Definitions to mServiceDefinitions
-				if (s.optString(METADATA) == "true") {
+				if (s.optString(METADATA) == TRUE) {
 					String code = s.optString(SERVICE_CODE);
 					JSONObject definition = getServiceDefinition(code);
 					if (definition != null) {

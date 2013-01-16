@@ -215,10 +215,6 @@ public class ServiceRequestAdapter extends BaseAdapter {
 				String displayValue = "";
 				
 				if (labelKey.equals(Open311.ADDRESS_STRING)) {
-				    // TODO display user input as a string
-				    // I'm still not sure of how best to store post_data
-				    // Need to build some dialogs and try and POST to the endpoint
-				    
 	                // Display the address, if we have it already, otherwise
 				    // show the lat/long. Users are going to be choosing the
 				    // lat/long with a map. Since we're looking up the address
@@ -247,6 +243,10 @@ public class ServiceRequestAdapter extends BaseAdapter {
 				    String type        = mServiceRequest.getAttributeDatatype   (labelKey);
                     String code        = String.format("%s[%s]", AttributeEntryActivity.ATTRIBUTE, labelKey);
                     String chosenValue = mServiceRequest.post_data.optString(code);
+                    
+                    if (mServiceRequest.isAttributeRequired(labelKey)) {
+                        label = "* " + label;
+                    }
 				    
                     if (!chosenValue.equals("")) {
                         if (type.equals(Open311.SINGLEVALUELIST) || type.equals(Open311.MULTIVALUELIST)) {
