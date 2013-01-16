@@ -10,6 +10,7 @@ package gov.in.bloomington.georeporter.adapters;
 import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.activities.AttributeEntryActivity;
 import gov.in.bloomington.georeporter.models.Open311;
+import gov.in.bloomington.georeporter.models.Preferences;
 import gov.in.bloomington.georeporter.models.ServiceRequest;
 
 import java.util.ArrayList;
@@ -76,6 +77,12 @@ public class ServiceRequestAdapter extends BaseAdapter {
 	public ServiceRequestAdapter(ServiceRequest sr, Context c) {
 		mServiceRequest = sr;
 		mLayoutInflater = LayoutInflater.from(c);
+		
+		// When endpoints do not support Media, we must remove the media label
+		if ((sr.endpoint != null && !sr.endpoint.optBoolean(Open311.SUPPORTS_MEDIA))
+		     || !Preferences.getCurrentServer(c).optBoolean(Open311.SUPPORTS_MEDIA)) {
+		    labels.remove(1);
+		}
 		
 		if (sr.hasAttributes()) {
 			try {
