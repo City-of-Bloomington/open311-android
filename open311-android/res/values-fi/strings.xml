@@ -36,5 +36,6 @@
     <string name="pending">Odotettaessa</string>
     <string name="yes">​​Kyllä</string>
     <string name="no">Ei</string>
+    <string name="uncategorized">Ei luokiteltu</string>
     
 </resources>

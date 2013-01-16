@@ -35,17 +35,22 @@ public class ReportActivity extends BaseFragmentActivity
 		mActionBar = getSupportActionBar();
 		mActionBar.setTitle(R.string.menu_report);
 		
-		ChooseGroupFragment chooseGroup = new ChooseGroupFragment();
-		getSupportFragmentManager() .beginTransaction()
-									.add(android.R.id.content, chooseGroup)
-									.addToBackStack(null)
-									.commit();
+		if (Open311.sGroups.size() > 1) {
+    		ChooseGroupFragment chooseGroup = new ChooseGroupFragment();
+    		getSupportFragmentManager() .beginTransaction()
+    									.add(android.R.id.content, chooseGroup)
+    									.addToBackStack(null)
+    									.commit();
+		}
+		else {
+		    onGroupSelected(Open311.sGroups.get(0));
+		}
 	}
 	
 	@Override
 	public void onGroupSelected(String group) {
 		ChooseServiceFragment chooseService = new ChooseServiceFragment();
-		chooseService.setServices(Open311.getServices(group));
+		chooseService.setServices(Open311.getServices(group, this));
 		getSupportFragmentManager() .beginTransaction()
 									.replace(android.R.id.content, chooseService)
 									.addToBackStack(null)

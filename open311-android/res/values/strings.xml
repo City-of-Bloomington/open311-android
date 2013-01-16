@@ -37,5 +37,6 @@
     <string name="pending">Pending</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="uncategorized">Uncategorized</string>
     
 </resources>

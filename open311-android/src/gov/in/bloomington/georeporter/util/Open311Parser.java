@@ -16,7 +16,7 @@ import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
 
 public class Open311Parser {
-	String mFormat = Open311.JSON;
+	private String mFormat = Open311.JSON;
 	
 	public Open311Parser(String format) {
 		mFormat = format;
@@ -60,7 +60,7 @@ public class Open311Parser {
 	 */
 	public JSONObject parseServiceDefinition(String xml) {
 	    try {
-    		if (mFormat.equals(Open311.JSON)){
+    		if (mFormat.equals(Open311.JSON)) {
     		    return new JSONObject(xml);
     		} else {
     			Open311XmlParser mParser= new Open311XmlParser();

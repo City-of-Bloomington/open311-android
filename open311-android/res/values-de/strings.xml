@@ -37,5 +37,6 @@
     <string name="pending">Warten</string>
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
+    <string name="uncategorized">Nicht kategorisiert</string>
     
 </resources>

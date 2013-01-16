@@ -179,7 +179,7 @@ public class Open311 {
 	 * @return
 	 * Boolean
 	 */
-	public static Boolean setEndpoint(JSONObject current_server) {
+	public static Boolean setEndpoint(JSONObject current_server, Context context) {
 		sReady        = false;
 		mBaseUrl      = null;
 		mJurisdiction = null;
@@ -200,16 +200,22 @@ public class Open311 {
 		try {
 			Open311Parser mParser = new Open311Parser(mFormat);
 			sServiceList = mParser.parseServices(loadStringFromUrl(getServiceListUrl()));
-			if (sServiceList == null) return false; 
+			if (sServiceList == null) { 
+			    return false;
+			}
+			
 			// Go through all the services and pull out the seperate groups
 			// Also, while we're running through, load any service_definitions
 			String group = "";
 			int len = sServiceList.length();
 			for (int i=0; i<len; i++) {
 				JSONObject s = sServiceList.getJSONObject(i);
-				// Add groups to sGroups
+				// services may have an empty string for the group parameter
 				group = s.optString(GROUP);
-				if (group != "" && !sGroups.contains(group)) { sGroups.add(group); }
+				if (group.equals("")) {
+				    group = context.getString(R.string.uncategorized);
+				}
+				if (!sGroups.contains(group)) { sGroups.add(group); }
 				
 				// Add Service Definitions to mServiceDefinitions
 				if (s.optString(METADATA) == "true") {
@@ -238,13 +244,16 @@ public class Open311 {
 	 * @return
 	 * ArrayList<JSONObject>
 	 */
-	public static ArrayList<JSONObject> getServices(String group) {
+	public static ArrayList<JSONObject> getServices(String group, Context context) {
 		ArrayList<JSONObject> services = new ArrayList<JSONObject>();
 		int len = sServiceList.length();
 		for (int i=0; i<len; i++) {
 			try {
 				JSONObject s = sServiceList.getJSONObject(i);
-				if (s.optString("group").equals(group)) { services.add(s); }
+				if (group.equals(context.getString(R.string.uncategorized))) {
+				    group = "";
+				}
+				if (s.optString(Open311.GROUP).equals(group)) { services.add(s); }
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
