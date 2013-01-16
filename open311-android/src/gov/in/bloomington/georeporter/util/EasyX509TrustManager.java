@@ -18,8 +18,6 @@
  */
 package gov.in.bloomington.georeporter.util;
 
-import android.util.Log;
-
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -35,8 +33,6 @@ import javax.net.ssl.X509TrustManager;
  * @since 1.2.3
  */
 public class EasyX509TrustManager implements X509TrustManager {
-    private static final String TAG = "EasyX509TrustManager";
-
     private X509TrustManager standardTrustManager = null;
 
     /**
@@ -67,12 +63,14 @@ public class EasyX509TrustManager implements X509TrustManager {
     @SuppressWarnings("javadoc")
     public void checkServerTrusted( X509Certificate[] certificates, String authType ) throws CertificateException
     {
+        /*
         if (certificates != null) {
             Log.i(TAG, "Server certificate chain:");
             for ( int i = 0; i < certificates.length; i++ ) {
                 Log.i(TAG, "X509Certificate[" + i + "]=" + certificates[i] );
             }
         }
+        */
         if ((certificates != null) && (certificates.length == 1)) {
             certificates[0].checkValidity();
         }

@@ -24,8 +24,6 @@ import ch.boye.httpclientandroidlib.conn.scheme.SchemeSocketFactory;
 import ch.boye.httpclientandroidlib.params.HttpConnectionParams;
 import ch.boye.httpclientandroidlib.params.HttpParams;
 
-import android.util.Log;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -43,8 +41,6 @@ import javax.net.ssl.TrustManager;
  */
 public class EasySSLSocketFactory implements SchemeSocketFactory, SchemeLayeredSocketFactory
 {
-    private static final String TAG = "EasySSLSocketFactory";
-
     private SSLContext sslcontext = null;
 
     private static SSLContext createEasySSLContext() throws IOException {
@@ -91,7 +87,6 @@ public class EasySSLSocketFactory implements SchemeSocketFactory, SchemeLayeredS
      */
     @Override
     public Socket createSocket(HttpParams params) throws IOException {
-        Log.i(TAG, "create socket");
         return getSSLContext().getSocketFactory().createSocket();
     }
 
@@ -107,7 +102,6 @@ public class EasySSLSocketFactory implements SchemeSocketFactory, SchemeLayeredS
      */
     @Override
     public Socket createLayeredSocket(Socket socket, String host, int port, HttpParams params) throws IOException, UnknownHostException {
-        Log.i(TAG, "create layered socket host " + host + ", port " + port);
         return getSSLContext().getSocketFactory().createSocket();
     }
 

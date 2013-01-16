@@ -19,7 +19,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
 public class ChooseLocationActivity extends SherlockFragmentActivity {
@@ -102,7 +101,6 @@ public class ChooseLocationActivity extends SherlockFragmentActivity {
 	    
 		@Override
 		public void onLocationChanged(Location location) {
-		    Log.i("MapListener", "Received a new location");
 		    if (isBetterLocation(location, mCurrentBestLocation)) {
 		        mLocationManager.removeUpdates(this);
 		    }
