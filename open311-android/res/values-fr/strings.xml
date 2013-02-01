@@ -1,0 +1,42 @@
+<resources>
+
+    <string name="app_name">GeoReporter</string>
+    <string name="menu_settings">Paramètres</string>
+    <string name="menu_report">Demande</string>
+    <string name="menu_archive">Mes demandes</string>
+    <string name="menu_about">À propos</string>
+    <string name="title_activity_main">GeoReporter</string>
+    <string name="tab_personal_info">Info personnelle</string>
+    <string name="tab_servers">Serveurs</string>
+    <string name="button_add_server">Ajouter serveur</string>
+    <string name="button_accept_error">Annuler</string>
+    <string name="first_name">Prénom</string>
+    <string name="last_name">Nom</string>
+    <string name="email">Courriel</string>
+    <string name="phone">Téléphone</string>
+    <string name="name">Nom</string>
+    <string name="url">Lien</string>
+    <string name="jurisdiction_id">ID jurisdiction</string>
+    <string name="api_key">Clée Api</string>
+    <string name="format">Format</string>
+    <string name="supports_media">Supports Média</string>
+    <string name="dialog_loading_services">Chargement service information</string>
+    <string name="dialog_posting_service">Transmission demande</string>
+    <string name="choose_media_source">Choisir source photo</string>
+    <string name="camera">Caméra</string>
+    <string name="gallery">Gallery</string>
+    <string name="location">Localisation</string>
+    <string name="report_status">Status</string>
+    <string name="report_attributes">Attributs</string>
+    <string name="report_description">Description du problème</string>
+    <string name="report_date">Date soumise</string>
+    <string name="submit">Soumettre</string>
+    <string name="cancel">Annuler</string>
+    <string name="delete">Supprimer</string>
+    <string name="save">Entregistrer</string>
+    <string name="pending">En attente</string>
+    <string name="yes">Oui</string>
+    <string name="no">Non</string>
+    <string name="uncategorized">Sans catégorie</string>
+
+</resources>
