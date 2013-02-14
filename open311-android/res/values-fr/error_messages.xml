@@ -2,5 +2,5 @@
 <resources>
     <string name="failure_loading_services">Erreur changement du service information</string>
     <string name="failure_posting_service">Erreur transmission rapport</string>
-    <string name="error_403">Cette application n'est pas authorisée</string>
+    <string name="error_403">Cette application n\'est pas authorisée</string>
 </resources>
