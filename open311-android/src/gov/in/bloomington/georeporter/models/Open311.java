@@ -117,7 +117,7 @@ public class Open311 {
 
 	
 	
-	public static final String DATETIME_FORMAT = "yyyy-MM-dd'T'hh:mm:ssz";
+	public static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
 	
     public static JSONObject                  sEndpoint;
 	public static Boolean                     sReady = false;

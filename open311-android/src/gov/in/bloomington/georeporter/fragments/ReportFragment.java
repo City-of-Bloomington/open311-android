@@ -19,6 +19,7 @@ import gov.in.bloomington.georeporter.util.Media;
 import gov.in.bloomington.georeporter.util.Util;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -427,7 +428,8 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
             try {
                 response = Open311.postServiceRequest(mServiceRequest, getActivity(), mMediaPath);
                 if (response.length() > 0) {
-                    String requested_datetime = (String) DateFormat.format(Open311.DATETIME_FORMAT, new Date());
+                    SimpleDateFormat isoDate = new SimpleDateFormat(Open311.DATETIME_FORMAT);
+                    String requested_datetime = isoDate.format(new Date());
                     try {
                         mServiceRequest.endpoint        = Open311.sEndpoint;
                         mServiceRequest.service_request = response.getJSONObject(0);
