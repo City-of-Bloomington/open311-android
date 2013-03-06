@@ -14,7 +14,6 @@ import com.google.android.gms.maps.model.LatLng;
 import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.models.Open311;
 import android.content.Intent;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -24,6 +23,8 @@ import android.view.View;
 public class ChooseLocationActivity extends SherlockFragmentActivity {
 	private GoogleMap mMap;
 	private LocationManager mLocationManager;
+	private MapListener mLocationListener;
+	
 	public static final int UPDATE_GOOGLE_MAPS_REQUEST = 0;
 	
 	public static final int DEFAULT_ZOOM = 17;
@@ -84,15 +85,16 @@ public class ChooseLocationActivity extends SherlockFragmentActivity {
 	protected void onStart() {
 		super.onStart();
 		
-		mLocationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
-		Criteria c = new Criteria();
-		c.setAccuracy(Criteria.ACCURACY_COARSE);
-		String provider = mLocationManager.getBestProvider(c, true);
+		mLocationListener = new MapListener();
 		
-		if (!mLocationManager.isProviderEnabled(provider)) {
-		    provider = LocationManager.NETWORK_PROVIDER;
+		mLocationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
+		
+        if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,     0, 0, mLocationListener);
+        }
+		if (mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+	        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener);
 		}
-		mLocationManager.requestLocationUpdates(provider, 0, 0, new MapListener());
 	}
 
 	private class MapListener implements LocationListener {
