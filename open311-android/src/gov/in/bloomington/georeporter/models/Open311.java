@@ -46,8 +46,11 @@ import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
+import android.os.Build;
 import android.util.Log;
 
 public class Open311 {
@@ -149,9 +152,18 @@ public class Open311 {
 	 * @return
 	 * DefaultHttpClient
 	 */
-	public static DefaultHttpClient getClient() {
+	public static DefaultHttpClient getClient(Context c) {
 		if (mClient == null) {
 			mClient = new DefaultHttpClient();
+			
+			String user_agent;
+			try {
+                PackageInfo info = c.getPackageManager().getPackageInfo(c.getPackageName(), 0);
+                user_agent = String.format("%s/%s Android/%s", R.string.app_name, info.versionName, Build.VERSION.RELEASE);
+            }
+            catch (NameNotFoundException e) {
+                user_agent = String.format("%s Android/%s", R.string.app_name, Build.VERSION.RELEASE);
+            }
 			
 			Scheme http  = new Scheme("http",  80,  PlainSocketFactory.getSocketFactory());
 			Scheme https = new Scheme("https", 443, new EasySSLSocketFactory());
@@ -160,6 +172,7 @@ public class Open311 {
 			
 			mClient.getParams().setParameter(CoreProtocolPNames  .HTTP_CONTENT_CHARSET, "UTF-8");
 			mClient.getParams().setParameter(CoreProtocolPNames  .PROTOCOL_VERSION,     HttpVersion.HTTP_1_1);
+			mClient.getParams().setParameter(CoreProtocolPNames  .USER_AGENT,           user_agent);
 			mClient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT,           TIMEOUT);
 			mClient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT,   TIMEOUT);
 		}
@@ -200,7 +213,7 @@ public class Open311 {
 		}
 		try {
 			Open311Parser mParser = new Open311Parser(mFormat);
-			sServiceList = mParser.parseServices(loadStringFromUrl(getServiceListUrl()));
+			sServiceList = mParser.parseServices(loadStringFromUrl(getServiceListUrl(), context));
 			if (sServiceList == null) { 
 			    return false;
 			}
@@ -221,7 +234,7 @@ public class Open311 {
 				// Add Service Definitions to mServiceDefinitions
 				if (s.optString(METADATA) == TRUE) {
 					String code = s.optString(SERVICE_CODE);
-					JSONObject definition = getServiceDefinition(code);
+					JSONObject definition = getServiceDefinition(code, context);
 					if (definition != null) {
 						sServiceDefinitions.put(code, definition);
 					}
@@ -267,7 +280,7 @@ public class Open311 {
 	 * @param service_code
 	 * @return JSONObject
 	 */
-	public static JSONObject getServiceDefinition(String service_code) {
+	public static JSONObject getServiceDefinition(String service_code, Context context) {
 
 	    if (sServiceDefinitions.containsKey(service_code)) {
 	        return sServiceDefinitions.get(service_code);
@@ -275,7 +288,7 @@ public class Open311 {
 	    else {
     		try {
     			Open311Parser mParser = new Open311Parser(mFormat);
-    			return mParser.parseServiceDefinition(loadStringFromUrl(getServiceDefinitionUrl(service_code)));
+    			return mParser.parseServiceDefinition(loadStringFromUrl(getServiceDefinitionUrl(service_code), context));
     		}
     		catch (Exception e) {
                 // TODO Auto-generated catch block
@@ -318,7 +331,7 @@ public class Open311 {
 	    else {
 	        request.setEntity(prepareUrlEncodedEntity(sr));
 	    }
-	    HttpResponse r = getClient().execute(request);
+	    HttpResponse r = getClient(context).execute(request);
         String responseString = EntityUtils.toString(r.getEntity());
         
 	    int status = r.getStatusLine().getStatusCode();
@@ -603,9 +616,9 @@ public class Open311 {
 	 * @return
 	 * String
 	 */
-	public static String loadStringFromUrl(String url)
+	public static String loadStringFromUrl(String url, Context c)
 			throws ClientProtocolException, IOException, IllegalStateException {
-		HttpResponse r = getClient().execute(new HttpGet(url));
+		HttpResponse r = getClient(c).execute(new HttpGet(url));
 		String response = EntityUtils.toString(r.getEntity());
 		
 		return response;
