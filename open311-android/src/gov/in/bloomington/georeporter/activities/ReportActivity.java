@@ -16,6 +16,7 @@ import gov.in.bloomington.georeporter.models.ServiceRequest;
 
 import gov.in.bloomington.georeporter.util.json.JSONObject;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -35,15 +36,22 @@ public class ReportActivity extends BaseFragmentActivity
 		mActionBar = getSupportActionBar();
 		mActionBar.setTitle(R.string.menu_report);
 		
-		if (Open311.sGroups.size() > 1) {
-    		ChooseGroupFragment chooseGroup = new ChooseGroupFragment();
-    		getSupportFragmentManager() .beginTransaction()
-    									.add(android.R.id.content, chooseGroup)
-    									.addToBackStack(null)
-    									.commit();
+		if (Open311.sReady) {
+	        if (Open311.sGroups.size() > 1) {
+	            ChooseGroupFragment chooseGroup = new ChooseGroupFragment();
+	            getSupportFragmentManager() .beginTransaction()
+	                                        .add(android.R.id.content, chooseGroup)
+	                                        .addToBackStack(null)
+	                                        .commit();
+	        }
+	        else {
+	            onGroupSelected(Open311.sGroups.get(0));
+	        }
 		}
 		else {
-		    onGroupSelected(Open311.sGroups.get(0));
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
 		}
 	}
 	
