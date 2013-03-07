@@ -36,6 +36,7 @@ import ch.boye.httpclientandroidlib.conn.scheme.Scheme;
 import ch.boye.httpclientandroidlib.entity.mime.MultipartEntity;
 import ch.boye.httpclientandroidlib.entity.mime.content.ByteArrayBody;
 import ch.boye.httpclientandroidlib.entity.mime.content.StringBody;
+import ch.boye.httpclientandroidlib.impl.client.DecompressingHttpClient;
 import ch.boye.httpclientandroidlib.impl.client.DefaultHttpClient;
 import ch.boye.httpclientandroidlib.message.BasicNameValuePair;
 import ch.boye.httpclientandroidlib.params.CoreConnectionPNames;
@@ -133,7 +134,7 @@ public class Open311 {
 	private static String mApiKey;
 	private static String mFormat = "json";
 
-	private static DefaultHttpClient mClient = null;
+	private static DecompressingHttpClient mClient = null;
 	private static final int TIMEOUT = 3000;
 	
 	
@@ -152,9 +153,9 @@ public class Open311 {
 	 * @return
 	 * DefaultHttpClient
 	 */
-	public static DefaultHttpClient getClient(Context c) {
+	public static DecompressingHttpClient getClient(Context c) {
 		if (mClient == null) {
-			mClient = new DefaultHttpClient();
+			mClient = new DecompressingHttpClient(new DefaultHttpClient());
 			
 			String user_agent;
 			try {
