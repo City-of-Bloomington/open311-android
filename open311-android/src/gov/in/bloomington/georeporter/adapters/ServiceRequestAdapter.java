@@ -95,7 +95,13 @@ public class ServiceRequestAdapter extends BaseAdapter {
                 int len = attributes.length();
                 for (int i=0; i<len; i++) {
                     JSONObject a = attributes.getJSONObject(i);
-                    labels.add(a.getString(Open311.CODE));
+                    String code = a.getString(Open311.CODE);
+                    if (a.getBoolean(Open311.VARIABLE)) {
+                        labels.add(code);
+                    }
+                    else {
+                        addHeader(code);
+                    }
                 }
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
@@ -181,6 +187,10 @@ public class ServiceRequestAdapter extends BaseAdapter {
                 }
                 else if (labelKey.equals(Open311.ATTRIBUTES)) {
                     header.title.setText(convertView.getResources().getString(R.string.report_attributes));
+                }
+                // Attributes with variable=false should get displayed as headers.
+                else {
+                    header.title.setText(mServiceRequest.getAttributeDescription(labelKey));
                 }
                 break;
 
