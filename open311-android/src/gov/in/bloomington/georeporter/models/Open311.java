@@ -385,10 +385,10 @@ public class Open311 {
         // If we don't have a service_code, we don't have a valid POST
         pairs.add(new BasicNameValuePair(SERVICE_CODE, sr.service.getString(SERVICE_CODE)));
         
-        if (mJurisdiction != null) {
+        if (mJurisdiction.length() > 0) {
             pairs.add(new BasicNameValuePair(JURISDICTION, mJurisdiction));
         }
-        if (mApiKey != null) {
+        if (mApiKey.length() > 0) {
             pairs.add(new BasicNameValuePair(API_KEY, mApiKey));
         }
         
@@ -625,19 +625,29 @@ public class Open311 {
 	}
 
 	/**
-	 * @return
-	 * String
+	 * http://endpoint/services.format?jurisdiction_id=jurisdiction
+	 * 
+	 * @return String
 	 */
 	private static String getServiceListUrl() {
-		return mBaseUrl + "/services." + mFormat + "?" + JURISDICTION + "=" + mJurisdiction;
+	    String url = mBaseUrl + "/services." + mFormat;
+	    if (mJurisdiction.length() > 0) {
+	        url = url + "?" + JURISDICTION + "=" + mJurisdiction;
+	    }
+		return url;
 	}
 	
 	/**
+	 * http://endpoint/services/service_code.format?jurisdiction_id=jurisdiction
+	 * 
 	 * @param service_code
-	 * @return
-	 * String
+	 * @return String
 	 */
 	private static String getServiceDefinitionUrl(String service_code) {
-		return mBaseUrl + "/services/" + service_code + "." + mFormat + "?" + JURISDICTION + "=" + mJurisdiction;
+	    String url = mBaseUrl + "/services/" + service_code + "." + mFormat;
+	    if (mJurisdiction.length() > 0) {
+	        url = url + "?" + JURISDICTION + "=" + mJurisdiction;
+	    }
+		return url;
 	}
 }
