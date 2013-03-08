@@ -159,10 +159,10 @@ public class Open311 {
 			String user_agent;
 			try {
                 PackageInfo info = c.getPackageManager().getPackageInfo(c.getPackageName(), 0);
-                user_agent = String.format("%s/%s Android/%s", R.string.app_name, info.versionName, Build.VERSION.RELEASE);
+                user_agent = String.format("%s/%s (Android/%s)", c.getString(R.string.app_name), info.versionName, Build.VERSION.RELEASE);
             }
             catch (NameNotFoundException e) {
-                user_agent = String.format("%s Android/%s", R.string.app_name, Build.VERSION.RELEASE);
+                user_agent = String.format("%s (Android/%s)", c.getString(R.string.app_name), Build.VERSION.RELEASE);
             }
 			
 			Scheme http  = new Scheme("http",  80,  PlainSocketFactory.getSocketFactory());
