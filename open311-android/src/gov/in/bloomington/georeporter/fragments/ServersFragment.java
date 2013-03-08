@@ -8,7 +8,7 @@ package gov.in.bloomington.georeporter.fragments;
 import java.util.Arrays;
 import java.util.List;
 
-import gov.in.bloomington.georeporter.R;
+import gov.in.bloomington.cityreporter.R;
 import gov.in.bloomington.georeporter.activities.MainActivity;
 import gov.in.bloomington.georeporter.adapters.ServersAdapter;
 import gov.in.bloomington.georeporter.models.Open311;

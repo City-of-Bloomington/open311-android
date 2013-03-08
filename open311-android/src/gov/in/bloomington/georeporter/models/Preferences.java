@@ -9,7 +9,7 @@
  */
 package gov.in.bloomington.georeporter.models;
 
-import gov.in.bloomington.georeporter.R;
+import gov.in.bloomington.cityreporter.R;
 import gov.in.bloomington.georeporter.util.Util;
 import gov.in.bloomington.georeporter.util.json.JSONArray;
 import gov.in.bloomington.georeporter.util.json.JSONException;
@@ -23,21 +23,11 @@ public class Preferences {
 	private static final String PERSONAL_INFO  = "personal_info";
 	private static final String CUSTOM_SERVERS = "custom_servers";
 
-	private static final String APP_STATE      = "app_state";
-	private static final String CURRENT_SERVER = "current_server";
-
 	private static SharedPreferences mSettings = null;
-	private static SharedPreferences mState    = null;
 
 	private static void loadSettings(Context c) {
 		if (mSettings == null) {
 			mSettings = c.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE);
-		}
-	}
-
-	private static void loadState(Context c) {
-		if (mState == null) {
-			mState = c.getSharedPreferences(APP_STATE, Context.MODE_PRIVATE);
 		}
 	}
 
@@ -131,31 +121,6 @@ public class Preferences {
         }
         return null;
     }
-
-	/**
-	 * Loops through a JSONArray and returns the match, based on the name
-	 *
-	 * @param servers
-	 * @param name
-	 * @return JSONObject
-	 */
-	private static JSONObject findServerByName(JSONArray servers, String name) {
-	    int len = servers.length();
-        JSONObject s;
-	    for (int i=0; i<len; i++) {
-            try {
-                s = servers.getJSONObject(i);
-                if (s.getString(Open311.NAME).equals(name)) {
-                    return s;
-                }
-            }
-            catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-	    }
-	    return null;
-	}
 
     /**
      * Saves the name of the current server back into Preferences.app_state
