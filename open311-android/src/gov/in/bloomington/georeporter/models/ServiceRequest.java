@@ -77,7 +77,7 @@ public class ServiceRequest {
 		
 		if (service.optBoolean(Open311.METADATA)) {
 			try {
-				service_definition = Open311.getServiceDefinition(service.getString(Open311.SERVICE_CODE));
+				service_definition = Open311.getServiceDefinition(service.getString(Open311.SERVICE_CODE), c);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -147,8 +147,7 @@ public class ServiceRequest {
 	}
 	
 	/**
-	 * @return
-	 * boolean
+	 * @return boolean
 	 */
 	public boolean hasAttributes() {
 		return service.optBoolean(Open311.METADATA);
@@ -157,8 +156,7 @@ public class ServiceRequest {
 	/**
 	 * @param code
 	 * @throws JSONException
-     * @return
-	 * JSONObject
+     * @return JSONObject
 	 */
 	public JSONObject getAttribute(String code) throws JSONException {
 	    JSONObject attribute = null;
@@ -181,8 +179,7 @@ public class ServiceRequest {
 	 * Returns an empty string if it cannot find the requested attribute
 	 * 
 	 * @param code
-	 * @return
-	 * String
+	 * @return String
 	 */
 	public String getAttributeDescription(String code) {
 	    String description = "";
@@ -263,6 +260,24 @@ public class ServiceRequest {
             e.printStackTrace();
 	    }
 	    return null;
+	}
+	
+	/**
+	 * @param code
+	 * @return boolean
+	 */
+	public boolean isAttributeRequired(String code) {
+	    try {
+            JSONObject a = getAttribute(code);
+            if (a.opt(Open311.REQUIRED).equals(Open311.TRUE)) {
+                return true;
+            }
+        }
+        catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+	    return false;
 	}
 	
 	/**

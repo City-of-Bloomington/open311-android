@@ -7,11 +7,11 @@ package gov.in.bloomington.georeporter.fragments;
 
 import java.io.IOException;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.util.EntityUtils;
+import ch.boye.httpclientandroidlib.HttpResponse;
+import ch.boye.httpclientandroidlib.HttpStatus;
+import ch.boye.httpclientandroidlib.client.ClientProtocolException;
+import ch.boye.httpclientandroidlib.client.methods.HttpGet;
+import ch.boye.httpclientandroidlib.util.EntityUtils;
 
 import gov.in.bloomington.cityreporter.R;
 import gov.in.bloomington.georeporter.models.Open311;
@@ -140,7 +140,7 @@ public class SavedReportViewFragment extends SherlockFragment {
         private Boolean fetchServiceRequest() {
             try {
                 String request_id = mServiceRequest.service_request.getString(Open311.SERVICE_REQUEST_ID);
-                return updateServiceRequest(Open311.loadStringFromUrl(mServiceRequest.getServiceRequestUrl(request_id)));
+                return updateServiceRequest(Open311.loadStringFromUrl(mServiceRequest.getServiceRequestUrl(request_id), getActivity()));
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -161,7 +161,7 @@ public class SavedReportViewFragment extends SherlockFragment {
             HttpGet request;
             try {
                 request = new HttpGet(mServiceRequest.getServiceRequestIdFromTokenUrl(token));
-                HttpResponse r = Open311.getClient().execute(request);
+                HttpResponse r = Open311.getClient(getActivity()).execute(request);
                 String responseString = EntityUtils.toString(r.getEntity());
                 
                 int status = r.getStatusLine().getStatusCode();

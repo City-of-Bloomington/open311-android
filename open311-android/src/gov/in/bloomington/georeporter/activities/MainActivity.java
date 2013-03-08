@@ -87,7 +87,7 @@ public class MainActivity extends BaseActivity {
 		
 		@Override
 		protected Boolean doInBackground(JSONObject... server) {
-			return Open311.setEndpoint(server[0]);
+			return Open311.setEndpoint(server[0], MainActivity.this);
 		}
 		
 		@Override

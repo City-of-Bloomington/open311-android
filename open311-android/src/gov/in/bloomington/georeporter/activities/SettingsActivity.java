@@ -8,11 +8,11 @@ package gov.in.bloomington.georeporter.activities;
 import gov.in.bloomington.cityreporter.R;
 import gov.in.bloomington.georeporter.fragments.PersonalInfoFragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
-import com.actionbarsherlock.app.SherlockListFragment;
 
 public class SettingsActivity extends BaseFragmentActivity {
 	@Override
@@ -36,8 +36,8 @@ public class SettingsActivity extends BaseFragmentActivity {
 	 * http://developer.android.com/guide/topics/ui/actionbar.html#Tabs
 	 * This version has been slightly modified to work with Sherlock
 	 */
-	public static class TabListener<T extends SherlockListFragment> implements ActionBar.TabListener {
-	    private SherlockListFragment mFragment;
+	public static class TabListener<T extends Fragment> implements ActionBar.TabListener {
+	    private Fragment mFragment;
 	    private final SettingsActivity mActivity;
 	    private final String mTag;
 	    private final Class<T> mClass;
@@ -59,7 +59,7 @@ public class SettingsActivity extends BaseFragmentActivity {
 	        // Check if the fragment is already initialized
 	        if (mFragment == null) {
 	            // If not, instantiate and add it to the activity
-	            mFragment = (SherlockListFragment) SherlockListFragment.instantiate(mActivity, mClass.getName());
+	            mFragment = Fragment.instantiate(mActivity, mClass.getName());
 	            ft.add(android.R.id.content, mFragment, mTag);
 	        } else {
 	            // If it exists, simply attach it in order to show it
