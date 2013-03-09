@@ -2,5 +2,5 @@
 <resources>
     <string name="failure_loading_services">Palvelun tietojen hakemisessa tapahtui virhe</string>
     <string name="failure_posting_service">Palautteen lähetys ei onnistunut</string>
-    <string name="error_403">Tämä sovellus ei ole lupaa</string>
+    <string name="error_403">Sovelluksella ei ole oikeuksia lähettää palautetta valitulle palvelimelle</string>
 </resources>
