@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="gov.in.bloomington.georeporter"
-    android:versionCode="5"
-    android:versionName="1.1.1" >
+    android:versionCode="6"
+    android:versionName="1.1.2" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -33,7 +33,7 @@
         -->
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="" />
+			android:value="" />
 
         <activity android:name=".activities.MainActivity"
             android:screenOrientation="portrait"
