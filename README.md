@@ -8,3 +8,7 @@ The current version of the specification is documented at http://wiki.open311.or
 
 # Documentation
 We're using the [Wiki](https://github.com/City-of-Bloomington/open311-android/wiki) here on GitHub for all documentation
+
+# Discussion Group
+Discussions about the GeoReporter mobile apps takes place on our
+[Google Group](https://groups.google.com/forum/?fromgroups#!forum/open311-mobile)
