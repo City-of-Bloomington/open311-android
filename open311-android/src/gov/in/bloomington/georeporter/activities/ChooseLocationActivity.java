@@ -19,11 +19,14 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 
 public class ChooseLocationActivity extends SherlockFragmentActivity {
 	private GoogleMap mMap;
 	private LocationManager mLocationManager;
 	private MapListener mLocationListener;
+	private RadioGroup mapRadio;
 	
 	public static final int UPDATE_GOOGLE_MAPS_REQUEST = 0;
 	
@@ -79,6 +82,21 @@ public class ChooseLocationActivity extends SherlockFragmentActivity {
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mMap.setMyLocationEnabled(false);
         mMap.moveCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM));
+        mapRadio = (RadioGroup) findViewById(R.id.map_radio);
+        
+        mapRadio.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+       	 
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if(checkedId == R.id.rb_normal){
+                    mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                }else if(checkedId == R.id.rb_satellite){
+                    mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                }else if(checkedId == R.id.rb_hybrid){
+                    mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                }
+            }
+        });
     }
 
 	@Override

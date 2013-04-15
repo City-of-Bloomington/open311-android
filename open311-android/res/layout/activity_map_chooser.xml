@@ -6,11 +6,39 @@
     tools:context=".activities.ChooseLocationActivity" >
     
     <include layout="@layout/submit_cancel_buttons"/>
+    
+    <RadioGroup
+	        android:id="@+id/map_radio"
+	        android:orientation="horizontal"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentBottom="true" >
+	 
+	        <RadioButton
+	            android:id="@+id/rb_normal"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/radio_button_normal"
+	            android:checked="true" />
+	 
+	        <RadioButton
+	            android:id="@+id/rb_satellite"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/radio_button_satellite" />
+	            
+	        <RadioButton
+	            android:id="@+id/rb_hybrid"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/radio_button_hybrid" />	        
+	</RadioGroup>    
 
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_below="@+id/submit_cancel_buttons"
+        android:layout_above="@+id/map_radio"
         tools:ignore="UnknownIdInLayout" >
 
 		<fragment
