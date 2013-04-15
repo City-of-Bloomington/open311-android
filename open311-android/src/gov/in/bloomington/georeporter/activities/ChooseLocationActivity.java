@@ -85,15 +85,12 @@ public class ChooseLocationActivity extends SherlockFragmentActivity {
         mapRadio = (RadioGroup) findViewById(R.id.map_radio);
         
         mapRadio.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-       	 
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if(checkedId == R.id.rb_normal){
-                    mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                }else if(checkedId == R.id.rb_satellite){
-                    mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                }else if(checkedId == R.id.rb_hybrid){
-                    mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                switch (checkedId) {
+                    case R.id.rb_satellite: mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE); break;
+                    case R.id.rb_hybrid:    mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);    break; 
+                    default:                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 }
             }
         });
