@@ -38,5 +38,8 @@
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
     <string name="uncategorized">Nicht kategorisiert</string>
+    <string name="radio_button_normal">Standard</string>
+    <string name="radio_button_hybrid">Hybrid</string>
+    <string name="radio_button_satellite">Satellit</string>
     
 </resources>

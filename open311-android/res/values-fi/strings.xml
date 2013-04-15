@@ -37,5 +37,8 @@
     <string name="yes">​​Kyllä</string>
     <string name="no">Ei</string>
     <string name="uncategorized">Ei luokiteltu</string>
+    <string name="radio_button_normal">Standardi</string>
+    <string name="radio_button_hybrid">Hybridi</string>
+    <string name="radio_button_satellite">Satelliitti</string>
     
 </resources>
