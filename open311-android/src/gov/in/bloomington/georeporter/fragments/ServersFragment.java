@@ -66,6 +66,14 @@ public class ServersFragment extends SherlockFragment implements OnItemClickList
 	    v.findViewById(R.id.addServerButton).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+            	
+						// Check if the view on which AlertDialog is called has
+						// a parent and remove that parent View
+						if (dialogLayout.getParent() != null) {
+							((ViewGroup) dialogLayout.getParent())
+									.removeView(dialogLayout);
+						}
+				
                 final Spinner format = (Spinner) dialogLayout.findViewById(R.id.format);
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, FORMAT_CHOICES);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
