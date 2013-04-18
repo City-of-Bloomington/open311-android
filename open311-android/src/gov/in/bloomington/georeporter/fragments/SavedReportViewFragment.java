@@ -214,6 +214,8 @@ public class SavedReportViewFragment extends SherlockFragment {
                 } catch (JSONException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
                 }
             }
         }
