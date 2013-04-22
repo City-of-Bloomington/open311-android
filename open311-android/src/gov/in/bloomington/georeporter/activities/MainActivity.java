@@ -14,6 +14,7 @@ import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -37,10 +38,10 @@ public class MainActivity extends BaseActivity {
 		JSONObject current_server = Preferences.getCurrentServer(this);
 		
 		if (current_server == null) {
-    		startActivity(new Intent(this, SettingsActivity.class));
+			startActivity(new Intent(this, SettingsActivity.class));
 		}
 		else {
-			new EndpointLoader().execute(current_server);
+			new EndpointLoader(this).execute(current_server);
 			
 			try {
                 getSupportActionBar().setTitle(current_server.getString(Open311.NAME));
@@ -72,13 +73,17 @@ public class MainActivity extends BaseActivity {
 	 * void
 	 */
 	public void onTouchImage(View v) {
-        Intent intent = new Intent(this, ReportActivity.class);
+		Intent intent = new Intent(this, ReportActivity.class);
         startActivity(intent);
 	}
 	
 	private class EndpointLoader extends AsyncTask<JSONObject, Void, Boolean> {
 		private ProgressDialog dialog;
+		Context context;
 		
+		private EndpointLoader(Context context) {
+            this.context = context;
+        }
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
@@ -95,8 +100,10 @@ public class MainActivity extends BaseActivity {
 			dialog.dismiss();
 			if (!result) {
 				Util.displayCrashDialog(MainActivity.this, getString(R.string.failure_loading_services));
+			} else {
+				Intent intent = new Intent(this.context, ReportActivity.class);
+		        startActivity(intent);				
 			}
-			super.onPostExecute(result);
 		}
 	}
 }
