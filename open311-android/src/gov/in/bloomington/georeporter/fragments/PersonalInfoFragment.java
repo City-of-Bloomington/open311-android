@@ -15,6 +15,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.text.InputType;
 import android.view.View;
 import android.widget.EditText;
@@ -55,7 +56,7 @@ public class PersonalInfoFragment extends SherlockListFragment {
 		
 		int type = InputType.TYPE_TEXT_FLAG_CAP_WORDS;
 		if (fieldname == "email") { type = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS; }
-		if (fieldname == "phone") { type = InputType.TYPE_CLASS_PHONE; }
+		if (fieldname == "phone") { type = InputType.TYPE_CLASS_PHONE; newValue.addTextChangedListener(new PhoneNumberFormattingTextWatcher()); }
 		newValue.setInputType(type);
 		
 		new AlertDialog.Builder(getActivity())
