@@ -18,6 +18,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -117,6 +118,8 @@ public class Open311 {
 	// Key names for formats
 	public 	static final String JSON = "json";
 	public  static final String XML  = "xml";
+	// Key name for encoding
+	public 	static final String UTF_8 = "UTF-8";
 
 	
 	
@@ -426,7 +429,7 @@ public class Open311 {
                 e.printStackTrace();
             }
         }
-        return new UrlEncodedFormEntity(pairs);
+        return new UrlEncodedFormEntity(pairs,UTF_8);
 	}
 	
 	/**
@@ -490,7 +493,8 @@ public class Open311 {
                     if (o instanceof Double) {
                         o = Double.toString((Double)o);
                     }
-                    post.addPart(key, new StringBody((String) o));
+                    Charset charset = Charset.forName(UTF_8);
+                    post.addPart(key, new StringBody((String) o, charset));
                 }
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
