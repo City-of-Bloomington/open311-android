@@ -13,15 +13,12 @@ import gov.in.bloomington.georeporter.fragments.ChooseServiceFragment.OnServiceS
 import gov.in.bloomington.georeporter.fragments.ReportFragment;
 import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.models.ServiceRequest;
-
 import gov.in.bloomington.georeporter.util.json.JSONObject;
-
+import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.actionbarsherlock.app.ActionBar;
-
-public class ReportActivity extends BaseFragmentActivity
+public class ReportActivity extends BaseActivity
 							implements OnGroupSelectedListener,
 									   OnServiceSelectedListener {
 	
@@ -33,16 +30,16 @@ public class ReportActivity extends BaseFragmentActivity
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		mActionBar = getSupportActionBar();
+		mActionBar = getActionBar();
 		mActionBar.setTitle(R.string.menu_report);
 		
 		if (Open311.sReady) {
 	        if (Open311.sGroups.size() > 1) {
 	            ChooseGroupFragment chooseGroup = new ChooseGroupFragment();
-	            getSupportFragmentManager() .beginTransaction()
-	                                        .add(android.R.id.content, chooseGroup)
-	                                        .addToBackStack(null)
-	                                        .commit();
+	            getFragmentManager() .beginTransaction()
+	                                 .add(android.R.id.content, chooseGroup)
+	                                 .addToBackStack(null)
+	                                 .commit();
 	        }
 	        else {
 	            onGroupSelected(Open311.sGroups.get(0));
@@ -59,10 +56,10 @@ public class ReportActivity extends BaseFragmentActivity
 	public void onGroupSelected(String group) {
 		ChooseServiceFragment chooseService = new ChooseServiceFragment();
 		chooseService.setServices(Open311.getServices(group, this));
-		getSupportFragmentManager() .beginTransaction()
-									.replace(android.R.id.content, chooseService)
-									.addToBackStack(null)
-									.commit();
+		getFragmentManager() .beginTransaction()
+							 .replace(android.R.id.content, chooseService)
+							 .addToBackStack(null)
+							 .commit();
 	}
 	
 	@Override
@@ -72,9 +69,9 @@ public class ReportActivity extends BaseFragmentActivity
 		ServiceRequest sr = new ServiceRequest(service, this);
 		mReportFragment = ReportFragment.newInstance(sr);
 		
-		getSupportFragmentManager() .beginTransaction()
-									.replace(android.R.id.content, mReportFragment)
-									.addToBackStack(null)
-									.commit();
+		getFragmentManager() .beginTransaction()
+							 .replace(android.R.id.content, mReportFragment)
+							 .addToBackStack(null)
+							 .commit();
 	}
 }

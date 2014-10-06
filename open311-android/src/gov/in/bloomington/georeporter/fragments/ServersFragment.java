@@ -14,12 +14,11 @@ import gov.in.bloomington.georeporter.adapters.ServersAdapter;
 import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.models.Preferences;
 import gov.in.bloomington.georeporter.util.Util;
-
 import gov.in.bloomington.georeporter.util.json.JSONArray;
 import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
-
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -41,9 +40,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
-import com.actionbarsherlock.app.SherlockFragment;
-
-public class ServersFragment extends SherlockFragment implements OnItemClickListener, OnCreateContextMenuListener {
+public class ServersFragment extends Fragment implements OnItemClickListener, OnCreateContextMenuListener {
     private int       mNumAvailableServers = 0;
     private JSONArray mCustomServers       = null;
     private ListView  mListView;
@@ -58,7 +55,7 @@ public class ServersFragment extends SherlockFragment implements OnItemClickList
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 	    View v = inflater.inflate(R.layout.fragment_servers, container, false);
-        final View dialogLayout = inflater.inflate(R.layout.dialog_add_server, null);
+        final View dialogLayout = inflater.inflate(R.layout.dialog_add_server, container);
 	    
 	    mListView = (ListView) v.findViewById(R.id.serversListView);
 	    mListView.setOnItemClickListener(this);

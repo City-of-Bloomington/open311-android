@@ -8,19 +8,19 @@ package gov.in.bloomington.georeporter.activities;
 import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.fragments.PersonalInfoFragment;
 import gov.in.bloomington.georeporter.fragments.ServersFragment;
+import android.app.ActionBar;
+import android.app.ActionBar.Tab;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.Tab;
 
-public class SettingsActivity extends BaseFragmentActivity {
+public class SettingsActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		ActionBar actionBar = getSupportActionBar();
+		ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		actionBar.setTitle(R.string.menu_settings);
 		

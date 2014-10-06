@@ -28,7 +28,7 @@ public class MainActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+		getActionBar().setDisplayHomeAsUpEnabled(false);
 	}
 	
 	@Override
@@ -44,7 +44,7 @@ public class MainActivity extends BaseActivity {
 			new EndpointLoader(this).execute(current_server);
 			
 			try {
-                getSupportActionBar().setTitle(current_server.getString(Open311.NAME));
+                getActionBar().setTitle(current_server.getString(Open311.NAME));
             }
             catch (JSONException e) {
                 // TODO Auto-generated catch block
