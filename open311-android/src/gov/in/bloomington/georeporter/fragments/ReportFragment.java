@@ -26,7 +26,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import ch.boye.httpclientandroidlib.client.ClientProtocolException;
+import org.apache.http.client.ClientProtocolException;
+
 import gov.in.bloomington.georeporter.util.json.JSONArray;
 import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;

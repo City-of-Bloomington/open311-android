@@ -5,7 +5,6 @@
  */
 package gov.in.bloomington.georeporter.models;
 
-import gov.in.bloomington.georeporter.util.EasySSLSocketFactory;
 import gov.in.bloomington.georeporter.util.Open311Parser;
 import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.util.Media;
@@ -18,34 +17,32 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import ch.boye.httpclientandroidlib.HttpResponse;
-import ch.boye.httpclientandroidlib.HttpStatus;
-import ch.boye.httpclientandroidlib.HttpVersion;
-import ch.boye.httpclientandroidlib.NameValuePair;
-import ch.boye.httpclientandroidlib.client.ClientProtocolException;
-import ch.boye.httpclientandroidlib.client.entity.UrlEncodedFormEntity;
-import ch.boye.httpclientandroidlib.client.methods.HttpGet;
-import ch.boye.httpclientandroidlib.client.methods.HttpPost;
-import ch.boye.httpclientandroidlib.conn.scheme.PlainSocketFactory;
-import ch.boye.httpclientandroidlib.conn.scheme.Scheme;
-import ch.boye.httpclientandroidlib.entity.mime.MultipartEntity;
-import ch.boye.httpclientandroidlib.entity.mime.content.ByteArrayBody;
-import ch.boye.httpclientandroidlib.entity.mime.content.StringBody;
-import ch.boye.httpclientandroidlib.impl.client.DefaultHttpClient;
-import ch.boye.httpclientandroidlib.message.BasicNameValuePair;
-import ch.boye.httpclientandroidlib.params.CoreConnectionPNames;
-import ch.boye.httpclientandroidlib.params.CoreProtocolPNames;
-import ch.boye.httpclientandroidlib.util.EntityUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.util.EntityUtils;
+
 import gov.in.bloomington.georeporter.util.json.JSONArray;
 import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
-
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -168,10 +165,10 @@ public class Open311 {
                 user_agent = String.format("%s (Android/%s)", c.getString(R.string.app_name), Build.VERSION.RELEASE);
             }
 			
-			Scheme http  = new Scheme("http",  80,  PlainSocketFactory.getSocketFactory());
-			Scheme https = new Scheme("https", 443, new EasySSLSocketFactory());
-			mClient.getConnectionManager().getSchemeRegistry().register(http);
-			mClient.getConnectionManager().getSchemeRegistry().register(https);
+			//Scheme http  = new Scheme("http",  80,  PlainSocketFactory.getSocketFactory());
+			//Scheme https = new Scheme("https", 443, new EasySSLSocketFactory());
+			//mClient.getConnectionManager().getSchemeRegistry().register(http);
+			//mClient.getConnectionManager().getSchemeRegistry().register(https);
 			
 			mClient.getParams().setParameter(CoreProtocolPNames  .HTTP_CONTENT_CHARSET, "UTF-8");
 			mClient.getParams().setParameter(CoreProtocolPNames  .PROTOCOL_VERSION,     HttpVersion.HTTP_1_1);
@@ -443,17 +440,19 @@ public class Open311 {
 	 * MultipartEntity
 	 * @throws JSONException 
 	 */
-	private static MultipartEntity prepareMultipartEntity(ServiceRequest sr, Context context, String mediaPath) throws UnsupportedEncodingException, JSONException {
-	    MultipartEntity post = new MultipartEntity();
+	private static HttpEntity prepareMultipartEntity(ServiceRequest sr, Context context, String mediaPath) throws UnsupportedEncodingException, JSONException {
+	    MultipartEntityBuilder post = MultipartEntityBuilder.create();
+	    post.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+	    
         // This could cause a JSONException, but we let this one bubble up the stack
         // If we don't have a service_code, we don't have a valid POST
-	    post.addPart(SERVICE_CODE, new StringBody(sr.service.getString(SERVICE_CODE)));
+	    post.addTextBody(SERVICE_CODE, sr.service.getString(SERVICE_CODE));
 	    
         if (mJurisdiction != null) {
-            post.addPart(JURISDICTION, new StringBody(mJurisdiction));
+            post.addTextBody(JURISDICTION, mJurisdiction);
         }
         if (mApiKey != null) {
-            post.addPart(API_KEY,      new StringBody(mApiKey));
+        	post.addTextBody(API_KEY, mApiKey);
         }
         JSONObject data = sr.post_data;
         Iterator<?>keys = data.keys();
@@ -472,7 +471,7 @@ public class Open311 {
                     final ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     media.compress(CompressFormat.PNG, 100, stream);
                     final byte[] binaryData = stream.toByteArray();
-                    post.addPart(Open311.MEDIA, new ByteArrayBody(binaryData, Media.UPLOAD_FILENAME));
+                    post.addBinaryBody(Open311.MEDIA, binaryData, ContentType.create("image/png"), Media.UPLOAD_FILENAME);
                 }
                 // Attach MULTIVALUELIST values
                 else if (o instanceof JSONArray) {
@@ -481,7 +480,7 @@ public class Open311 {
                     int len = values.length();
                     for (int i=0; i<len; i++) {
                         try {
-                            post.addPart(k, new StringBody(values.getString(i)));
+                        	post.addTextBody(k, values.getString(i));
                         } catch (JSONException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
@@ -493,8 +492,7 @@ public class Open311 {
                     if (o instanceof Double) {
                         o = Double.toString((Double)o);
                     }
-                    Charset charset = Charset.forName(UTF_8);
-                    post.addPart(key, new StringBody((String) o, charset));
+                    post.addTextBody(key, (String) o);
                 }
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
@@ -502,7 +500,7 @@ public class Open311 {
             }
         }
 
-        return post;
+        return post.build();
 	}
 	
 	/**
