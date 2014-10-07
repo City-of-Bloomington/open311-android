@@ -134,7 +134,7 @@ public class Open311 {
 	private static String mFormat = "json";
 
 	private static DefaultHttpClient mClient = null;
-	private static final int TIMEOUT = 3000;
+	private static final int TIMEOUT = 20000;
 	
 	
 	private static Open311 mInstance;

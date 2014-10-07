@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="gov.in.bloomington.georeporter"
     android:versionCode="8"
-    android:versionName="2.0" >
+    android:versionName="1.2" >
 
     <uses-sdk
         android:minSdkVersion="17"
