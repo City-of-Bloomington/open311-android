@@ -13,6 +13,7 @@ import android.app.ActionBar.Tab;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.view.Menu;
 
 
 public class SettingsActivity extends BaseActivity {
@@ -34,6 +35,19 @@ public class SettingsActivity extends BaseActivity {
 				.setText(R.string.tab_personal_info)
 				.setTabListener(new TabListener<PersonalInfoFragment>(this, "personalInfo", PersonalInfoFragment.class));
 		actionBar.addTab(tab);
+	}
+	
+	/**
+	 * Disable the settings menu button
+	 * 
+	 * This prevents users from opening multiple settings activities.
+	 */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// TODO Auto-generated method stub
+		getMenuInflater().inflate(R.menu.main, menu);
+		menu.findItem(R.id.menu_settings).setEnabled(false);
+		return true;
 	}
 	
 	/**
