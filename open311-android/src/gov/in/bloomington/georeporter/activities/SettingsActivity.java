@@ -62,11 +62,13 @@ public class SettingsActivity extends BaseActivity {
 	    private final String mTag;
 	    private final Class<T> mClass;
 
-	    /** Constructor used each time a new tab is created.
-	      * @param settingsActivity  The host Activity, used to instantiate the fragment
-	      * @param tag  The identifier tag for the fragment
-	      * @param clz  The fragment's Class, used to instantiate the fragment
-	      */
+	    /**
+	     * Constructor used each time a new tab is created.
+	     * 
+	     * @param settingsActivity  The host Activity, used to instantiate the fragment
+	     * @param tag  The identifier tag for the fragment
+	     * @param clz  The fragment's Class, used to instantiate the fragment
+	     */
 	    public TabListener(SettingsActivity settingsActivity, String tag, Class<T> clz) {
 	        mActivity = settingsActivity;
 	        mTag = tag;

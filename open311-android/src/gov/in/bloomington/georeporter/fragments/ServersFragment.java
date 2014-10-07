@@ -55,12 +55,14 @@ public class ServersFragment extends Fragment implements OnItemClickListener, On
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 	    View v = inflater.inflate(R.layout.fragment_servers, container, false);
-        final View dialogLayout = inflater.inflate(R.layout.dialog_add_server, container);
 	    
 	    mListView = (ListView) v.findViewById(R.id.serversListView);
 	    mListView.setOnItemClickListener(this);
 	    mListView.setOnCreateContextMenuListener(this);
 	    v.findViewById(R.id.addServerButton).setOnClickListener(new OnClickListener() {
+	    	LayoutInflater inflater = getActivity().getLayoutInflater();
+	        final View dialogLayout = inflater.inflate(R.layout.dialog_add_server, null);
+	        
             @Override
             public void onClick(View v) {
                 // Remove the previous instance of the dialog from the parent view
