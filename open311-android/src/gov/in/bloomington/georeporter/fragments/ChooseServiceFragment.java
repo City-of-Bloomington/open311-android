@@ -10,14 +10,12 @@ import gov.in.bloomington.georeporter.adapters.ServicesAdapter;
 import java.util.ArrayList;
 
 import gov.in.bloomington.georeporter.util.json.JSONObject;
-
 import android.app.Activity;
+import android.app.ListFragment;
 import android.view.View;
 import android.widget.ListView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-
-public class ChooseServiceFragment extends SherlockListFragment {
+public class ChooseServiceFragment extends ListFragment {
 	private static OnServiceSelectedListener mListener;
 	private static ArrayList<JSONObject> mServices;
 	

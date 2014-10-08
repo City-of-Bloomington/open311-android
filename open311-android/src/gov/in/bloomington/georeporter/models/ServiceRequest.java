@@ -70,19 +70,13 @@ public class ServiceRequest {
 	 * JSON String version
 	 * 
 	 * @param s A single service from GET Service List
+	 * @param def The service definition for the chosen service
 	 */
-	public ServiceRequest(JSONObject s, Context c) {
+	public ServiceRequest(JSONObject s, JSONObject def, Context c) {
 		service   = s;
-		post_data = new JSONObject();
+		service_definition = def;
 		
-		if (service.optBoolean(Open311.METADATA)) {
-			try {
-				service_definition = Open311.getServiceDefinition(service.getString(Open311.SERVICE_CODE), c);
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		post_data = new JSONObject();
 		
         // Read in the personal info fields from Preferences
 		JSONObject personalInfo = Preferences.getPersonalInfo(c);

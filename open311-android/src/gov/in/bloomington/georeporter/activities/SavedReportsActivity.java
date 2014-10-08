@@ -15,26 +15,26 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class SavedReportsActivity extends BaseFragmentActivity implements OnItemClickListener {
+public class SavedReportsActivity extends BaseActivity implements OnItemClickListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		getSupportActionBar().setTitle(R.string.menu_archive);
+		getActionBar().setTitle(R.string.menu_archive);
 		SavedReportsListFragment listFragment = new SavedReportsListFragment();
-		getSupportFragmentManager() .beginTransaction()
-                        		    .add(android.R.id.content, listFragment)
-                        		    .addToBackStack(null)
-                        		    .commit();
+		getFragmentManager().beginTransaction()
+                        	.add(android.R.id.content, listFragment)
+                        	.addToBackStack(null)
+                        	.commit();
 		    
 	}
 
     @Override
     public void onItemClick(AdapterView<?> l, View v, int position, long id) {
         SavedReportViewFragment fragment = SavedReportViewFragment.newInstance(position);
-        getSupportFragmentManager() .beginTransaction()
-                                    .replace(android.R.id.content, fragment)
-                                    .addToBackStack(null)
-                                    .commit();
+        getFragmentManager().beginTransaction()
+                            .replace(android.R.id.content, fragment)
+                            .addToBackStack(null)
+                            .commit();
     }
 }

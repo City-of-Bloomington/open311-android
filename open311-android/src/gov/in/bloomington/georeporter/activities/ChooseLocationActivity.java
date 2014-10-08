@@ -5,10 +5,9 @@
  */
 package gov.in.bloomington.georeporter.activities;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
 import gov.in.bloomington.georeporter.R;
@@ -22,7 +21,7 @@ import android.view.View;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 
-public class ChooseLocationActivity extends SherlockFragmentActivity {
+public class ChooseLocationActivity extends BaseActivity {
 	private GoogleMap mMap;
 	private LocationManager mLocationManager;
 	private MapListener mLocationListener;
@@ -65,7 +64,7 @@ public class ChooseLocationActivity extends SherlockFragmentActivity {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
+            mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();

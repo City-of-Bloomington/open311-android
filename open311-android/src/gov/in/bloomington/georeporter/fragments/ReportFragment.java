@@ -26,18 +26,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import ch.boye.httpclientandroidlib.client.ClientProtocolException;
+import org.apache.http.client.ClientProtocolException;
 
 import gov.in.bloomington.georeporter.util.json.JSONArray;
 import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -56,11 +57,9 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
-import com.actionbarsherlock.app.SherlockFragment;
 import com.google.android.gms.maps.model.LatLng;
 
-public class ReportFragment extends SherlockFragment implements OnItemClickListener {
+public class ReportFragment extends Fragment implements OnItemClickListener {
     /**
      * Request for handling Photo attachments to the Service Request
      */
@@ -214,7 +213,7 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
                     String datatype = attribute.optString(Open311.DATATYPE, Open311.STRING);
                     if (datatype.equals(Open311.DATETIME)) {
                         DatePickerDialogFragment datePicker = new DatePickerDialogFragment(labelKey);
-                        datePicker.show(getActivity().getSupportFragmentManager(), "datePicker");
+                        datePicker.show(getActivity().getFragmentManager(), "datePicker");
                     }
                     // all other attribute types get a full seperate Activity
                     else {
@@ -318,7 +317,7 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
 	 * Pass in the attribute code that you want the user to enter a date for
 	 */
 	@SuppressLint("ValidFragment")
-    private class DatePickerDialogFragment extends SherlockDialogFragment implements OnDateSetListener {
+    private class DatePickerDialogFragment extends DialogFragment implements OnDateSetListener {
 	    private String mAttributeCode;
 	    
 	    /**
@@ -472,5 +471,4 @@ public class ReportFragment extends SherlockFragment implements OnItemClickListe
             }
         }
 	}
-
 }

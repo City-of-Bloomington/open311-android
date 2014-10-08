@@ -13,15 +13,17 @@ import gov.in.bloomington.georeporter.fragments.ChooseServiceFragment.OnServiceS
 import gov.in.bloomington.georeporter.fragments.ReportFragment;
 import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.models.ServiceRequest;
-
+import gov.in.bloomington.georeporter.util.Util;
+import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
-
+import android.app.ActionBar;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
-import com.actionbarsherlock.app.ActionBar;
-
-public class ReportActivity extends BaseFragmentActivity
+public class ReportActivity extends BaseActivity
 							implements OnGroupSelectedListener,
 									   OnServiceSelectedListener {
 	
@@ -33,16 +35,16 @@ public class ReportActivity extends BaseFragmentActivity
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		mActionBar = getSupportActionBar();
+		mActionBar = getActionBar();
 		mActionBar.setTitle(R.string.menu_report);
 		
 		if (Open311.sReady) {
 	        if (Open311.sGroups.size() > 1) {
 	            ChooseGroupFragment chooseGroup = new ChooseGroupFragment();
-	            getSupportFragmentManager() .beginTransaction()
-	                                        .add(android.R.id.content, chooseGroup)
-	                                        .addToBackStack(null)
-	                                        .commit();
+	            getFragmentManager() .beginTransaction()
+	                                 .add(android.R.id.content, chooseGroup)
+	                                 .addToBackStack(null)
+	                                 .commit();
 	        }
 	        else {
 	            onGroupSelected(Open311.sGroups.get(0));
@@ -59,22 +61,67 @@ public class ReportActivity extends BaseFragmentActivity
 	public void onGroupSelected(String group) {
 		ChooseServiceFragment chooseService = new ChooseServiceFragment();
 		chooseService.setServices(Open311.getServices(group, this));
-		getSupportFragmentManager() .beginTransaction()
-									.replace(android.R.id.content, chooseService)
-									.addToBackStack(null)
-									.commit();
+		getFragmentManager() .beginTransaction()
+							 .replace(android.R.id.content, chooseService)
+							 .addToBackStack(null)
+							 .commit();
 	}
 	
 	@Override
 	public void onServiceSelected(JSONObject service) {
 		mActionBar.setTitle(service.optString(Open311.SERVICE_NAME));
+		new ServiceDefinitionLoader(this).execute(service);
+	}
+	
+	private class ServiceDefinitionLoader extends AsyncTask<JSONObject, Void, Boolean> {
+		private ProgressDialog dialog;
+		private JSONObject service;
+		private JSONObject service_definition;
+		private Context context;
 		
-		ServiceRequest sr = new ServiceRequest(service, this);
-		mReportFragment = ReportFragment.newInstance(sr);
+		private ServiceDefinitionLoader(Context c) {
+			this.context = c;
+		}
 		
-		getSupportFragmentManager() .beginTransaction()
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			dialog = ProgressDialog.show(context, getString(R.string.dialog_loading_services), "", true);
+		}
+		
+		@Override
+		protected Boolean doInBackground(JSONObject... s) {
+			service = s[0];
+			if (service.optBoolean(Open311.METADATA)) {
+				try {
+					service_definition = Open311.getServiceDefinition(service.getString(Open311.SERVICE_CODE), context);
+					return true;
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return false;
+				}
+			}
+			else {
+				return true;
+			}
+		}
+		
+		@Override
+		protected void onPostExecute(Boolean result) {
+			dialog.dismiss();
+			if (!result) {
+				Util.displayCrashDialog(ReportActivity.this, getString(R.string.failure_loading_services));
+			}
+			else {
+				ServiceRequest sr = new ServiceRequest(service, service_definition, context);
+				mReportFragment = ReportFragment.newInstance(sr);
+				
+				getFragmentManager().beginTransaction()
 									.replace(android.R.id.content, mReportFragment)
 									.addToBackStack(null)
 									.commit();
+			}
+		}
 	}
 }

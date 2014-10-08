@@ -8,19 +8,20 @@ package gov.in.bloomington.georeporter.activities;
 import gov.in.bloomington.georeporter.R;
 import gov.in.bloomington.georeporter.fragments.PersonalInfoFragment;
 import gov.in.bloomington.georeporter.fragments.ServersFragment;
+import android.app.ActionBar;
+import android.app.ActionBar.Tab;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import android.view.Menu;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.Tab;
 
-public class SettingsActivity extends BaseFragmentActivity {
+public class SettingsActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		ActionBar actionBar = getSupportActionBar();
+		ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		actionBar.setTitle(R.string.menu_settings);
 		
@@ -37,6 +38,19 @@ public class SettingsActivity extends BaseFragmentActivity {
 	}
 	
 	/**
+	 * Disable the settings menu button
+	 * 
+	 * This prevents users from opening multiple settings activities.
+	 */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// TODO Auto-generated method stub
+		getMenuInflater().inflate(R.menu.main, menu);
+		menu.findItem(R.id.menu_settings).setEnabled(false);
+		return true;
+	}
+	
+	/**
 	 * Copy of implementation from Android developer docs
 	 * 
 	 * http://developer.android.com/guide/topics/ui/actionbar.html#Tabs
@@ -48,11 +62,13 @@ public class SettingsActivity extends BaseFragmentActivity {
 	    private final String mTag;
 	    private final Class<T> mClass;
 
-	    /** Constructor used each time a new tab is created.
-	      * @param settingsActivity  The host Activity, used to instantiate the fragment
-	      * @param tag  The identifier tag for the fragment
-	      * @param clz  The fragment's Class, used to instantiate the fragment
-	      */
+	    /**
+	     * Constructor used each time a new tab is created.
+	     * 
+	     * @param settingsActivity  The host Activity, used to instantiate the fragment
+	     * @param tag  The identifier tag for the fragment
+	     * @param clz  The fragment's Class, used to instantiate the fragment
+	     */
 	    public TabListener(SettingsActivity settingsActivity, String tag, Class<T> clz) {
 	        mActivity = settingsActivity;
 	        mTag = tag;
