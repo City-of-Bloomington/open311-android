@@ -13,9 +13,14 @@ import gov.in.bloomington.georeporter.fragments.ChooseServiceFragment.OnServiceS
 import gov.in.bloomington.georeporter.fragments.ReportFragment;
 import gov.in.bloomington.georeporter.models.Open311;
 import gov.in.bloomington.georeporter.models.ServiceRequest;
+import gov.in.bloomington.georeporter.util.Util;
+import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
 import android.app.ActionBar;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 public class ReportActivity extends BaseActivity
@@ -65,13 +70,58 @@ public class ReportActivity extends BaseActivity
 	@Override
 	public void onServiceSelected(JSONObject service) {
 		mActionBar.setTitle(service.optString(Open311.SERVICE_NAME));
+		new ServiceDefinitionLoader(this).execute(service);
+	}
+	
+	private class ServiceDefinitionLoader extends AsyncTask<JSONObject, Void, Boolean> {
+		private ProgressDialog dialog;
+		private JSONObject service;
+		private JSONObject service_definition;
+		private Context context;
 		
-		ServiceRequest sr = new ServiceRequest(service, this);
-		mReportFragment = ReportFragment.newInstance(sr);
+		private ServiceDefinitionLoader(Context c) {
+			this.context = c;
+		}
 		
-		getFragmentManager() .beginTransaction()
-							 .replace(android.R.id.content, mReportFragment)
-							 .addToBackStack(null)
-							 .commit();
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			dialog = ProgressDialog.show(context, getString(R.string.dialog_loading_services), "", true);
+		}
+		
+		@Override
+		protected Boolean doInBackground(JSONObject... s) {
+			service = s[0];
+			if (service.optBoolean(Open311.METADATA)) {
+				try {
+					service_definition = Open311.getServiceDefinition(service.getString(Open311.SERVICE_CODE), context);
+					return true;
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return false;
+				}
+			}
+			else {
+				return true;
+			}
+		}
+		
+		@Override
+		protected void onPostExecute(Boolean result) {
+			dialog.dismiss();
+			if (!result) {
+				Util.displayCrashDialog(ReportActivity.this, getString(R.string.failure_loading_services));
+			}
+			else {
+				ServiceRequest sr = new ServiceRequest(service, service_definition, context);
+				mReportFragment = ReportFragment.newInstance(sr);
+				
+				getFragmentManager().beginTransaction()
+									.replace(android.R.id.content, mReportFragment)
+									.addToBackStack(null)
+									.commit();
+			}
+		}
 	}
 }

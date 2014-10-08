@@ -230,15 +230,6 @@ public class Open311 {
 				    group = context.getString(R.string.uncategorized);
 				}
 				if (!sGroups.contains(group)) { sGroups.add(group); }
-				
-				// Add Service Definitions to mServiceDefinitions
-				if (s.optString(METADATA) == TRUE) {
-					String code = s.optString(SERVICE_CODE);
-					JSONObject definition = getServiceDefinition(code, context);
-					if (definition != null) {
-						sServiceDefinitions.put(code, definition);
-					}
-				}
 			}
 		}
 		catch (Exception e) {
@@ -288,7 +279,9 @@ public class Open311 {
 	    else {
     		try {
     			Open311Parser mParser = new Open311Parser(mFormat);
-    			return mParser.parseServiceDefinition(loadStringFromUrl(getServiceDefinitionUrl(service_code), context));
+    			JSONObject definition = mParser.parseServiceDefinition(loadStringFromUrl(getServiceDefinitionUrl(service_code), context));
+    			sServiceDefinitions.put(service_code, definition);
+    			return definition;
     		}
     		catch (Exception e) {
                 // TODO Auto-generated catch block
