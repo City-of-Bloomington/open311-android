@@ -6,21 +6,24 @@
     <LinearLayout
         android:id="@+id/button_bar"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        style="?android:attr/buttonBarStyle">
 
         <Button
             android:id="@+id/cancel_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/cancel" />
+            android:text="@string/cancel"
+            style="?android:attr/buttonBarButtonStyle" />
         
         <Button
             android:id="@+id/submit_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/submit" />
+            android:text="@string/submit"
+            style="?android:attr/buttonBarButtonStyle" />
 
     </LinearLayout>
 
