@@ -43,17 +43,35 @@ public class DataEntryActivity extends BaseActivity {
         mInput.setText(i.getStringExtra(VALUE));
         
         if (mKey.equals(Open311.DESCRIPTION)) {
-            mInput.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+            mInput.setInputType(
+            	 InputType.TYPE_CLASS_TEXT
+        		|InputType.TYPE_TEXT_FLAG_MULTI_LINE
+        		|InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
+        		|InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+        		|InputType.TYPE_TEXT_VARIATION_LONG_MESSAGE
+    		);
+            mInput.setMaxLines(6);
+            mInput.setHorizontallyScrolling(false);
         }
-        if (mKey.equals(Open311.FIRST_NAME) || mKey.equals(Open311.LAST_NAME)) {
-            mInput.setInputType(InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
+        else if (mKey.equals(Open311.FIRST_NAME) || mKey.equals(Open311.LAST_NAME)) {
+            mInput.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
         }
-        if (mKey.equals(Open311.EMAIL)) {
-            mInput.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        else if (mKey.equals(Open311.EMAIL)) {
+            mInput.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         }
-        if (mKey.equals(Open311.PHONE)) {
+        else if (mKey.equals(Open311.PHONE)) {
             mInput.setInputType(InputType.TYPE_CLASS_PHONE);
-            
+        }
+        else {
+            mInput.setInputType(
+               	 InputType.TYPE_CLASS_TEXT
+           		|InputType.TYPE_TEXT_FLAG_MULTI_LINE
+           		|InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
+           		|InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+           		|InputType.TYPE_TEXT_VARIATION_LONG_MESSAGE
+       		);
+           mInput.setMaxLines(6);
+           mInput.setHorizontallyScrolling(false);
         }
         
         mLayout.addView(mInput);

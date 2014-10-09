@@ -82,16 +82,23 @@ public class AttributeEntryActivity extends BaseActivity {
         LayoutInflater inflater = getLayoutInflater();
         
         if (mDatatype.equals(Open311.STRING) || mDatatype.equals(Open311.NUMBER) || mDatatype.equals(Open311.TEXT)) {
-            View v = inflater.inflate(R.layout.attribute_entry_string, null);
-            EditText input = (EditText) v.findViewById(R.id.input);
+            EditText input = (EditText) inflater.inflate(R.layout.attribute_entry_string, null);
 
             if (mDatatype.equals(Open311.NUMBER)) {
                 input.setInputType(InputType.TYPE_CLASS_NUMBER);
             }
             if (mDatatype.equals(Open311.TEXT)) {
-                input.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+                input.setInputType(
+                  	 InputType.TYPE_CLASS_TEXT
+              		|InputType.TYPE_TEXT_FLAG_MULTI_LINE
+              		|InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
+              		|InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+              		|InputType.TYPE_TEXT_VARIATION_LONG_MESSAGE
+          		);
+                input.setMaxLines(6);
+                input.setHorizontallyScrolling(false);
             }
-            return v;
+            return input;
         }
         else if (mDatatype.equals(Open311.SINGLEVALUELIST) || mDatatype.equals(Open311.MULTIVALUELIST)) {
             /**
