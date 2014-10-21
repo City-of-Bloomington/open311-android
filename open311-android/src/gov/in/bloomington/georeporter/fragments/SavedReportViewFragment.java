@@ -208,8 +208,18 @@ public class SavedReportViewFragment extends Fragment {
             if (dataUpdated) {
                 try {
                     mServiceRequests.put(mPosition, new JSONObject(mServiceRequest.toString()));
-                    Open311.saveServiceRequests(getActivity(), mServiceRequests);
-                    refreshViewData();
+                    new AsyncTask<Void, Void, Void>() {
+                        @Override
+                        protected Void doInBackground(Void... params) {
+                            Open311.saveServiceRequests(getActivity(), mServiceRequests);
+                            return null;
+                        }
+                        
+                        @Override
+                        protected void onPostExecute(Void result) {
+                            refreshViewData();
+                        }
+                    }.execute();
                 } catch (JSONException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
