@@ -23,6 +23,7 @@ import gov.in.bloomington.georeporter.util.json.JSONObject;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -207,10 +208,19 @@ public class ServiceRequestAdapter extends BaseAdapter {
                     media = (MediaViewHolder)convertView.getTag();
                 }
 
-                Bitmap bmp = mServiceRequest.getMediaBitmap(80, 80, mLayoutInflater.getContext());
-                if (bmp != null) {
-                    media.image.setImageBitmap(bmp);
-                }
+                new AsyncTask<Void, Void, Bitmap>() {
+                    @Override
+                    protected Bitmap doInBackground(Void... params) {
+                        return mServiceRequest.getMediaBitmap(80, 80, mLayoutInflater.getContext());
+                    }
+
+                    @Override
+                    protected void onPostExecute(Bitmap bmp) {
+                        if (bmp != null) {
+                            media.image.setImageBitmap(bmp);
+                        }
+                    }
+                }.execute();
 
                 break;
 
