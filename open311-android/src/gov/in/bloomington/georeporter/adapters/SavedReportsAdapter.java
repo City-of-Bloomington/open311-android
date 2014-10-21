@@ -19,6 +19,8 @@ import gov.in.bloomington.georeporter.util.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,7 +66,7 @@ public class SavedReportsAdapter extends BaseAdapter {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		ViewHolder holder;
+		final ViewHolder holder;
 		if (convertView == null) {
 			convertView = mInflater.inflate(R.layout.list_item_saved_reports, null);
 			holder = new ViewHolder();
@@ -80,14 +82,24 @@ public class SavedReportsAdapter extends BaseAdapter {
 			holder = (ViewHolder) convertView.getTag();
 		}
 		
-        ServiceRequest sr = getItem(position);
+        final ServiceRequest sr = getItem(position);
 		try {
 			holder.serviceName.setText(sr.service        .getString(Open311.SERVICE_NAME));
 			holder.endpoint   .setText(sr.endpoint       .getString(Open311.NAME));
 			holder.address    .setText(sr.post_data      .optString(Open311.ADDRESS_STRING));
 			holder.status     .setText(sr.service_request.optString(ServiceRequest.STATUS));
             holder.date       .setText(mDateFormat.format(mISODate.parse(sr.post_data.optString(ServiceRequest.REQUESTED_DATETIME))));
-            holder.media.setImageBitmap(sr.getMediaBitmap(80, 80, mInflater.getContext()));
+            new AsyncTask<Void, Void, Bitmap>() {
+                @Override
+                protected Bitmap doInBackground(Void... params) {
+                    return sr.getMediaBitmap(80, 80, mInflater.getContext());
+                }
+
+                @Override
+                protected void onPostExecute(Bitmap bitmap) {
+                    holder.media.setImageBitmap(bitmap);
+                }
+            }.execute();
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
