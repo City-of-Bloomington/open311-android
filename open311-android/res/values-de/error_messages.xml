@@ -2,5 +2,5 @@
 <resources>
     <string name="failure_loading_services">Die Service-Informationen konnten nicht geladen werden</string>
     <string name="failure_posting_service">Der Hinweis konnte nicht gespeichert werden</string>
-    <string name="error_403">Diese App scheint nicht berechtigt zu sein</string>
+    <string name="error_403">Dieser App scheinen Berechtigungen zu fehlen</string>
 </resources>
