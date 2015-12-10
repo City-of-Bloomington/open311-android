@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="failure_loading_services">Informatie kon niet worden geladen</string>
+    <string name="failure_posting_service">Verzoek kon niet worden ingediend</string>
+    <string name="error_403">Onvoldoende rechten</string>
+</resources>
