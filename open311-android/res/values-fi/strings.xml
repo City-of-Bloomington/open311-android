@@ -4,6 +4,7 @@
     <string name="menu_settings">Asetukset</string>
     <string name="menu_report">Palaute</string>
     <string name="menu_archive">Omat palautteet</string>
+    <string name="menu_about">Noin</string>
     <string name="title_activity_main">GeoReporter</string>
     <string name="tab_personal_info">Omat tiedot</string>
     <string name="tab_servers">Palvelimet</string>
@@ -40,5 +41,4 @@
     <string name="radio_button_normal">Standardi</string>
     <string name="radio_button_hybrid">Hybridi</string>
     <string name="radio_button_satellite">Satelliitti</string>
-    
 </resources>

@@ -102,7 +102,7 @@ public class MainActivity extends BaseActivity {
 				Util.displayCrashDialog(MainActivity.this, getString(R.string.failure_loading_services));
 			} else {
 				Intent intent = new Intent(this.context, ReportActivity.class);
-		        startActivity(intent);				
+		        startActivity(intent);
 			}
 		}
 	}
