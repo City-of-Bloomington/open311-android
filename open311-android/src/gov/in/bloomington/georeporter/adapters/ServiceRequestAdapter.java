@@ -196,7 +196,7 @@ public class ServiceRequestAdapter extends BaseAdapter {
                 break;
 
             case TYPE_MEDIA:
-                MediaViewHolder media;
+                final MediaViewHolder media;
 
                 if (convertView == null) {
                     convertView = mLayoutInflater.inflate(R.layout.list_item_media, null);
