@@ -88,7 +88,7 @@ public class ReportFragment extends Fragment implements OnItemClickListener {
 	private Uri            mImageUri;
 	
 	/**
-	 * @param sr
+	 * @param sr ServiceRequest
 	 * @return
 	 * ReportFragment
 	 */

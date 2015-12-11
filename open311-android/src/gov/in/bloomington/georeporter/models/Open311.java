@@ -54,7 +54,7 @@ import android.util.Log;
 public class Open311 {
 	/**
 	 * Constants for Open311 keys
-	 * 
+	 *
 	 * I'm tired of making typos in key names
 	 */
 	// Global required fields
@@ -118,10 +118,10 @@ public class Open311 {
 	// Key name for encoding
 	public 	static final String UTF_8 = "UTF-8";
 
-	
-	
+
+
 	public static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
-	
+
     public static JSONObject                  sEndpoint;
 	public static Boolean                     sReady = false;
 	public static JSONArray                   sServiceList = null;
@@ -135,8 +135,8 @@ public class Open311 {
 
 	private static DefaultHttpClient mClient = null;
 	private static final int TIMEOUT = 20000;
-	
-	
+
+
 	private static Open311 mInstance;
 	private Open311() {}
 	public static synchronized Open311 getInstance() {
@@ -145,17 +145,17 @@ public class Open311 {
 		}
 		return mInstance;
 	}
-	
+
 	/**
 	 * Lazy load an Http client
-	 * 
+	 *
 	 * @return
 	 * DefaultHttpClient
 	 */
 	public static DefaultHttpClient getClient(Context c) {
 		if (mClient == null) {
 			mClient = new DefaultHttpClient();
-			
+
 			String user_agent;
 			try {
                 PackageInfo info = c.getPackageManager().getPackageInfo(c.getPackageName(), 0);
@@ -164,12 +164,12 @@ public class Open311 {
             catch (NameNotFoundException e) {
                 user_agent = String.format("%s (Android/%s)", c.getString(R.string.app_name), Build.VERSION.RELEASE);
             }
-			
+
 			//Scheme http  = new Scheme("http",  80,  PlainSocketFactory.getSocketFactory());
 			//Scheme https = new Scheme("https", 443, new EasySSLSocketFactory());
 			//mClient.getConnectionManager().getSchemeRegistry().register(http);
 			//mClient.getConnectionManager().getSchemeRegistry().register(https);
-			
+
 			mClient.getParams().setParameter(CoreProtocolPNames  .HTTP_CONTENT_CHARSET, "UTF-8");
 			mClient.getParams().setParameter(CoreProtocolPNames  .PROTOCOL_VERSION,     HttpVersion.HTTP_1_1);
 			mClient.getParams().setParameter(CoreProtocolPNames  .USER_AGENT,           user_agent);
@@ -178,17 +178,17 @@ public class Open311 {
 		}
 		return mClient;
 	}
-	
+
 	/**
 	 * Loads all the service information from the endpoint
-	 * 
+	 *
 	 * Endpoints will have a service_list, plus, for each
 	 * service, there may be a service_definition.
 	 * To make the user experience smoother, we are downloading
 	 * and saving all the possible service information at once.
-	 * 
+	 *
 	 * Returns false if there was a problem
-	 * 
+	 *
 	 * @param current_server A single entry from /raw/available_servers
 	 * @return
 	 * Boolean
@@ -202,7 +202,7 @@ public class Open311 {
 		sGroups       = new ArrayList<String>();
 		sServiceList  = null;
 		sServiceDefinitions = new HashMap<String, JSONObject>();
-		
+
 		try {
 			mBaseUrl      = current_server.getString(URL);
 			mJurisdiction = current_server.optString(JURISDICTION);
@@ -214,10 +214,10 @@ public class Open311 {
 		try {
 			Open311Parser mParser = new Open311Parser(mFormat);
 			sServiceList = mParser.parseServices(loadStringFromUrl(getServiceListUrl(), context));
-			if (sServiceList == null) { 
+			if (sServiceList == null) {
 			    return false;
 			}
-			
+
 			// Go through all the services and pull out the seperate groups
 			// Also, while we're running through, load any service_definitions
 			String group = "";
@@ -240,11 +240,11 @@ public class Open311 {
 		sReady    = true;
 		return sReady;
 	}
-	
-	
+
+
 	/**
 	 * Returns the services for a given group
-	 * 
+	 *
 	 * @param group
 	 * @return
 	 * ArrayList<JSONObject>
@@ -266,7 +266,7 @@ public class Open311 {
 		}
 		return services;
 	}
-	
+
 	/**
 	 * @param service_code
 	 * @return JSONObject
@@ -290,12 +290,12 @@ public class Open311 {
 	    }
 		return null;
 	}
-	
+
 	/**
 	 * POST new service request data to the endpoint
-	 * 
+	 *
 	 * The JSONObject should come from ServiceRequest.post_data
-	 * 
+	 *
      * In the JSON data:
      * All the keys should already be named correctly.  Attribute keys will
      * already be in the form of "attribute[code]".
@@ -303,15 +303,15 @@ public class Open311 {
      * however, MultiValueList attributes will be an array of the chosen values
      * We will need to iterate over MultiValueList values and add a seperate
      * pair to the POST for each value.
-     * 
+     *
      * Media attributes will contain the URI to the image file.
-     * 
+     *
 	 * @param data JSON representation of user input
 	 * @return JSONObject
-	 * @throws JSONException 
-	 * @throws IOException 
-	 * @throws ClientProtocolException 
-	 * @throws Open311Exception 
+	 * @throws JSONException
+	 * @throws IOException
+	 * @throws ClientProtocolException
+	 * @throws Open311Exception
 	 */
 
 	public static JSONArray postServiceRequest(ServiceRequest sr, Context context, String mediaPath)
@@ -326,7 +326,7 @@ public class Open311 {
 	    }
 	    HttpResponse r = getClient(context).execute(request);
         String responseString = EntityUtils.toString(r.getEntity());
-        
+
 	    int status = r.getStatusLine().getStatusCode();
 	    // The spec does not declare what exact status codes to use
 	    // Bloomington uses 200 Okay
@@ -359,32 +359,32 @@ public class Open311 {
 	    }
 		return serviceRequests;
 	}
-	
+
 	public static String getServiceRequestId(String token) {
 	    return "";
 	}
-	
+
 	/**
 	 * Prepares a POST that does not contain a media attachment
-	 *  
+	 *
 	 * @param data
 	 * @return
 	 * @throws UnsupportedEncodingException UrlEncodedFormEntity
-	 * @throws JSONException 
+	 * @throws JSONException
 	 */
 	private static UrlEncodedFormEntity prepareUrlEncodedEntity(ServiceRequest sr) throws UnsupportedEncodingException, JSONException {
         List<NameValuePair> pairs = new ArrayList<NameValuePair>();
         // This could cause a JSONException, but we let this one bubble up the stack
         // If we don't have a service_code, we don't have a valid POST
         pairs.add(new BasicNameValuePair(SERVICE_CODE, sr.service.getString(SERVICE_CODE)));
-        
+
         if (mJurisdiction.length() > 0) {
             pairs.add(new BasicNameValuePair(JURISDICTION, mJurisdiction));
         }
         if (mApiKey.length() > 0) {
             pairs.add(new BasicNameValuePair(API_KEY, mApiKey));
         }
-        
+
         JSONObject data = sr.post_data;
         Iterator<?>keys = data.keys();
         while (keys.hasNext()) {
@@ -421,26 +421,26 @@ public class Open311 {
         }
         return new UrlEncodedFormEntity(pairs,UTF_8);
 	}
-	
+
 	/**
 	 * Prepares a POST that includes a media attachment
-	 * 
+	 *
 	 * @param data
 	 * @param context
 	 * @param mediaPath
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 * MultipartEntity
-	 * @throws JSONException 
+	 * @throws JSONException
 	 */
 	private static HttpEntity prepareMultipartEntity(ServiceRequest sr, Context context, String mediaPath) throws UnsupportedEncodingException, JSONException {
 	    MultipartEntityBuilder post = MultipartEntityBuilder.create();
 	    post.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-	    
+
         // This could cause a JSONException, but we let this one bubble up the stack
         // If we don't have a service_code, we don't have a valid POST
 	    post.addTextBody(SERVICE_CODE, sr.service.getString(SERVICE_CODE));
-	    
+
         if (mJurisdiction != null) {
             post.addTextBody(JURISDICTION, mJurisdiction);
         }
@@ -495,19 +495,19 @@ public class Open311 {
 
         return post.build();
 	}
-	
+
 	/**
 	 * Reads the saved reports file into a JSONArray
-	 * 
+	 *
 	 * Reports are stored as a file on the device internal storage
 	 * The file is a serialized JSONArray of reports.
-	 * 
+	 *
 	 * @return
 	 * JSONArray
 	 */
 	public static JSONArray loadServiceRequests(Context c) {
 		JSONArray service_requests = new JSONArray();
-		
+
 		FileInputStream in = null;
 		StringBuffer buffer = new StringBuffer("");
 		byte[] bytes = new byte[1024];
@@ -521,7 +521,7 @@ public class Open311 {
 			}
 			service_requests = new JSONArray(new String(buffer));
 		} catch (FileNotFoundException e) {
-			Log.w("Open311.loadServiceRequests", "Saved Reports File does not exist");
+			Log.w("Open311.loadServiceReqs", "Saved Reports File does not exist");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -544,7 +544,7 @@ public class Open311 {
             e.printStackTrace();
         }
 	}
-	
+
 	/**
 	 * Writes the stored reports back out the file
 	 *
@@ -569,32 +569,32 @@ public class Open311 {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Adds a ServiceRequest to the collection of saved reports
-	 * 
+	 *
 	 * Reports are stored as a file on the device internal storage
 	 * The file is a serialized JSONArray of ServiceRequest objects.
-	 * 
+	 *
 	 * @param report
 	 * @return
 	 * Boolean
 	 */
 	public static boolean saveServiceRequest(Context c, ServiceRequest sr) {
 	    sr.endpoint = sEndpoint;
-	    
+
         try {
             JSONObject report         = new JSONObject(sr.toString());
             JSONArray  saved_requests = loadServiceRequests(c);
             JSONArray  newSave        = new JSONArray();
-            
+
             // Push the new report onto the start of the array
             newSave.put(report);
             int len = saved_requests.length();
             for (int i=0; i<len; i++) {
                 newSave.put(saved_requests.getJSONObject(i));
             }
-            
+
             return saveServiceRequests(c, newSave);
         } catch (JSONException e) {
             // TODO Auto-generated catch block
@@ -602,11 +602,11 @@ public class Open311 {
         }
 		return false;
 	}
-	
-	
+
+
 	/**
 	 * Returns the response content from an HTTP request
-	 * 
+	 *
 	 * @param url
 	 * @return
 	 * String
@@ -615,13 +615,13 @@ public class Open311 {
 			throws ClientProtocolException, IOException, IllegalStateException {
 		HttpResponse r = getClient(c).execute(new HttpGet(url));
 		String response = EntityUtils.toString(r.getEntity());
-		
+
 		return response;
 	}
 
 	/**
 	 * http://endpoint/services.format?jurisdiction_id=jurisdiction
-	 * 
+	 *
 	 * @return String
 	 */
 	private static String getServiceListUrl() {
@@ -631,10 +631,10 @@ public class Open311 {
 	    }
 		return url;
 	}
-	
+
 	/**
 	 * http://endpoint/services/service_code.format?jurisdiction_id=jurisdiction
-	 * 
+	 *
 	 * @param service_code
 	 * @return String
 	 */

@@ -12,7 +12,7 @@ import android.webkit.WebView;
 
 public class AboutActivity extends BaseActivity {
     WebView webview;
-    
+
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,9 +23,10 @@ public class AboutActivity extends BaseActivity {
         webview.loadUrl("file:///android_asset/about.html");
         setContentView(webview);
     }
-    
+
     private class WebAppInterface {
         @SuppressWarnings("unused")
+        @android.webkit.JavascriptInterface
         public String getVersion() {
             try {
                 return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
