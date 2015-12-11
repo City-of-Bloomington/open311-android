@@ -1,0 +1,45 @@
+<resources>
+
+    <string name="app_name">GeoReporter</string>
+    <string name="menu_settings">Instellingen</string>
+    <string name="menu_report">Melding</string>
+    <string name="menu_archive">Mijn meldingen</string>
+    <string name="menu_about">Over</string>
+    <string name="title_activity_main">GeoReporter</string>
+    <string name="tab_personal_info">Persoonlijke informatie</string>
+    <string name="tab_servers">Servers</string>
+    <string name="button_add_server">Server toevoegen</string>
+    <string name="button_accept_error">Ok</string>
+    <string name="first_name">Voornaam</string>
+    <string name="last_name">Achternaam</string>
+    <string name="email">E-mail</string>
+    <string name="phone">Telefoon</string>
+    <string name="name">Naam</string>
+    <string name="url">Url</string>
+    <string name="jurisdiction_id">Instantie</string>
+    <string name="api_key">API sleutel</string>
+    <string name="format">Formaat</string>
+    <string name="supports_media">Ondersteunt media</string>
+    <string name="dialog_loading_services">Informatie wordt opgehaald</string>
+    <string name="dialog_posting_service">Melding wordt ingediend</string>
+    <string name="choose_media_source">Selecteer bron</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="location">Locatie</string>
+    <string name="report_status">Status</string>
+    <string name="report_attributes">Attributen</string>
+    <string name="report_description">Omschrijving</string>
+    <string name="report_date">Datum melding</string>
+    <string name="submit">Indienen</string>
+    <string name="cancel">Annuleren</string>
+    <string name="delete">Verwijderen</string>
+    <string name="save">Opslaan</string>
+    <string name="pending">Wordt verwerkt</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nee</string>
+    <string name="uncategorized">Niet gecategoriseerd</string>
+    <string name="radio_button_normal">Standaard</string>
+    <string name="radio_button_hybrid">Hybride</string>
+    <string name="radio_button_satellite">Satelliet</string>
+    
+</resources>
