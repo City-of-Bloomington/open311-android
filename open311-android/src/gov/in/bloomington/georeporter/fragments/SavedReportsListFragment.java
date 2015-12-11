@@ -63,7 +63,12 @@ public class SavedReportsListFragment extends ListFragment {
 	@Override
 	public void onPause() {
 	    if (mDataChanged) {
-	        Open311.saveServiceRequests(getActivity(), mServiceRequests);
+	        new Thread() {
+	            @Override
+	            public void run() {
+	    	        Open311.saveServiceRequests(getActivity(), mServiceRequests);
+	            }
+	        }.start();
 	    }
 	    super.onPause();
 	}

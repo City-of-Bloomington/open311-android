@@ -20,6 +20,7 @@ import gov.in.bloomington.georeporter.util.json.JSONArray;
 import gov.in.bloomington.georeporter.util.json.JSONException;
 import gov.in.bloomington.georeporter.util.json.JSONObject;
 import android.app.Fragment;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -76,8 +77,18 @@ public class SavedReportViewFragment extends Fragment {
         textView = (TextView) v.findViewById(R.id.service_name);
         textView.setText(mServiceRequest.service.optString(Open311.SERVICE_NAME));
         
-        ImageView media = (ImageView) v.findViewById(R.id.media);
-        media.setImageBitmap(mServiceRequest.getMediaBitmap(100, 100, getActivity()));
+        final ImageView media = (ImageView) v.findViewById(R.id.media);
+        new AsyncTask<Void, Void, Bitmap>() {
+            @Override
+            protected Bitmap doInBackground(Void... params) {
+                return mServiceRequest.getMediaBitmap(100, 100, getActivity());
+            }
+
+            @Override
+            protected void onPostExecute(Bitmap bmp) {
+                media.setImageBitmap(bmp);
+            }
+        }.execute();
         
         textView = (TextView) v.findViewById(R.id.address);
         if (mServiceRequest.service_request.has(Open311.ADDRESS)) {
@@ -208,8 +219,18 @@ public class SavedReportViewFragment extends Fragment {
             if (dataUpdated) {
                 try {
                     mServiceRequests.put(mPosition, new JSONObject(mServiceRequest.toString()));
-                    Open311.saveServiceRequests(getActivity(), mServiceRequests);
-                    refreshViewData();
+                    new AsyncTask<Void, Void, Void>() {
+                        @Override
+                        protected Void doInBackground(Void... params) {
+                            Open311.saveServiceRequests(getActivity(), mServiceRequests);
+                            return null;
+                        }
+                        
+                        @Override
+                        protected void onPostExecute(Void result) {
+                            refreshViewData();
+                        }
+                    }.execute();
                 } catch (JSONException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
