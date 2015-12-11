@@ -45,22 +45,20 @@ public class Media {
     private static final String APP_NAME = "GeoReporter";
     
     /**
-     * Create a file Uri for saving an image or video
+     * Create a file Uri for saving media
      * 
-     * @param type
-     * @return
-     * Uri
+     * @param type Media Type, can be Image or Video
+     * @return Uri
      */
     public static Uri getOutputMediaFileUri(int type) {
         return Uri.fromFile(getOutputMediaFile(type));
     }
     
     /**
-     * Create a File for saving an image or video
+     * Create a File for saving media
      * 
-     * @param type
-     * @return
-     * File
+     * @param type Media Type, can be Image or Video
+     * @return File
      */
     @SuppressLint("SimpleDateFormat")
     private static File getOutputMediaFile(int type) {
@@ -96,11 +94,10 @@ public class Media {
 	/**
 	 * Calculate a the sample size value based on a target width and height
 	 * 
-	 * @param options
-	 * @param reqWidth
-	 * @param reqHeight
-	 * @return
-	 * int
+	 * @param options Options for the BitmapFactory
+	 * @param reqWidth target width
+	 * @param reqHeight target height
+	 * @return int
 	 */
 	public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
 	    // Raw height and width of image
@@ -119,14 +116,13 @@ public class Media {
 	}
 	
 	/**
-	 * @param uri
-	 * @param reqWidth
-	 * @param reqHeight
-	 * @param c
-	 * @return
-	 * Bitmap
+	 *
+	 * @param path path to Bitmap
+     * @param reqWidth target width
+     * @param reqHeight target height
+	 * @return Bitmap
 	 */
-	public static Bitmap decodeSampledBitmap(String path, int reqWidth, int reqHeight, Context c) {
+	public static Bitmap decodeSampledBitmap(String path, int reqWidth, int reqHeight) {
 	    final BitmapFactory.Options options = new BitmapFactory.Options();
 	    
 	    // First decode with inJustDecodeBounds=true to check dimensions
@@ -155,10 +151,9 @@ public class Media {
 	 * This function cannot be called from an AsyncTask, as it does its own
 	 * background processing.  It must be called from the main UI thread.
 	 * 
-	 * @param uri
-	 * @param c
-	 * @return
-	 * String
+	 * @param uri the Internal Uri
+	 * @param c Application Context
+	 * @return String
 	 */
 	public static String getRealPathFromUri(Uri uri, Context c) {
 	    // Check in the media database

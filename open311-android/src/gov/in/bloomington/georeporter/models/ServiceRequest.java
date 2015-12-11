@@ -317,7 +317,7 @@ public class ServiceRequest {
             Uri imageUri = Uri.parse(m);
             if (imageUri != null) {
                 String path = Media.getRealPathFromUri(imageUri, context);
-                return Media.decodeSampledBitmap(path, width, height, context);
+                return Media.decodeSampledBitmap(path, width, height);
             }
         }
 	    return null;
