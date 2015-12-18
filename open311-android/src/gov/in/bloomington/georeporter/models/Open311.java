@@ -306,7 +306,7 @@ public class Open311 {
      *
      * Media attributes will contain the URI to the image file.
      *
-	 * @param data JSON representation of user input
+	 * @param sr Service Request
 	 * @return JSONObject
 	 * @throws JSONException
 	 * @throws IOException
@@ -366,8 +366,7 @@ public class Open311 {
 
 	/**
 	 * Prepares a POST that does not contain a media attachment
-	 *
-	 * @param data
+	 * @param sr Service Request
 	 * @return
 	 * @throws UnsupportedEncodingException UrlEncodedFormEntity
 	 * @throws JSONException
@@ -425,7 +424,7 @@ public class Open311 {
 	/**
 	 * Prepares a POST that includes a media attachment
 	 *
-	 * @param data
+	 * @param sr Service Request
 	 * @param context
 	 * @param mediaPath
 	 * @return
@@ -459,8 +458,8 @@ public class Open311 {
                 // Instead, use the mediaPath that is passed in.
                 // This relies on the fact that there can only be one media
                 // attachment per ServiceRequest.
-                if (key == MEDIA) {
-                    final Bitmap media = Media.decodeSampledBitmap(mediaPath, Media.UPLOAD_WIDTH, Media.UPLOAD_HEIGHT, context);
+                if (key.equals(MEDIA)) {
+                    final Bitmap media = Media.decodeSampledBitmap(mediaPath, Media.UPLOAD_WIDTH, Media.UPLOAD_HEIGHT);
                     final ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     media.compress(CompressFormat.PNG, 100, stream);
                     final byte[] binaryData = stream.toByteArray();
@@ -522,10 +521,7 @@ public class Open311 {
 			service_requests = new JSONArray(new String(buffer));
 		} catch (FileNotFoundException e) {
 			Log.w("Open311.loadServiceReqs", "Saved Reports File does not exist");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JSONException e) {
+		} catch (IOException | JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -548,7 +544,7 @@ public class Open311 {
 	/**
 	 * Writes the stored reports back out the file
 	 *
-	 * @param c
+	 * @param c Context
 	 * @param requests An array of JSON-serialized ServiceRequest objects
 	 * void
 	 */
@@ -576,7 +572,8 @@ public class Open311 {
 	 * Reports are stored as a file on the device internal storage
 	 * The file is a serialized JSONArray of ServiceRequest objects.
 	 *
-	 * @param report
+     * @param c Application Context
+	 * @param sr Service Request
 	 * @return
 	 * Boolean
 	 */
@@ -607,16 +604,14 @@ public class Open311 {
 	/**
 	 * Returns the response content from an HTTP request
 	 *
-	 * @param url
+	 * @param url url to load string from
 	 * @return
 	 * String
 	 */
 	public static String loadStringFromUrl(String url, Context c)
 			throws ClientProtocolException, IOException, IllegalStateException {
 		HttpResponse r = getClient(c).execute(new HttpGet(url));
-		String response = EntityUtils.toString(r.getEntity());
-
-		return response;
+		return EntityUtils.toString(r.getEntity());
 	}
 
 	/**
@@ -635,7 +630,7 @@ public class Open311 {
 	/**
 	 * http://endpoint/services/service_code.format?jurisdiction_id=jurisdiction
 	 *
-	 * @param service_code
+	 * @param service_code open311 service_code parameter
 	 * @return String
 	 */
 	private static String getServiceDefinitionUrl(String service_code) {

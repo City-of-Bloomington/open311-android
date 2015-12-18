@@ -23,9 +23,8 @@ public class Open311Parser {
 	}
 
 	/**
-	 * Parses a GET Services response into JSON
-	 * 
-	 * @param response
+	 * @see <a href="http://wiki.open311.org/GeoReport_v2/#get-service-list">open311 GET Service List</a>
+	 * @param response parse open311 Services
 	 * @return JSONArray
 	 */
 	public JSONArray parseServices(String response) {
@@ -38,15 +37,7 @@ public class Open311Parser {
         		return mParser.parseServices(response);	
          	}
         }
-        catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (XmlPullParserException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (IOException e) {
+        catch (JSONException | XmlPullParserException  | IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -54,8 +45,8 @@ public class Open311Parser {
 	}
 
 	/**
-	 * 
-	 * @param xml
+	 * @see <a href="http://wiki.open311.org/GeoReport_v2/#get-service-definition">open311 GET Service Definition</a>
+	 * @param xml parse open311 ServiceDefinition
 	 * @return JSONObject
 	 */
 	public JSONObject parseServiceDefinition(String xml) {
@@ -67,15 +58,7 @@ public class Open311Parser {
     			return mParser.parseServiceDefinition(xml);	
          	}
 	    }
-        catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (XmlPullParserException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (IOException e) {
+        catch (JSONException | XmlPullParserException | IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -83,8 +66,8 @@ public class Open311Parser {
 	}
 	
 	/**
-	 * 
-	 * @param xml
+	 * @see <a href="http://wiki.open311.org/GeoReport_v2/#post-service-request">open311 POST Service Request</a>
+	 * @param xml parse open311 Request
 	 * @return JSONArray
 	 */
 	public JSONArray parseRequests(String xml) {
@@ -96,15 +79,7 @@ public class Open311Parser {
 	    		return mParser.parseRequests(xml);	
 	     	}
 		}
-        catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (XmlPullParserException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (IOException e) {
+        catch (JSONException  | XmlPullParserException | IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -112,8 +87,8 @@ public class Open311Parser {
 	}
 
 	/**
-	 * 
-	 * @param xml
+	 * @see <a href="http://wiki.open311.org/GeoReport_v2/#errors">open311 Errors</a>
+	 * @param xml parse open311 Errors
 	 * @return JSONArray
 	 */
 	public JSONArray parseErrors(String xml) {
@@ -125,15 +100,7 @@ public class Open311Parser {
 	    		return mParser.parseErrors(xml);	
 	     	}
 		}
-        catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (XmlPullParserException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (IOException e) {
+        catch (JSONException | XmlPullParserException | IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
